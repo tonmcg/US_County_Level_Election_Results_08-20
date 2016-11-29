@@ -9,3 +9,14 @@ Credit to the web and data teams from The Guardian and townhall.com for investin
 
 Idea for 2012 election results from tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816). Idea for 2016 election results from tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864)
 
+# To run
+
+Place in your favorite iPython / Jupyter notebook environment.
+
+If you don't have one, get [Docker](http://docker.com) and use:
+
+```
+./run-notebook.sh
+```
+
+in a shell based environment.  Or open up the shell command and issue the docker command in a Windows environment.
