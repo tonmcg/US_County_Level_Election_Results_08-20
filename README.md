@@ -1,7 +1,9 @@
-# County-Level Presidential General Election Results for 2012 - 2016
-Presidential election results for 2012 and 2016 from The Guardian and townhall.com. 
+# United States General Election Presidential Results by County from 2008 to 2016
+Presidential election results for 2008, 2012, and 2016 from The Guardian and townhall.com.
 
-2012 election results at county-level are taken from results published in an Excel file by the [Guardian](https://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download#data).
+2008 election results at the county-level compiled by GitHub user @wboykinm.
+
+2012 election results at the county-level are taken from results published in an Excel file by the [Guardian](https://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download#data).
 
 2016 election results at the county-level are scraped from results published by [Townhall.com](http://townhall.com/election/2016/president/). Their well-formatted county-level result tables for the 2016 presidential general election makes it easy for a web scraper like beautifulsoup to capture results.
 
