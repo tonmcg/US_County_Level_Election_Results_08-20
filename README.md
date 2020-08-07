@@ -1,4 +1,6 @@
 # United States General Election Presidential Results by County from 2008 to 2016
+[![DOI](https://zenodo.org/badge/73478714.svg)](https://zenodo.org/badge/latestdoi/73478714)
+
 Presidential election results for 2008, 2012, and 2016 from The Guardian and townhall.com.
 
 2008 election results at the county-level compiled by GitHub user @wboykinm.
