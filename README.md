@@ -14,7 +14,7 @@ Presidential election results for 2008, 2012, 2016, and 2020 from The Guardian, 
 
 Idea for 2012 election results from tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816). Idea for 2016 election results from tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864)
 
-## Creating Choropleth Maps for 2020 Election Data
+## Creating Choropleth Maps with 2020 Election Data
 
 This repository relies on data from various newspapers that report 2020 presidential election results at the county-level for all U.S. states, with the exception of Alaska and Washington, D.C., which are reported at the house district- and ward-level, respectively. Whether county-, house district-, or ward-level, each election result is tied to a specific U.S. geography by a unique 5-digit code that represents that geography, called a FIPS code. The U.S. Census Bureau Geography Division (Geography Division) identifies and provides cartographic boundary files for, and assigns a unique FIPS code to, each geography.
 
@@ -184,17 +184,19 @@ mapshaper \
 The result of these commands should output a TopoJSON file that looks like the following:
 ![us_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_election_results.png)
 
-### Creating Point Maps for 2020 Election Data
+### Creating a Dot Density Map with 2020 Election Data
+
+Dot density maps are useful to show where things are clustered. Showing raw counts of votes _among_ U.S. counties rather than relative differences _between_ U.S. counties, the dot density map below illustrates that the most votes tend to come from counties that house large, urban populations.
 
 ```
 mapshaper \
     -i us_district_boundaries.geojson name=us_election_districts \
-    -points inner + name=points \
+    -points inner + name=dots \
     -i 2020_data.csv string-fields=county_fips name=2020_data \
     -filter-fields county_fips,votes_gop,votes_dem \
     -each 'margin = votes_gop - votes_dem' \
     -each 'abs_margin = Math.abs(margin)' \
-    -join target=points 2020_data keys=geoid,county_fips \
+    -join target=dots 2020_data keys=geoid,county_fips \
     -sort abs_margin descending \
     -style r='Math.sqrt(abs_margin) * 0.02' \
     -style opacity=0.5 fill='margin > 0 ? "#B82D35": "#2A71AE"' \
@@ -202,8 +204,11 @@ mapshaper \
     -style class="county" stroke="#ddd" fill="none" stroke-width="0.1" where='TYPE === "inner"' \
     -style class="us" stroke="#000000" fill="none" stroke-width="0.5" where='TYPE === "outer"' \
     -style class="state" stroke="#000000" fill="none" stroke-width="0.5" where='TYPE === "state_fips"' \
-    -o us_point_election_results.svg target=us_election_districts,points
+    -o us_dot_election_results.svg target=us_election_districts,dots
 ```
+
+The result of these commands should output a SVG file that looks like the following:
+![us_dot_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_dot_election_results.png)
 
 # To run
 
