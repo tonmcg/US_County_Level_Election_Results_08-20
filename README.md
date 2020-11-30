@@ -65,7 +65,8 @@ mapshaper \
     -filter-fields 'geoid,state_fips,county_name' \
     -simplify 2% \
     -proj albersusa \
-    -o format=topojson us_counties.json
+    -o format=topojson us_counties.json \
+    -o format=geojson us_counties.geojson
 ```
 
 The result of these commands should output a TopoJSON file that looks like the image below. Notice how Alaska is missing from this image:
@@ -110,7 +111,8 @@ mapshaper \
     -filter-fields 'geoid,state_fips,county_name' \
     -simplify 2% \
     -proj albersusa \
-    -o format=topojson alaska_districts.json
+    -o format=topojson alaska_districts.json \
+    -o format=geojson alaska_districts.geojson
 ```
 
 The result of these commands should output a TopoJSON file that looks like the image below:
@@ -150,32 +152,58 @@ curl 'https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_
 
 ```
 mapshaper \
-    -i alaska_districts.json us_counties.json combine-files name=us_district_boundaries\
+    -i alaska_districts.geojson us_counties.geojson combine-files name=us_district_boundaries\
     -merge-layers \
     -style class="county" stroke="#000000" fill="none" stroke-width="0.1" \
     -o format=topojson us_district_boundaries.json \
-    -i us_district_boundaries.json name=us_state_boundaries \
+    -o format=geojson us_district_boundaries.geojson \
+    -i us_district_boundaries.geojson name=us_state_boundaries \
     -dissolve state_fips \
     -style class="state" stroke="#ffffff" fill="none" stroke-width="1" \
     -o format=topojson us_state_boundaries.json \
-    -i us_district_boundaries.json name=us_boundaries \
+    -o format=geojson us_state_boundaries.geojson \
+    -i us_district_boundaries.geojson name=us_boundaries \
     -dissolve \
     -style class="us" stroke="#000000" fill="none" stroke-width="0.5" \
     -o format=topojson us_boundaries.json \
-    -i us_district_boundaries.json name=us_election_districts \
+    -o format=geojson us_boundaries.geojson \
+    -i us_district_boundaries.geojson name=us_election_districts \
     -i 2020_data.csv string-fields=county_fips name=2020_data \
     -join target=us_election_districts 2020_data keys=geoid,county_fips \
     -colorizer name=getColor colors='#2A71AE,#6BACD0,#BFDCEB,#FACCB4,#E48268,#B82D35' breaks=0.1667,0.3334,0.5,0.6667,0.8334 \
     -style fill='getColor(per_gop)' \
     -o format=topojson us_election_districts.json \
-    -i us_election_districts.json us_state_boundaries.json us_boundaries.json combine-files name=us_election_results \
+    -o format=geojson us_election_districts.geojson \
+    -i us_election_districts.geojson us_state_boundaries.geojson us_boundaries.geojson combine-files name=us_election_results \
 	-merge-layers force \
 	-o format=topojson us_election_results.json \
+    -o format=geojson us_election_results.geojson \
     -o us_election_results.svg
 ```
 
 The result of these commands should output a TopoJSON file that looks like the following:
 ![us_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_election_results.png)
+
+### Creating Point Maps for 2020 Election Data
+
+```
+mapshaper \
+    -i us_district_boundaries.geojson name=us_election_districts \
+    -points inner + name=points \
+    -i 2020_data.csv string-fields=county_fips name=2020_data \
+    -filter-fields county_fips,votes_gop,votes_dem \
+    -each 'margin = votes_gop - votes_dem' \
+    -each 'abs_margin = Math.abs(margin)' \
+    -join target=points 2020_data keys=geoid,county_fips \
+    -sort abs_margin descending \
+    -style r='Math.sqrt(abs_margin) * 0.02' \
+    -style opacity=0.5 fill='margin > 0 ? "#B82D35": "#2A71AE"' \
+    -lines state_fips target=us_election_districts \
+    -style class="county" stroke="#ddd" fill="none" stroke-width="0.1" where='TYPE === "inner"' \
+    -style class="us" stroke="#000000" fill="none" stroke-width="0.5" where='TYPE === "outer"' \
+    -style class="state" stroke="#000000" fill="none" stroke-width="0.5" where='TYPE === "state_fips"' \
+    -o us_point_election_results.svg target=us_election_districts,points
+```
 
 # To run
 
