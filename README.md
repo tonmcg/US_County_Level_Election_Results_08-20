@@ -68,7 +68,8 @@ mapshaper \
     -o format=topojson us_counties.json
 ```
 
-![us_counties](https://github.com/tonmcg/US_County_Level_Election_Results_08-20/tree/master/img/us_counties.png)
+The result of these commands should output a TopoJSON file that looks like the image below. Notice how Alaska is missing from this image:
+![us_counties](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_counties.png)
 
 ### Alaska
 
@@ -110,7 +111,8 @@ mapshaper \
     -o format=topojson alaska_districts.json
 ```
 
-![alaska_districts](https://github.com/tonmcg/US_County_Level_Election_Results_08-20/tree/master/img/alaska_districts.png)
+Given that the result of these commands outputs an Albers projection of Alaska, the TopoJSON file should look like the following image, with Alaska occupying the bottom left corner:
+![alaska_districts](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/alaska_districts.png)
 
 ### U.S. Election Results
 
@@ -170,7 +172,8 @@ mapshaper \
     -o us_election_results.svg
 ```
 
-![us_election_results](https://github.com/tonmcg/US_County_Level_Election_Results_08-20/tree/master/img/us_election_results.png)
+The result of these commands should output a TopoJSON file that looks like the following:
+![us_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_election_results.png)
 
 # To run
 
