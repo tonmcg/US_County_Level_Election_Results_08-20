@@ -73,14 +73,14 @@ The result of these commands should output a TopoJSON file that looks like the i
 
 ### Alaska
 
-Unlike other states within the United States, Alaska does not administer its presidential elections at the county-level but rather at what Alaskans call House Districts. To show results at the Alaska House District-level, we must download cartographic boundary files from the [Alaska Division of Elections](https://elections.alaska.gov/Core/districtmaps.php) and process each of the 40 house districts separately from the county-level files provided by the Geography Division.
+Unlike other states within the United States, Alaska does not administer its presidential elections at the county-level but rather at the lower chamber legislative district, or the House District. To show results at the Alaska House District-level, we must download cartographic boundary files from the same Geography Division [Cartographic Boundary Files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) page and process each of the 40 house districts separately from the county-level files.
 
-- Download and unzip Alaska cartographic boundary files
+- Download and unzip Alaska lower chamber legislative district cartographic boundary files
 
 ```
-curl 'https://www.elections.alaska.gov/doc/info/2013-HD-ProclamationPlan.zip' \
-    -o 2013-HD-ProclamationPlan.zip
-unzip 2013-HD-ProclamationPlan.zip
+curl 'https://www2.census.gov/geo/tiger/GENZ2019/shp/cb_2019_02_sldl_500k.zip' \
+    -o cb_2019_02_sldl_500k.zip
+unzip cb_2019_02_sldl_500k.zip
 ```
 
 We now translate and assign each of these 40 house districts a unique FIPS code defined the following way:
@@ -91,27 +91,29 @@ For example, the FIPS code attached to election results for Alaska House Distric
 
 Each house district in the shapefile contains a number of properties that describe the district. These properties include a unique identifier, the House District number, and geographic descriptions of the district, among other properties. For our purposes, we want to create properties that will allow us uniquely bind 2020 presidential election results to the Alaska geographic layer.
 
-- Filter out all but the `District_N` property
+- Input the Alaska House District shapefile
 - Create the following new properties:
-  - `district_n`: a unique, zero-padded, two-digit Alaska House District number based on the `District_N` property
+  - `district_n`: a unique, zero-padded, two-digit Alaska House District number based on the `SLDLST` property
   - `county_name`: combination of "House District " and `district_n`
-  - `state_fips`: "02"
+  - `state_fips`: the state FIPS code given by `STATEFP`
   - `state_name`: "Alaska"
   - `geoid`: combination of `state_fips`, "9", and `district_n`
-- Keep only the `geoid`, `state_fips`, `county_name` properties
+- Filter out all other fields
+- Simplify the layer using the default algorithm, retaining 2% of removable vertices
 - Convert the Shapefile into the Albers USA projection
 - Output a TopoJSON file named `alaska_districts.json`
 
 ```
 mapshaper \
-    -i 2013ProclamationPlan.shp name=alaska_districts \
-    -each 'district_n=(District_N.length >= 2 ? District_N : new Array(2 - District_N.length + 1).join("0") + District_N),county_name="House District " + district_n,state_fips="02",state_name="Alaska",geoid=state_fips + "9" + district_n' \
-    -filter-fields geoid,state_fips,county_name \
+    -i cb_2019_02_sldl_500k.shp name=alaska_districts \
+    -each 'district_n=Number(SLDLST).toString().length === 2 ? Number(SLDLST).toString() : new Array(2 - Number(SLDLST).toString().length + 1).join("0") + Number(SLDLST).toString(),county_name="House District " + district_n,state_fips=STATEFP,state_name="Alaska",geoid=state_fips + "9" + district_n' \
+    -filter-fields 'geoid,state_fips,county_name' \
+    -simplify 2% \
     -proj albersusa \
     -o format=topojson alaska_districts.json
 ```
 
-Given that the result of these commands outputs an Albers projection of Alaska, the TopoJSON file should look like the following image, with Alaska occupying the bottom left corner:
+The result of these commands should output a TopoJSON file that looks like the image below:
 ![alaska_districts](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/alaska_districts.png)
 
 ### U.S. Election Results
