@@ -3,277 +3,461 @@
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
     <title>US Presidential Election Results</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora">
     <style>
-        .tract {
-            stroke: #777;
-            stroke-width: 0.05px;
-            pointer-events: all;
-        }
-        
-        .tract:hover {
-            stroke: orange;
-            pointer-events: all;
-        }
-        
-        .tract-border {
-            fill: none;
-            /*stroke: #777;*/
-            stroke-width: 0.05px;
-            pointer-events: none;
-        }
-        
-        @media (max-width: 767px) {
-            .label {
-                transform: rotate(-45deg) translate(-10px, 25px);
-            }
-        }
-        
-        .tract-border-state {
-            fill: none;
-            stroke: #333;
-            stroke-width: 0.5px;
-            pointer-events: none;
-        }
-        
-        .legend {
-            font-family: sans-serif;
-            font-size: 10pt;
-        }
-        
-        .legendTitle {
-            font-weight: bold;
-            font-size: 11pt;
-        }
-        
-        .background {
-            fill: #f5f5f5;
-        }
-        
         body {
-            background: #f5f5f5;
-            /*font-family: sans-serif;*/
+            font-family: 'Lora';
         }
         
-        .bar {
-            font-family: sans-serif;
-            font-size: 8pt;
+        .nation,
+        .state,
+        .county {
+            fill: none;
+            stroke: #000000;
+            pointer-events:none;
+        }
+
+        .nation {
+            stroke-width: 0.6px;
         }
         
-        #cityLegend {
-            font-family: sans-serif;
-            text-anchor: middle;
+        .state {
+            stroke-width: 0.5px;
         }
-        
-        #details .background {
+
+        .county {
+            stroke: #aaa;
+            stroke-width: 0.2px;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .background {
             fill: #f5f5f5;
             fill-opacity: 0.7;
         }
         
-        svg {
-            width: 100%;
+        .bar text {
+            font-size: 10px;
+        }
+
+        .bar rect {
+            stroke: #000000;
+            stroke-width: 0.5px;
         }
         
+        #county-legend {
+            text-anchor: middle;
+        }
+
+        /* John A. Guerra Gomez dynamic details bar  */
+        #details {
+            z-index: 999;
+        }
+
+        #details .title {
+            font-size: 1.25vmin;
+        }
+
+        /* Susie Liu d3-legend */
+        .legendCells {
+            cursor: pointer;
+        }
+
+        /* custom tooltip */
         .tooltip {
             top: 100px;
             left: 100px;
-            -moz-border-radius: 5px;
-            border-radius: 5px;
-            border: 2px solid #000;
-            background: #333;
-            opacity: .9;
-            color: white;
+            /* -moz-border-radius: 5px;
+            border-radius: 5px; */
+            /*border: 2px solid #000;*/
+            box-shadow: -4px 0 12px 0 rgba(0,0,0,.05);
+            background: #ffffff;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            opacity: 1;
+            /* color: white; */
             padding: 10px;
-            min-width: 375px;
+            /* min-width: 375px; */
             min-width: 36.75vmin;
-            font-size: 2.25vmin;
-            line-height: 24pt;
+            font-family: 'Lora';
+            font-size: 1.25vmin;
+            line-height: 18pt;
             font-weight: lighter;
             visibility: visible;
         }
+        
+        .tooltip.right::before {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+            opacity: .9;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            /* border-left: 8px solid #333; */
+            right: -8px;
+            top: 35px;
+            /* arbitrarily set */
+        }
+        
+        .tooltip.left::before {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+            opacity: .9;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            left: -8px;
+            /* border-right: 8px solid #333; */
+            top: 35px;
+            /* arbitrarily set */
+        }
+
+        /* tooltip table */
+        table {
+            /* table-layout: fixed; */
+            width: 100%;
+            max-width: 380px;
+            white-space: nowrap;
+            border-collapse: collapse;
+        }
+
+        tr:not(:nth-child(1)) {
+            border-top: 0.5px solid #ccc;
+            border-collapse: collapse;
+        }
+
+        td:not(:nth-child(1)) {
+            padding-left: 3px;
+        }
+
+        td:nth-child(1) {
+            width: 1%;
+        }
+
+        /* reset button */
+        /* taken from http://materialdesignblog.com/creating-a-simple-material-design-action-button-with-css/ */
+        /* uses Material Design principles, which is a plus */
+        .fab {
+            width: 70px;
+            height: 70px;
+            background-color: #90A4AE;
+            border-radius: 50%;
+            box-shadow: 0 6px 10px 0 #666;
+            transition: all 0.1s ease-in-out;
+
+            font-size: 50px;
+            color: #000000;
+            text-align: center;
+            line-height: 70px;
+
+            position: fixed;
+            right: 225px;
+            bottom: 100px;
+
+            cursor: pointer;
+        }
+
+        .fab:hover {
+            box-shadow: 0 6px 14px 0 #666;
+            transform: scale(1.05);
+        }
+
+        /* scaling SVG */
+        /* .scaling-svg-container {
+            position: relative;
+            height: 0;
+            width: 100%;
+            padding: 0
+        }
+        
+        .scaling-svg {
+            position: absolute;
+            height: 99%;
+            width: 100%;
+            left: 0;
+            top: 0
+        } */
     </style>
+
 </head>
 
+
 <body>
-    <div class="row">
-        <div class="col-md-1 col-xs-1"></div>
-        <div class="col-md-10 col-xs-10">
-            <h2>United States General Presidential Election Results by County, 2016</h2>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div id="title" class="page-header">
+            <h2>United States General Presidential Election Results by County, 2020</h2>
             <h4>Click on the map to explore</h4>
+                </div>
+            </div>
         </div>
-        <div class="col-md-1 col-xs-1"></div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-xs-12">
-            <svg></svg>
+        <div class="row" id="canvas">
+            <div class="col-md-12 col-xs-12">
+                <div class="scaling-svg-container">
+                    <svg></svg>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <footer>
+                    <span>Visualization by <a href="https://twitter.com/tonmcg">Tony McGovern</a></span>
+                </footer>
+            </div>
         </div>
     </div>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-    <script src="https://d3js.org/topojson.v1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.11.0/d3-legend.min.js"></script>
 
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min.js" type="text/javascript"></script>
+    <script src="https://d3js.org/d3.v6.min.js" type="text/javascript"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/topojson-client@3" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.11.0/d3-legend.js" type="text/javascript"></script>
+    <script defer type="text/javascript">
+        "use strict";
 
-    <script type="text/javascript">
-        var svg = d3.select("svg"),
-            width = $(document).width() * 10 / 12,
-            height = $(document).height() - 200,
-            margin = {
-                top: 20,
-                bottom: width > 767 ? 20 : 100,
-                right: 20,
-                left: 0
+        // default view for map
+        const measure = 'countywinrate';
+
+        // define data and its attributes
+        const cols = {
+            "countywinrate": {
+                "label": "County Win Rate",
+                "type": "percentage",
+                "format": ".1%",
+                "title": "2020 Presidential Election Results",
+                "latestyear": "2020",
+                "url": "https://github.com/tonmcg/US_County_Level_Election_Results_08-20",
+                "source": "Tony McGovern GitHub Repo",
+                "description": "Results of the 2020 Presidential General Election."
             },
-            centered,
-            comma_fmt = d3.format(",.0f"),
-            fmt = d3.format(" >5.2%"),
-            errorCount = 0;
+        };
 
-        svg.attr("width", width)
+        // spinner loader settings
+        const opts = {
+            lines: 9, // The number of lines to draw
+            length: 9, // The length of each line
+            width: 5, // The line thickness
+            radius: 14, // The radius of the inner circle
+            color: '#c10e19', // #rgb or #rrggbb or array of colors
+            speed: 1.9, // Rounds per second
+            trail: 40, // Afterglow percentage
+            className: 'spinner', // The CSS class to assign to the spinner
+        };
+
+        // create spinner
+        const target = d3.select("body").node();
+
+        // trigger loader
+        const spinner = new Spinner(opts).spin(target);
+
+        // create tooltip
+        const tooltip = d3.select("body").append("div").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").attr("class", "tooltip");
+
+        // create reset button
+        const fab = d3.select("body")
+            .append("div")
+            .attr("class", "fab")
+            .style("opacity", 0)
+            .text(' ↺ ')
+            .on('click', resetZoom)
+
+        // define dimensions
+        const width = 960;
+        const height = 720;
+
+        // set the domain for all scales from -1 to 1
+        const domain = [-1, 1]
+
+        // define color scale
+        const color = d3.scaleSequential().interpolator(d3.interpolateRdBu).domain(domain);
+
+        // define geo path function
+        const path = d3.geoPath()
+            .projection(null);        
+
+        // define detail bar scale
+        const wScale = d3.scaleLinear()
+            .domain(domain)
+            .range([-width / 3, width / 3]);
+
+        // define legend
+        // use Susie Lu's d3-legend plugin
+        // http://d3-legend.susielu.com/
+        const legendWidth = width / 10;
+        const susieLegend = d3.legendColor()
+            .shapeWidth(legendWidth)
+            .cells(9)
+            .orient("horizontal")
+            .labelOffset(2)
+            .ascending(true)
+            .labelAlign("middle")
+            .shapePadding(2);
+
+        // define zoom function
+        const zoom = d3.zoom()
+            .scaleExtent([1, 15])
+            .on("zoom", zoomed);
+
+        // define the county paths
+        let countyPath            
+        // object to hold data
+        let districtObj = {};
+        // counter for missing counties
+        let countMissing = 0;
+        // array for FIPS codes
+        let geoids = [];
+        // define useful metrics
+        let gop_votes;
+        let dem_votes;
+        let gop_share;
+        let dem_share;
+
+        // start DOM manipulation
+        // create svg element
+        const svg = d3.select("svg")
+            .attr("viewBox", [0, 0, width, height]);
+
+        const g = svg.append("g");
+        
+        // create background box for zoom
+        g.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
             .attr("height", height);
 
-        // tooptip
-        var tooltip = d3.select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden").attr("class", "tooltip");
+        // create group for county paths
+        const group = g.append("g").attr('id', 'map').attr("transform", "translate(0, 60)");
 
-        function ready(error, us, data) {
-            if (error) throw error;
+        // create legend
+        const legend = g.append("g")
+            .attr("id", "legend")
+            .attr("transform", `translate(${(width / 24)},${(height * 11 / 12)})`);
 
+        legend.append("rect")
+            .attr("class", "background")
+            .attr("transform", `translate(-${(width / 24)},0)`)
+            .attr("width", width)
+            .attr("height", 60);
 
-            var dictCities = {};
+        // create details bar
+        // use John Alexis Guerra Gómez dynamic details bar
+        // https://johnguerra.co/
+        const guerraLayer = g.append("g")
+            .attr("id", "details")
+            .attr("transform", "translate(" + (width / 2 - 100) + ", 30)");
+
+        guerraLayer.append("rect")
+            .attr("class", "background")
+            .attr("transform", "translate(" + (-wScale.range()[1] + 100) + ", -20)")
+            .attr("width", wScale.range()[1] * 2 + 70)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", 60);
+
+        guerraLayer.append("text")
+            .attr("id", "county-legend")
+            .html("Percentage Share of the Two-party Vote")
+            .attr("transform", "translate(100, 0)");
+
+        svg.call(zoom);
+
+        function createViz(us, data) {
+
+            // define Albers USA projection
+            // const projection = d3.geoAlbersUsa()
+            //     .scale(1285)
+            //     .translate([width / 2, height / 2])
+
+            // stop spin.js loader
+            spinner.stop();
+
+            // parse data
             data.forEach(function(d) {
-                //Parse the percentages
-                d["per_gop"] = +(d["per_gop"].slice(0, -1).replace(",", "."));
-                d["per_dem"] = +(d["per_dem"].slice(0, -1).replace(",", "."));
-                d.result = d["per_dem"] - d["per_gop"];
+                d.per_gop = +d.per_gop;
+                d.per_dem = +d.per_dem;
+                d.result = +d.per_point_diff * -1;
                 d.gop_votes = +d.votes_gop;
                 d.dem_votes = +d.votes_dem;
                 d.votes_total = +d.total_votes;
-                d.combined_fips = +d.combined_fips;
-                dictCities[d.combined_fips] = d;
+                d.geoid = d.county_fips;
+                districtObj[d.geoid] = d;
             });
 
-            var color = d3.scaleSequential(d3.interpolateRdBu)
-                .domain([-1, 1]);
+            // array of FIPS code for easier re-use
+            geoids = Object.keys(districtObj)
 
-            // Add background
-            svg.append("rect")
-                .attr("class", "background")
-                .attr("width", width)
-                .attr("height", height)
-                // .on("click", clicked);
-                // To allow the zoom back
-                // svg.on("click", clicked);
-            var zoom = d3.zoom()
-                .scaleExtent([1, 15])
-                .on("zoom", zoomed);
+            // calculate metrics
+            calculateMetrics();
 
-            svg.style("pointer-events", "all")
-                .call(zoom);
-            var g = svg.append("g");
+            // create county, state, and national paths (borders)
+            createPaths(us);
 
-            function zoomed() {
-                console.log(d3.event.transform);
-                g.attr("transform", d3.event.transform);
-            };
+            // create detail bars
+            createBars();
 
-            var projection = d3.geoAlbersUsa()
-                .scale(width)
-                .translate([width / 2, height / 2]);
+            // bind election results to county paths
+            renderData(data);
+            bindHover();
+            // setResponsiveSVG();
+        }
 
-            var path = d3.geoPath()
-                .projection(projection);
+        // calculate metrics
+        function calculateMetrics() {
+            gop_votes = d3.sum(geoids, r => districtObj[r].gop_votes)
+            dem_votes = d3.sum(geoids, r => districtObj[r].dem_votes)
+            gop_share =  gop_votes / (gop_votes + dem_votes)
+            dem_share =  dem_votes / (gop_votes + dem_votes)
+        }
 
-            g.selectAll("path")
+        // create county, state, and national paths (borders)
+        function createPaths(us) {
+            // enter data and update county paths
+            countyPath = group.selectAll(".counties")
                 .data(topojson.feature(us, us.objects.counties).features)
-                .enter().append("path")
-                .attr("class", "tract")
+                .enter()
+                .append('path')
+                .attr("class", "county")
                 .on("click", clicked)
-                .on("mouseover", updateDetails).on("mouseout", hideDetails)
-                .style("fill", function(d) {
-                    var city = dictCities[d.id];
-                    if (city)
-                        return color(city.result);
-                    else {
-                        errorCount++;
-                        console.log(d.id + " Not found" + " errors = " + errorCount);
-                        return color(0);
-                    }
-                })
-                .attr("d", path)
-                // .append("title")
-                .text(function(d) {
-                    var city = dictCities[d.id],
-                        county,
-                        state;
-
-                    // var msg = d.id;
-                    if (city) {
-                        county = city.county_name;
-                        state = city.state_abbr;
-                        var msg = county + ', ' + state + " Difference: " + fmt(city.result);
-                    }
-                    return msg;
-                });
-
-
-            // g.append("g")
-            //     .attr("class", "counties")
-            //   .selectAll("path")
-            //     .data(topojson.feature(us, us.objects.counties).features)
-            //   .enter().append("path")
-            //     .attr("class", "tract-border")
-            //     .attr("d", path);
-
-            g.append("path")
+                .attr("d", path);
+                
+            group.append("path")
                 .datum(topojson.mesh(us, us.objects.states, function(a, b) {
                     return a !== b;
                 }))
-                .attr("class", "tract-border-state")
+                .attr("class", "state")
                 .attr("d", path);
 
+            group.append("path")
+                .datum(topojson.feature(us, us.objects.nation))
+                .attr("class", "nation")
+                .attr("d", path);
+        }
 
-            // g.append("path")
-            //     .datum(topojson.mesh(mapData, mapData.objects.depts, function(a, b) { return a !== b; }))
-            //     .attr("class", "tract-border-state")
-            //     .attr("d", pathState);
+        // render visualization based on data
+        function renderData(data) {
+            updateLegend(data);
+            updatePaths();
+        }
 
-            // The details
-            var wScale = d3.scaleLinear()
-                .domain([-1, 1])
-                .range([-width / 3, width / 3]);
-            var details_layer = svg.append("g")
-                .attr("id", "details")
-                .attr("transform", "translate(" + (width / 2 - 100) + ", 30)");
-            details_layer.append("rect")
-                .attr("class", "background")
-                .attr("transform", "translate(" + (-wScale.range()[1] + 100) + ", -20)")
-                .attr("width", wScale.range()[1] * 2 + 70)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .attr("height", 60);
-            details_layer.append("text")
-                .attr("id", "cityLegend")
-                .text("Difference")
-                .attr("transform", "translate(100, 0)");
-
-            var detailsBars = details_layer.selectAll("bar")
-                .data([0.4978, -0.5021])
+        // create detail bars
+        function createBars() {
+            const guerraBars = guerraLayer.selectAll("bar")
+                .data([dem_share, -gop_share])
                 .enter()
                 .append("g")
                 .attr("class", "bar");
-            detailsBars
+            guerraBars
                 .append("rect")
                 .attr("width", 0)
                 .attr("height", width > 767 ? 20 : 10)
@@ -288,12 +472,8 @@
                 .attr("width", function(d) {
                     return d > 0 ? wScale(d) : wScale(-d);
                 });
-            detailsBars.append("text")
-                .text(function(d) {
-                    return (d > 0 ? "" : "Rep ") +
-                        fmt(d > 0 ? d : -d) +
-                        (d > 0 ? " Dem" : "");
-                })
+            guerraBars.append("text")
+                .text(showDiffLabel)
                 .attr("dx", function(d) {
                     return d > 0 ? 5 : -5;
                 })
@@ -307,171 +487,287 @@
                 .attr("x", function(d) {
                     return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
                 });
+        }
 
+        function updateLegend(data) {
+            susieLegend
+                .labelFormat(function(d) {
+                    return d3.format('.0%')(Math.abs(d));
+                })
+                .on("cellclick", function(d) { 
+                    const selectedBar = d3.select(d.target);
+                    const selectedCell = d3.select(d.target.parentNode);
+                    const selectedClass = selectedCell.attr('class').split(' ')[1];
+                    const selectedTick = selectedBar.data()[0];
 
+                    // set the opacity for the selected cell and all other cells
+                    d3.selectAll('.cell')._groups[0].forEach(c => {
+                        const isSelected = c.classList.contains(selectedClass)
+                        let opacity = 0.3;
+                        // if the selection is the middle one, then reset all cell opacity
+                        if (isSelected || selectedTick === 0) opacity = 1
+                        d3.select(c).style('opacity', opacity)
+                    })
 
-            // The legend
-            svg.append("g")
-                .attr("class", "legend")
-                .attr("transform",
-                    width > 767 ?
-                    "translate(" + (width - margin.right - 150) + ",100)" :
-                    "translate(" + (width / 2 - 100) + "," + (height - 120) + ")"
-                );
+                    districtObj = {}
+                    data.forEach((r,i) => {
+                        if (selectedTick === 0) {
+                            districtObj[r.geoid] = r;
+                        }else if (r.result > 0 && r.result < selectedTick) {
+                            districtObj[r.geoid] = r;
+                        } else if (r.result < 0 && r.result > selectedTick) {
+                            districtObj[r.geoid] = r;
+                        }
+                    })
 
-            var legendLinear = d3.legendColor()
-                // .shapeWidth(30)
-                .cells(7)
-                .orient(width > 767 ? "vertical" : "horizontal")
-                .title("Difference")
-                .labels([
-                    " 100.00% Dem",
-                    "  66.67%",
-                    "  33.33%",
-                    "   0.00%",
-                    "  33.33%",
-                    "  66.67%",
-                    " 100.00% Rep",
-                ].reverse())
-                .labelFormat(fmt)
-                .ascending(true)
-                .labelAlign("end")
+                    updatePaths();
+                })
+                .title('Percentage Point Difference')
                 .scale(color);
 
-            svg.select(".legend")
-                .call(legendLinear);
+            legend.call(susieLegend);
 
-            // When clicked, zoom in
-            function clicked(d) {
-                updateDetails(d);
-                var x, y, k;
+            // add special classes to each cell of the legend
+            d3.selectAll('.cell').each((d, i, nodes) => { nodes[i].classList.add(`cell-${i}`); })
+        }
 
-                // Compute centroid of the selected path
-                if (d && centered !== d) {
-                    // if (d) {
-                    var centroid = path.centroid(d);
-                    x = centroid[0];
-                    y = centroid[1];
-                    // k = zoom.scaleExtent()[1];
-                    k = 10;
-                    centered = d;
+        // adjust data bar on hover
+        function updateBars(d) {
+            let share = [dem_share, -gop_share];
+            let label = `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(share[0] + share[1]), 'percent')}</tspan>`;
+
+            if (d) {
+                const county = districtObj[d.id];
+                // county = districtObj[d.properties.geoid];
+                if (county) {
+                    share = [county.per_dem, -county.per_gop];
+                    label = `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(county.result), 'percent')}</tspan>`;
                 }
-                else {
-                    x = width / 2;
-                    y = height / 2;
-                    k = 1;
-                    centered = null;
-                }
-
-
-
-                // Manually Zoom
-                svg.transition()
-                    .duration(750)
-                    .call(zoom.transform, d3.zoomIdentity
-                        .translate(width / 2, height / 2)
-                        .scale(k)
-                        .translate(-x, -y));
             }
 
-            function updateDetails(d) {
+            const guerraBars = guerraLayer
+                .selectAll(".bar")
+                .data(share);
 
-                var data = [0.4978, -0.5021],
-                    votes_total,
-                    gop_votes,
-                    dem_votes,
-                    name = "Difference " + fmt(data[0] + data[1]),
-                    state,
-                    county,
-                    city;
+            guerraBars.select("rect")
+                .transition()
+                .duration(500)
+                .attr("x", function(d) {
+                    return d > 0 ? 100 : 100 - wScale(-d);
+                })
+                .attr("width", function(d) {
+                    return d > 0 ? wScale(d) : wScale(-d);
+                })
+                .style("fill", color);
 
-                if (d) {
-                    city = dictCities[d.id];
-                    if (city) {
-                        votes_total = city.votes_total,
-                            gop_votes = city.gop_votes,
-                            dem_votes = city.dem_votes,
-                            county = city['county_name'];
-                        state = city['state_abbr'];
-                        data = [city["per_dem"], -city["per_gop"]];
-                        name = county + ', ' + state + " Difference: " + fmt(data[0] + data[1]);
+            guerraBars.select("text")
+                .text(showDiffLabel)
+                .transition()
+                .duration(500)
+                .attr("x", function(d) {
+                    return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
+                })
+
+
+            guerraLayer.select("#county-legend").html(label);
+
+        }
+
+        // update fill property of county paths
+        function updatePaths() {
+                        
+            // update map with new data
+            countyPath
+                .transition()
+                .duration(1000)
+                .style("fill", function(d) {
+                    const county = districtObj[d.id];
+                    // const county = districtObj[d.properties.geoid];
+                    if (county)
+                        return color(county.result);
+                    else {
+                        // countMissing++;
+                        // console.log("geoid: " + d.id + " not found. Error #" + countMissing);
+                        // console.log("geoid: " + d.properties.geoid + " not found. Error #" + countMissing);
+                        return '#ccc';
                     }
-                }
-                // console.log(data);
-                // console.log(name);
-                var detailsBars = details_layer
-                    .selectAll(".bar")
-                    .data(data);
+                });
+        }
 
-                detailsBars.select("rect")
+        function resetZoom() {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity,
+                d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+            );
+        }        
+        
+        // define click function
+        function clicked(event, d) {
+            const [[x0, y0], [x1, y1]] = path.bounds(d);
+            event.stopPropagation();
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+                    .translate(width / 2, height / 2)
+                    .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+                d3.pointer(event, svg.node())
+            );
+        }
+
+        // define zoom event
+        function zoomed(event) {
+            const {transform} = event;
+            group.attr("transform", transform);
+            group.attr("stroke-width", 1 / transform.k);
+            // hide button if zoomed out
+            if (transform.k > 1 && (transform.x || transform.y !== 0)) {
+                fab
                     .transition()
                     .duration(500)
-                    .attr("x", function(d) {
-                        return d > 0 ? 100 : 100 - wScale(-d);
-                    })
-                    .attr("width", function(d) {
-                        return d > 0 ? wScale(d) : wScale(-d);
-                    })
-                    .style("fill", color);
-
-                detailsBars.select("text")
-                    .text(function(d) {
-                        return (d > 0 ? "" : "Rep ") +
-                            fmt(d > 0 ? d : -d) +
-                            (d > 0 ? " Dem" : "")
-                    })
+                    .style("opacity", 1)
+            } else {
+                fab
                     .transition()
                     .duration(500)
-                    .attr("x", function(d) {
-                        return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
-                    })
-
-
-                details_layer.select("#cityLegend").text(name);
-
-                if (state == 'AK') {
-                    var report_level = "<b>[Alaska State-level Results Reported]</b><br/>";
-                }
-                else {
-                    report_level = "<b>County, State: </b>" + county + ', ' + state + "<br/>";
-                }
-
-                // show tooltip with information from the __data__ property of the element
-                var content = report_level +
-                    "<b>Hillary Clinton: </b>" + comma_fmt(dem_votes) + "<br/>" +
-                    "<b>Donald J. Trump: </b>" + comma_fmt(gop_votes) + "<br/>" +
-                    "<b>Total Votes Cast: </b>" + comma_fmt(votes_total) + "<br/>";
-
-                var tooltipWidth = parseInt(tooltip.style('width'));
-                var tooltipHeight = parseInt(tooltip.style('height'));
-                var x_hover = (event.pageX > document.body.clientWidth / 2) ? tooltipWidth + 30 : -30;
-                var y_hover = (document.body.clientHeight - event.pageY < (tooltipHeight + 4)) ? event.pageY - (tooltipHeight + 4) : event.pageY - tooltipHeight / 2;
-
-                // In d3.v4, style and attribute must be set individually
-                tooltip.html(content);
-                tooltip.style("visibility", "visible");
-                tooltip.style("top", y_hover + "px");
-                tooltip.style("left", (event.pageX - x_hover) + "px");
-
-                return tooltip;
-
+                    .style("opacity", 0)
             }
         }
 
+        // define mouseover and mouseout events to ensure mouseover events work on IE
+        function bindHover() {
+            document.body.addEventListener('mousemove', function(e) {
+
+                if (e.target.nodeName == 'path' && e.target.className.animVal !== 'state') {
+                    const d = d3.select(e.target).data()[0];
+                    const county = districtObj[d.id]
+                    // const county = districtObj[d.properties.geoid]
+                    const value = formatValue(county.result);
+                    const dem_votes = (county.dem_votes)
+                    const gop_votes = (county.gop_votes)
+                    const votes_total = (county.votes_total)
+
+                    const report_level = '<div class="e-title">' + county.county_name + ', ' + county.state_name + '</div>';
+
+                    const startTable = '<table>'
+                    // const tbody = `<tbody><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(0.75)}"></rect><text x="10" y="15">Joseph R. Biden</text></svg></td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(-0.75)}"></rect><text x="10" y="15">Donald J. Trump</text></svg></td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody>`;
+                    const tbody = `<table><tbody><tr><td></td><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr><tr><td style="background-color:${color(0.75)}"></td><td>Joseph R. Biden</td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td style="background-color:${color(-0.75)}"></td><td>Donald J. Trump</td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td></td><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody></table>`
+                    const endTable = '</table>';
+
+                    // show tooltip with information from the __data__ property of the element
+                    const content = report_level + startTable + tbody + endTable;
+
+                    showDetail(e, content);
+                    updateBars(d);
+                }
+            });
+
+            document.body.addEventListener('mouseout', function(e) {
+                if (e.target.nodeName == 'path') hideDetail();
+            });
+        }
+
+        // return percentage point labels for details bars
+        function showDiffLabel(d) {
+            return d > 0 ? `Dem. ${formatValue(d, 'percent')}` : `Rep. ${formatValue(-d, 'percent')}`
+        }
+
+        // Show tooltip on hover
+        function showDetail(event, content) {
+
+            // show tooltip with information from the __data__ property of the element
+            let x_hover = 0;
+            let y_hover = 0;
+
+            const tooltipWidth = parseInt(tooltip.style('width'));
+            const tooltipHeight = parseInt(tooltip.style('height'));
+            let classed, notClassed;
+
+            if (event.pageX > document.body.clientWidth / 2) {
+                x_hover = tooltipWidth + 30;
+                classed = 'right';
+                notClassed = 'left';
+            }
+            else {
+                x_hover = -30;
+                classed = 'left';
+                notClassed = 'right';
+            }
+
+            y_hover = (document.body.clientHeight - event.pageY < (tooltipHeight + 4)) ? event.pageY - (tooltipHeight + 4) : event.pageY - tooltipHeight / 2;
+
+            return tooltip
+                .classed(classed, true)
+                .classed(notClassed, false)
+                .style("visibility", "visible")
+                .style("top", y_hover + "px")
+                .style("left", (event.pageX - x_hover) + "px")
+                .html(content);
+        }
+
         // Hide tooltip on hover
-        function hideDetails() {
+        function hideDetail() {
 
             // hide tooltip
             return tooltip.style("visibility", "hidden");
         }
 
+        // set SVG to respond to changes in clientWidth and clientHeight
+        function setResponsiveSVG() {
+            // Many browsers -- IE particularly -- will not auto-size inline SVG
+            // IE applies default width and height sizing
+            // padding-bottom hack on a container solves IE inconsistencies in size
+            // https://css-tricks.com/scale-svg/#article-header-id-10
+            const width = +d3.select('svg').attr('width');
+            const height = +d3.select('svg').attr('height');
+            const calcString = +(height / width) * 100 + "%";
 
-        d3.queue()
-            .defer(d3.json, "us.json")
-            .defer(d3.csv, "2016_US_County_Level_Presidential_Results.csv")
-            .await(ready);
+            const svgElement = d3.select('svg');
+            const svgParent = d3.select(d3.select('svg').node().parentNode);
+
+            svgElement
+                .attr('class', 'scaling-svg')
+                .attr('preserveAspectRatio', 'xMinYMin')
+                .attr('viewBox', '0 0 ' + width + ' ' + height)
+                .attr('width', null)
+                .attr('height', null);
+
+            svgParent.style('padding-bottom', calcString);
+        }
+
+        // format values
+        function formatValue(value, type) {
+            return type === 'percent' ? d3.format('.2%')(value) : d3.format(',.0f')(value)
+        }
+
+        // get county paths and election data
+        Promise.all([
+            d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
+            d3.csv("2020_US_County_Level_Presidential_Results.csv")
+        ]).then(resp => {
+            createViz(resp[0], resp[1])
+        }).catch(e => {
+            console.log(e)
+        })
+
     </script>
+    <script>
+        (function(i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function() {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
+        ga('create', 'UA-102235118-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 </body>
 
 </html>
