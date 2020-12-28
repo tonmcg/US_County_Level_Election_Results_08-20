@@ -3,27 +3,33 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>US Presidential Election Results</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <title>U.S. Presidential Election Results</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Lora';
+        /* hide scroll bar */
+        html {
+            overflow-y: hidden
         }
-        
+
+        body {
+            font-family: 'Roboto';
+        }
+
         .nation,
         .state,
         .county {
             fill: none;
             stroke: #000000;
-            pointer-events:none;
+            pointer-events: none;
         }
 
         .nation {
             stroke-width: 0.6px;
         }
-        
+
         .state {
             stroke-width: 0.5px;
         }
@@ -39,7 +45,7 @@
             fill: #f5f5f5;
             fill-opacity: 0.7;
         }
-        
+
         .bar text {
             font-size: 10px;
         }
@@ -48,7 +54,7 @@
             stroke: #000000;
             stroke-width: 0.5px;
         }
-        
+
         #county-legend {
             text-anchor: middle;
         }
@@ -62,11 +68,6 @@
             font-size: 1.25vmin;
         }
 
-        /* Susie Liu d3-legend */
-        .legendCells {
-            cursor: pointer;
-        }
-
         /* custom tooltip */
         .tooltip {
             top: 100px;
@@ -74,7 +75,7 @@
             /* -moz-border-radius: 5px;
             border-radius: 5px; */
             /*border: 2px solid #000;*/
-            box-shadow: -4px 0 12px 0 rgba(0,0,0,.05);
+            box-shadow: -4px 0 12px 0 rgba(0, 0, 0, .05);
             background: #ffffff;
             background-color: #fff;
             border: 1px solid #ccc;
@@ -84,13 +85,13 @@
             padding: 10px;
             /* min-width: 375px; */
             min-width: 36.75vmin;
-            font-family: 'Lora';
+            font-family: 'Roboto';
             font-size: 1.25vmin;
             line-height: 18pt;
             font-weight: lighter;
             visibility: visible;
         }
-        
+
         .tooltip.right::before {
             content: '';
             display: block;
@@ -105,7 +106,7 @@
             top: 35px;
             /* arbitrarily set */
         }
-        
+
         .tooltip.left::before {
             content: '';
             display: block;
@@ -149,26 +150,38 @@
         .fab {
             width: 70px;
             height: 70px;
-            background-color: #90A4AE;
+            background-color: #095591;
             border-radius: 50%;
             box-shadow: 0 6px 10px 0 #666;
             transition: all 0.1s ease-in-out;
 
             font-size: 50px;
-            color: #000000;
+            color: #ffffff;
             text-align: center;
             line-height: 70px;
 
             position: fixed;
-            right: 225px;
+            right: 175px;
             bottom: 100px;
 
             cursor: pointer;
+
+            z-index: 100;
         }
 
         .fab:hover {
             box-shadow: 0 6px 14px 0 #666;
             transform: scale(1.05);
+        }
+
+        .v-btn--fab.v-btn--absolute,
+        .v-btn--fab.v-btn--fixed {
+            z-index: 5;
+        }
+
+        .v-btn--absolute.v-btn--top, 
+        .v-btn--fixed.v-btn--top {
+            top: 60px;
         }
 
         /* scaling SVG */
@@ -192,80 +205,359 @@
 
 
 <body>
+    <div id="app">
+        <v-app>
+            <v-app-bar app elevation="1" color="#095591" dark dense>
+                <v-toolbar-title>United States Presidential Election Results by County, 2020</v-toolbar-title>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12 col-md-12">
-                <div id="title" class="page-header">
-            <h2>United States General Presidential Election Results by County, 2020</h2>
-            <h4>Click on the map to explore</h4>
-                </div>
-            </div>
-        </div>
-        <div class="row" id="canvas">
-            <div class="col-md-12 col-xs-12">
-                <div class="scaling-svg-container">
-                    <svg></svg>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-md-12">
-                <footer>
-                    <span>Visualization by <a href="https://twitter.com/tonmcg">Tony McGovern</a></span>
-                </footer>
-            </div>
-        </div>
+                <v-spacer></v-spacer>
+                <v-btn class="mx-4" icon href="https://twitter.com/tonmcg" target="_blank">
+                    <v-icon size="24px">mdi-twitter</v-icon>
+                </v-btn>
+                <v-btn class="mx-4" icon href="https://www.linkedin.com/in/tonmcg" target="_blank">
+                    <v-icon size="24px">mdi-linkedin</v-icon>
+                </v-btn>
+                <v-btn class="mx-4" icon href="https://www.emdata.ai" target="_blank">
+                    <v-img alt="emdata Logo" src="https://avatars1.githubusercontent.com/u/58564118?s=200&v=4"
+                        width="36px" />
+                </v-btn>
+            </v-app-bar>
+
+
+            <v-main>
+                <v-container>
+                    <v-card tile ref="electionMap">
+                        <v-card-title class="text-h6">Map of United States Counties and Election Districts
+                        </v-card-title>
+                        <v-card-subtitle class="text-subtitle-1">Hover over and click on the map to explore
+                        </v-card-subtitle>
+
+                        <v-card-text>
+                            <div id="canvas">
+                                <div class="scaling-svg-container">
+                                    <svg></svg>
+                                </div>
+                            </div>
+                        </v-card-text>
+                        <v-divider></v-divider>
+                    </v-card>
+                </v-container>
+                <v-container>
+                    <v-card tile ref="electionTable">
+                        <v-card-title class="text-h6">Election Results Table</v-card-title>
+                        <v-card-subtitle class="text-subtitle-1">Click on the legend to filter results</v-card-subtitle>
+                        <v-card-text>
+                            <template>
+                                <v-toolbar flat>
+                                    <v-row align="center" justify="space-around">
+                                        <v-btn-toggle tile v-model="legend.selectedValue">
+                                            <v-btn class="ma-1" elevation="1" v-for="(cell, t) in cells"
+                                                :key="`cell-${t}`" :color="colorCell(t)" :dark="darkenCell(t)"
+                                                :value="cells[t]">
+                                                {{ `${(Math.abs(cells[t] ) * 100).toString()}%`  }}
+                                            </v-btn>
+                                        </v-btn-toggle>
+                                    </v-row>
+                                </v-toolbar>
+                                <p class="text-caption text-center">Percentage Point Difference</p>
+                            </template>
+                            <v-data-table :headers="table.headers" :items="tableRows" dense :page.sync="table.page"
+                                :items-per-page="table.itemsPerPage" hide-default-footer sort-by="geoid"
+                                @page-count="table.pageCount = $event" class="elevation-1">
+                                <template v-slot:top>
+                                    <v-fab-transition>
+                                        <v-btn v-show="legend.selectedValue" color="#095591" elevation="24" absolute top
+                                            x-large right fab dark @click="legend.selectedValue = undefined">
+                                            <v-icon>mdi-autorenew</v-icon>
+                                        </v-btn>
+                                    </v-fab-transition>
+                                </template>
+                                <template v-slot:body="props">
+                                    <tbody>
+                                        <tr v-for="(item, i) in props.items" :key="i" class>
+                                            <td v-for="(header, k) in props.headers" :key="k"
+                                                :class="`text-${header.align}`">
+                                                <div v-if="header.value !== 'Winner'">
+                                                    {{ formatValue(item[header.value], header.type) }}
+                                                </div>
+                                                <div v-else class="layout px-0">
+                                                    <v-chip small tile label
+                                                        :color="item.Winner == 'GOP' ? sequentialScale(-0.8) : sequentialScale(0.8)"
+                                                        dark>
+                                                        {{ item.Winner }}
+                                                    </v-chip>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </template>
+                            </v-data-table>
+                            <div class="text-center pt-2">
+                                <v-pagination v-model="table.page" :length="table.pageCount"></v-pagination>
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-container>
+            </v-main>
+            <v-fab-transition>
+                <v-btn v-scroll="onScroll" v-show="map.showScroll" color="#93003a" elevation="24" fixed x-large top
+                    right fab dark @click="scrollMap">
+                    <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+            </v-fab-transition>
+            <v-fab-transition>
+                <v-btn v-scroll="onScroll" v-show="table.showScroll" color="#93003a" elevation="24" fixed x-large bottom
+                    right fab dark @click="scrollTable">
+                    <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+            </v-fab-transition>
+            <v-footer app color="#86a1c1" padless>
+                <v-row no-gutters>
+                    <v-col class="py-4 text-center white--text" cols="12">
+                        {{ new Date().getFullYear() }} — <strong>Tony McGovern</strong>
+                    </v-col>
+                </v-row>
+            </v-footer>
+        </v-app>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min.js" type="text/javascript"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://d3js.org/d3.v6.min.js" type="text/javascript"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js" type="text/javascript"></script>
+    <!-- <script src="https://d3js.org/d3-scale-chromatic.v1.min.js" type="text/javascript"></script> -->
     <script src="https://unpkg.com/topojson-client@3" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.11.0/d3-legend.js" type="text/javascript"></script>
     <script defer type="text/javascript">
         "use strict";
 
-        // default view for map
-        const measure = 'countywinrate';
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: () => ({
+                domain: [-1, 1], // set the domain for all scales from -1 to 1
+                legend: {
+                    selectedValue: undefined
+                },
+                map: {
+                    width: 960,
+                    height: 720,
+                    showScroll: false,
+                    scrollResolved: false
+                },
+                table: {
+                    page: 1,
+                    pageCount: 0,
+                    itemsPerPage: 15,
+                    headers: [],
+                    showScroll: true,
+                    scrollResolved: false
+                },
+                countyPaths: {},
+                electionData: []
+            }),
+            computed: {
+                sequentialScale: function () {
+                    return d3.scaleSequential().interpolator(d3.interpolateRdBu).domain(this.domain)
+                },
+                linearScale: function () {
+                    return d3.scaleLinear().domain(this.domain).range([-this.map.width / 3, this.map.width /
+                        3
+                    ]);
+                },
+                geoPath: function () {
+                    return d3.geoPath().projection(null)
+                },
+                zoom: function () {
+                    return d3.zoom().scaleExtent([1, 15]).on("zoom", zoomed);
+                },
+                cells: function () {
+                    return this.sequentialScale.ticks();
+                },
+                districts: function () {
+                    let newObj = {}
 
-        // define data and its attributes
-        const cols = {
-            "countywinrate": {
-                "label": "County Win Rate",
-                "type": "percentage",
-                "format": ".1%",
-                "title": "2020 Presidential Election Results",
-                "latestyear": "2020",
-                "url": "https://github.com/tonmcg/US_County_Level_Election_Results_08-20",
-                "source": "Tony McGovern GitHub Repo",
-                "description": "Results of the 2020 Presidential General Election."
+                    if (this.electionData.length > 0) {
+                        this.electionData.forEach(d => {
+                            const result = d['Percentage Point Difference'];
+                            if (
+                                this.legend.selectedValue === undefined ||
+                                (result <= 0 && result >= this.legend.selectedValue) ||
+                                (result >= 0 && result <= this.legend.selectedValue)
+                            ) newObj[d.geoid] = d;
+                        })
+                    }
+
+                    return newObj
+                },
+                gop_votes: function () {
+                    d3.sum(Object.keys(this.districts), r => this.districts[r].gop_votes)
+                },
+                dem_votes: function () {
+                    d3.sum(Object.keys(this.districts), r => this.districts[r].dem_votes)
+                },
+                gop_share: function () {
+                    this.gop_votes / (this.gop_votes + this.dem_votes)
+                },
+                dem_share: function () {
+                    this.dem_votes / (this.gop_votes + this.dem_votes)
+                },
+                tableRows: function () {
+                    return Object.keys(this.districts).map(d => {
+                        return this.districts[d];
+                    })
+                }
             },
-        };
+            mounted: function () {
+                this.fetchData();
+            },
+            methods: {
+                draw() {
 
-        // spinner loader settings
-        const opts = {
-            lines: 9, // The number of lines to draw
-            length: 9, // The length of each line
-            width: 5, // The line thickness
-            radius: 14, // The radius of the inner circle
-            color: '#c10e19', // #rgb or #rrggbb or array of colors
-            speed: 1.9, // Rounds per second
-            trail: 40, // Afterglow percentage
-            className: 'spinner', // The CSS class to assign to the spinner
-        };
+                },
+                scrollTable() {
+                    this.table.scrollResolved = false;
+                    // wait until the promise for the other scroll function resolves 
+                    this.$vuetify.goTo(this.$refs.electionTable).then(() => this.table.scrollResolved = true);
+                },
+                scrollMap() {
+                    this.map.scrollResolved = false;
+                    // wait until the promise for the other scroll function resolves 
+                    this.$vuetify.goTo(this.$refs.electionMap).then(() => this.map.scrollResolved = true);
+                },
+                onScroll() {
+                    let tableScroll = true;
+                    let mapScroll = false;
 
-        // create spinner
-        const target = d3.select("body").node();
+                    const mapposition = this.$refs.electionMap.$el.getBoundingClientRect().y
+                    const tableposition = this.$refs.electionTable.$el.getBoundingClientRect().y
 
-        // trigger loader
-        const spinner = new Spinner(opts).spin(target);
+                    if (tableposition < window.innerHeight - 200) {
+                        tableScroll = false;
+                        mapScroll = true;
+                    }
+
+                    this.table.showScroll = tableScroll;
+                    this.map.showScroll = mapScroll;
+                },
+                formatValue(val, type) {
+                    let formattedValue = val;
+                    if (type === "integer") {
+                        formattedValue = new Intl.NumberFormat('en-US').format(Math.abs(val));
+                    } else if (type === "float") {
+                        formattedValue = new Intl.NumberFormat('en-US', {
+                            style: 'percent',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }).format(Math.abs(val));
+                    }
+                    return formattedValue;
+                },
+                zoomed(event) {
+                    const {
+                        transform
+                    } = event;
+                    group.attr("transform", transform);
+                    group.attr("stroke-width", 1 / transform.k);
+                    // hide button if zoomed out
+                    if (transform.k > 1 && (transform.x || transform.y !== 0)) {
+                        fab
+                            .transition()
+                            .duration(500)
+                            .style("opacity", 1)
+                    } else {
+                        fab
+                            .transition()
+                            .duration(500)
+                            .style("opacity", 0)
+                    }
+                },
+                highlightCell(i) {
+                    const cellValue = this.cells[i];
+                    const selectedValue = this.legend.selectedValue;
+                    const isSelected = selectedValue === cellValue;
+                    const gopSelection = selectedValue <= 0;
+                    const demSelection = !gopSelection;
+
+                    let isHighlighted = false;
+                    if (
+                        selectedValue === undefined ||
+                        (gopSelection && cellValue <= 0 && cellValue >= selectedValue) ||
+                        (demSelection && cellValue >= 0 && cellValue <= selectedValue)
+                    ) isHighlighted = true;
+
+                    return isHighlighted;
+                },
+                darkenCell(i) {
+                    const isHighlighted = this.highlightCell(i);
+                    const cellValue = this.cells[i];
+
+                    return isHighlighted && Math.abs(cellValue) > 0.5;
+                },
+                colorCell(i) {
+                    const isHighlighted = this.highlightCell(i);
+                    const cellValue = this.cells[i];
+
+                    return isHighlighted ? this.sequentialScale(cellValue) : '#ccc';
+                },
+                async fetchData() {
+
+                    // get county paths and election data
+                    const results = await Promise.all([
+                        axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
+                        d3.csv("2020_US_County_Level_Presidential_Results.csv")
+                    ])
+
+                    this.countyPaths = results[0].data;
+
+                    // parse election data
+                    this.electionData = results[1].map(d => {
+                        return {
+                            geoid: d.county_fips,
+                            State: d.state_name,
+                            County: d.county_name,
+                            Winner: +d.votes_dem > +d.votes_gop ? 'Dem.' : 'GOP',
+                            GOP: +d.votes_gop,
+                            'Dem.': +d.votes_dem,
+                            'Total Votes': +d.total_votes,
+                            'Vote Diff.': +d.votes_gop - +d.votes_dem,
+                            '% of Total Vote, GOP': +d.per_gop,
+                            '% of Total Vote, Dem.': +d.per_dem,
+                            'Percentage Point Difference': +d.per_point_diff * -1
+                        }
+                    });
+
+                    // define table headers
+                    this.table.headers = Object.keys(this.electionData[0])
+                        // .filter(f => f !== 'geoid')
+                        .map(r => {
+                            const value = this.electionData[0][r];
+                            const isFIPS = r ===
+                                "geoid"; // test if the value is a fips code, which we need to stay as string
+                            const isNumber = isFIPS ? false : !isNaN(
+                                value); // test if the value can be converted safely to a number
+                            const dataType = isNumber ? value % 1 === 0 ? 'integer' : 'float' :
+                                'string'; // test for datatype: if string, integer, or float
+                            const align = isNumber ? 'end' : 'start';
+                            return {
+                                value: r,
+                                text: r,
+                                align: align,
+                                type: dataType,
+                                width: '100%'
+                            }
+                        })
+
+                },
+            },
+        })
 
         // create tooltip
-        const tooltip = d3.select("body").append("div").style("position", "absolute").style("z-index", "10").style("visibility", "hidden").attr("class", "tooltip");
+        const tooltip = d3.select("body").append("div").style("position", "absolute").style("z-index", "10").style(
+            "visibility", "hidden").attr("class", "tooltip");
 
         // create reset button
-        const fab = d3.select("body")
+        const fab = d3.select("#canvas")
             .append("div")
             .attr("class", "fab")
             .style("opacity", 0)
@@ -274,7 +566,7 @@
 
         // define dimensions
         const width = 960;
-        const height = 720;
+        const height = 630;
 
         // set the domain for all scales from -1 to 1
         const domain = [-1, 1]
@@ -284,25 +576,12 @@
 
         // define geo path function
         const path = d3.geoPath()
-            .projection(null);        
+            .projection(null);
 
         // define detail bar scale
         const wScale = d3.scaleLinear()
             .domain(domain)
             .range([-width / 3, width / 3]);
-
-        // define legend
-        // use Susie Lu's d3-legend plugin
-        // http://d3-legend.susielu.com/
-        const legendWidth = width / 10;
-        const susieLegend = d3.legendColor()
-            .shapeWidth(legendWidth)
-            .cells(9)
-            .orient("horizontal")
-            .labelOffset(2)
-            .ascending(true)
-            .labelAlign("middle")
-            .shapePadding(2);
 
         // define zoom function
         const zoom = d3.zoom()
@@ -310,7 +589,7 @@
             .on("zoom", zoomed);
 
         // define the county paths
-        let countyPath            
+        let countyPath
         // object to hold data
         let districtObj = {};
         // counter for missing counties
@@ -329,7 +608,7 @@
             .attr("viewBox", [0, 0, width, height]);
 
         const g = svg.append("g");
-        
+
         // create background box for zoom
         g.append("rect")
             .attr("class", "background")
@@ -337,18 +616,7 @@
             .attr("height", height);
 
         // create group for county paths
-        const group = g.append("g").attr('id', 'map').attr("transform", "translate(0, 60)");
-
-        // create legend
-        const legend = g.append("g")
-            .attr("id", "legend")
-            .attr("transform", `translate(${(width / 24)},${(height * 11 / 12)})`);
-
-        legend.append("rect")
-            .attr("class", "background")
-            .attr("transform", `translate(-${(width / 24)},0)`)
-            .attr("width", width)
-            .attr("height", 60);
+        const group = g.append("g").attr('id', 'map').attr("transform", "translate(0, 0)");
 
         // create details bar
         // use John Alexis Guerra Gómez dynamic details bar
@@ -379,11 +647,8 @@
             //     .scale(1285)
             //     .translate([width / 2, height / 2])
 
-            // stop spin.js loader
-            spinner.stop();
-
             // parse data
-            data.forEach(function(d) {
+            data.forEach(function (d) {
                 d.per_gop = +d.per_gop;
                 d.per_dem = +d.per_dem;
                 d.result = +d.per_point_diff * -1;
@@ -416,8 +681,8 @@
         function calculateMetrics() {
             gop_votes = d3.sum(geoids, r => districtObj[r].gop_votes)
             dem_votes = d3.sum(geoids, r => districtObj[r].dem_votes)
-            gop_share =  gop_votes / (gop_votes + dem_votes)
-            dem_share =  dem_votes / (gop_votes + dem_votes)
+            gop_share = gop_votes / (gop_votes + dem_votes)
+            dem_share = dem_votes / (gop_votes + dem_votes)
         }
 
         // create county, state, and national paths (borders)
@@ -430,9 +695,9 @@
                 .attr("class", "county")
                 .on("click", clicked)
                 .attr("d", path);
-                
+
             group.append("path")
-                .datum(topojson.mesh(us, us.objects.states, function(a, b) {
+                .datum(topojson.mesh(us, us.objects.states, function (a, b) {
                     return a !== b;
                 }))
                 .attr("class", "state")
@@ -446,7 +711,6 @@
 
         // render visualization based on data
         function renderData(data) {
-            updateLegend(data);
             updatePaths();
         }
 
@@ -466,35 +730,35 @@
                 .style("fill", color)
                 .transition()
                 .duration(500)
-                .attr("x", function(d) {
+                .attr("x", function (d) {
                     return d > 0 ? 100 : 100 - wScale(-d);
                 })
-                .attr("width", function(d) {
+                .attr("width", function (d) {
                     return d > 0 ? wScale(d) : wScale(-d);
                 });
             guerraBars.append("text")
                 .text(showDiffLabel)
-                .attr("dx", function(d) {
+                .attr("dx", function (d) {
                     return d > 0 ? 5 : -5;
                 })
                 .attr("dy", 24)
                 .attr("x", 100)
-                .style("text-anchor", function(d) {
+                .style("text-anchor", function (d) {
                     return d > 0 ? "start" : "end";
                 })
                 .transition()
                 .duration(500)
-                .attr("x", function(d) {
+                .attr("x", function (d) {
                     return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
                 });
         }
 
         function updateLegend(data) {
             susieLegend
-                .labelFormat(function(d) {
+                .labelFormat(function (d) {
                     return d3.format('.0%')(Math.abs(d));
                 })
-                .on("cellclick", function(d) { 
+                .on("cellclick", function (d) {
                     const selectedBar = d3.select(d.target);
                     const selectedCell = d3.select(d.target.parentNode);
                     const selectedClass = selectedCell.attr('class').split(' ')[1];
@@ -510,17 +774,16 @@
                     })
 
                     districtObj = {}
-                    data.forEach((r,i) => {
+                    data.forEach((r, i) => {
                         if (selectedTick === 0) {
                             districtObj[r.geoid] = r;
-                        }else if (r.result > 0 && r.result < selectedTick) {
+                        } else if (r.result > 0 && r.result < selectedTick) {
                             districtObj[r.geoid] = r;
                         } else if (r.result < 0 && r.result > selectedTick) {
                             districtObj[r.geoid] = r;
                         }
                     })
 
-                    updatePaths();
                 })
                 .title('Percentage Point Difference')
                 .scale(color);
@@ -528,20 +791,24 @@
             legend.call(susieLegend);
 
             // add special classes to each cell of the legend
-            d3.selectAll('.cell').each((d, i, nodes) => { nodes[i].classList.add(`cell-${i}`); })
+            d3.selectAll('.cell').each((d, i, nodes) => {
+                nodes[i].classList.add(`cell-${i}`);
+            })
         }
 
         // adjust data bar on hover
         function updateBars(d) {
             let share = [dem_share, -gop_share];
-            let label = `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(share[0] + share[1]), 'percent')}</tspan>`;
+            let label =
+                `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(share[0] + share[1]), 'percent')}</tspan>`;
 
             if (d) {
                 const county = districtObj[d.id];
                 // county = districtObj[d.properties.geoid];
                 if (county) {
                     share = [county.per_dem, -county.per_gop];
-                    label = `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(county.result), 'percent')}</tspan>`;
+                    label =
+                        `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(county.result), 'percent')}</tspan>`;
                 }
             }
 
@@ -552,10 +819,10 @@
             guerraBars.select("rect")
                 .transition()
                 .duration(500)
-                .attr("x", function(d) {
+                .attr("x", function (d) {
                     return d > 0 ? 100 : 100 - wScale(-d);
                 })
-                .attr("width", function(d) {
+                .attr("width", function (d) {
                     return d > 0 ? wScale(d) : wScale(-d);
                 })
                 .style("fill", color);
@@ -564,7 +831,7 @@
                 .text(showDiffLabel)
                 .transition()
                 .duration(500)
-                .attr("x", function(d) {
+                .attr("x", function (d) {
                     return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
                 })
 
@@ -575,12 +842,12 @@
 
         // update fill property of county paths
         function updatePaths() {
-                        
+
             // update map with new data
             countyPath
                 .transition()
                 .duration(1000)
-                .style("fill", function(d) {
+                .style("fill", function (d) {
                     const county = districtObj[d.id];
                     // const county = districtObj[d.properties.geoid];
                     if (county)
@@ -600,25 +867,30 @@
                 d3.zoomIdentity,
                 d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
             );
-        }        
-        
+        }
+
         // define click function
         function clicked(event, d) {
-            const [[x0, y0], [x1, y1]] = path.bounds(d);
+            const [
+                [x0, y0],
+                [x1, y1]
+            ] = path.bounds(d);
             event.stopPropagation();
             svg.transition().duration(750).call(
                 zoom.transform,
                 d3.zoomIdentity
-                    .translate(width / 2, height / 2)
-                    .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
-                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+                .translate(width / 2, height / 2)
+                .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
                 d3.pointer(event, svg.node())
             );
         }
 
         // define zoom event
         function zoomed(event) {
-            const {transform} = event;
+            const {
+                transform
+            } = event;
             group.attr("transform", transform);
             group.attr("stroke-width", 1 / transform.k);
             // hide button if zoomed out
@@ -637,7 +909,7 @@
 
         // define mouseover and mouseout events to ensure mouseover events work on IE
         function bindHover() {
-            document.body.addEventListener('mousemove', function(e) {
+            document.body.addEventListener('mousemove', function (e) {
 
                 if (e.target.nodeName == 'path' && e.target.className.animVal !== 'state') {
                     const d = d3.select(e.target).data()[0];
@@ -648,11 +920,13 @@
                     const gop_votes = (county.gop_votes)
                     const votes_total = (county.votes_total)
 
-                    const report_level = '<div class="e-title">' + county.county_name + ', ' + county.state_name + '</div>';
+                    const report_level = '<div class="e-title">' + county.county_name + ', ' + county
+                        .state_name + '</div>';
 
                     const startTable = '<table>'
                     // const tbody = `<tbody><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(0.75)}"></rect><text x="10" y="15">Joseph R. Biden</text></svg></td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(-0.75)}"></rect><text x="10" y="15">Donald J. Trump</text></svg></td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody>`;
-                    const tbody = `<table><tbody><tr><td></td><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr><tr><td style="background-color:${color(0.75)}"></td><td>Joseph R. Biden</td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td style="background-color:${color(-0.75)}"></td><td>Donald J. Trump</td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td></td><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody></table>`
+                    const tbody =
+                        `<table><tbody><tr><td></td><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr><tr><td style="background-color:${color(0.75)}"></td><td>Joseph R. Biden</td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td style="background-color:${color(-0.75)}"></td><td>Donald J. Trump</td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td></td><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody></table>`
                     const endTable = '</table>';
 
                     // show tooltip with information from the __data__ property of the element
@@ -663,7 +937,7 @@
                 }
             });
 
-            document.body.addEventListener('mouseout', function(e) {
+            document.body.addEventListener('mouseout', function (e) {
                 if (e.target.nodeName == 'path') hideDetail();
             });
         }
@@ -688,14 +962,14 @@
                 x_hover = tooltipWidth + 30;
                 classed = 'right';
                 notClassed = 'left';
-            }
-            else {
+            } else {
                 x_hover = -30;
                 classed = 'left';
                 notClassed = 'right';
             }
 
-            y_hover = (document.body.clientHeight - event.pageY < (tooltipHeight + 4)) ? event.pageY - (tooltipHeight + 4) : event.pageY - tooltipHeight / 2;
+            y_hover = (document.body.clientHeight - event.pageY < (tooltipHeight + 4)) ? event.pageY - (tooltipHeight +
+                4) : event.pageY - tooltipHeight / 2;
 
             return tooltip
                 .classed(classed, true)
@@ -750,12 +1024,11 @@
         }).catch(e => {
             console.log(e)
         })
-
     </script>
     <script>
-        (function(i, s, o, g, r, a, m) {
+        (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function() {
+            i[r] = i[r] || function () {
                 (i[r].q = i[r].q || []).push(arguments)
             }, i[r].l = 1 * new Date();
             a = s.createElement(o),
