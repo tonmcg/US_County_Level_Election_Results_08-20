@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <title>U.S. Presidential Election Results</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <style>
         /* hide scroll bar */
@@ -161,8 +161,8 @@
             line-height: 70px;
 
             position: fixed;
-            right: 175px;
-            bottom: 100px;
+            right: 185px;
+            bottom: 110px;
 
             cursor: pointer;
 
@@ -179,9 +179,9 @@
             z-index: 5;
         }
 
-        .v-btn--absolute.v-btn--top, 
+        .v-btn--absolute.v-btn--top,
         .v-btn--fixed.v-btn--top {
-            top: 60px;
+            top: 55px;
         }
 
         /* scaling SVG */
@@ -207,15 +207,18 @@
 <body>
     <div id="app">
         <v-app>
-            <v-app-bar app elevation="1" color="#095591" dark dense>
+            <v-app-bar app elevation="1" color="#095591" dark>
                 <v-toolbar-title>United States Presidential Election Results by County, 2020</v-toolbar-title>
 
                 <v-spacer></v-spacer>
+                <v-btn class="mx-4" icon href="https://github.com/tonmcg" target="_blank">
+                    <v-icon large>mdi-github</v-icon>
+                </v-btn>
                 <v-btn class="mx-4" icon href="https://twitter.com/tonmcg" target="_blank">
-                    <v-icon size="24px">mdi-twitter</v-icon>
+                    <v-icon large>mdi-twitter</v-icon>
                 </v-btn>
                 <v-btn class="mx-4" icon href="https://www.linkedin.com/in/tonmcg" target="_blank">
-                    <v-icon size="24px">mdi-linkedin</v-icon>
+                    <v-icon large>mdi-linkedin</v-icon>
                 </v-btn>
                 <v-btn class="mx-4" icon href="https://www.emdata.ai" target="_blank">
                     <v-img alt="emdata Logo" src="https://avatars1.githubusercontent.com/u/58564118?s=200&v=4"
@@ -227,9 +230,16 @@
             <v-main>
                 <v-container>
                     <v-card tile ref="electionMap">
-                        <v-card-title class="text-h6">Map of United States Counties and Election Districts
+                        <v-card-title>
+                            <p class="text-h4">Map of United States Counties and Election Districts</p>
                         </v-card-title>
-                        <v-card-subtitle class="text-subtitle-1">Hover over and click on the map to explore
+                        <v-card-subtitle class="text-subtitle-1">
+                            <span><em>Source</em>: <a
+                                href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
+                                target="_blank">New York Times</a>. <em>Data courtesy of</em>: <a
+                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
+                                target="_blank">Tony McGovern</a>.</span>
+                                <span>Hover over and click on the map to explore</span>
                         </v-card-subtitle>
 
                         <v-card-text>
@@ -244,23 +254,16 @@
                 </v-container>
                 <v-container>
                     <v-card tile ref="electionTable">
-                        <v-card-title class="text-h6">Election Results Table</v-card-title>
-                        <v-card-subtitle class="text-subtitle-1">Click on the legend to filter results</v-card-subtitle>
+                        <v-card-title class="text-h4">Election Results Table</v-card-title>
+                        <v-card-subtitle class="text-subtitle-1">
+                            <span><em>Source</em>: <a
+                                href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
+                                target="_blank">New York Times</a>. <em>Data courtesy of</em>: <a
+                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
+                                target="_blank">Tony McGovern</a>.</span>
+                                <span>Click on the legend to filter results</span>
+                        </v-card-subtitle>
                         <v-card-text>
-                            <template>
-                                <v-toolbar flat>
-                                    <v-row align="center" justify="space-around">
-                                        <v-btn-toggle tile v-model="legend.selectedValue">
-                                            <v-btn class="ma-1" elevation="1" v-for="(cell, t) in cells"
-                                                :key="`cell-${t}`" :color="colorCell(t)" :dark="darkenCell(t)"
-                                                :value="cells[t]">
-                                                {{ `${(Math.abs(cells[t] ) * 100).toString()}%`  }}
-                                            </v-btn>
-                                        </v-btn-toggle>
-                                    </v-row>
-                                </v-toolbar>
-                                <p class="text-caption text-center">Percentage Point Difference</p>
-                            </template>
                             <v-data-table :headers="table.headers" :items="tableRows" dense :page.sync="table.page"
                                 :items-per-page="table.itemsPerPage" hide-default-footer sort-by="geoid"
                                 @page-count="table.pageCount = $event" class="elevation-1">
@@ -291,6 +294,21 @@
                                         </tr>
                                     </tbody>
                                 </template>
+                                <template v-slot:footer>
+                                    <v-toolbar flat>
+                                        <v-row align="center" justify="space-around">
+                                            <v-btn-toggle tile v-model="legend.selectedValue">
+                                                <v-btn class="ma-1" elevation="1" v-for="(cell, t) in cells"
+                                                    :key="`cell-${t}`" :color="colorCell(t)" :dark="darkenCell(t)"
+                                                    :value="cells[t]">
+                                                    {{ `${(Math.abs(cells[t] ) * 100).toString()}%`  }}
+                                                </v-btn>
+                                            </v-btn-toggle>
+                                        </v-row>
+                                    </v-toolbar>
+                                    <p class="text-caption text-center">Percentage Point Difference</p>
+                                </template>
+
                             </v-data-table>
                             <div class="text-center pt-2">
                                 <v-pagination v-model="table.page" :length="table.pageCount"></v-pagination>
