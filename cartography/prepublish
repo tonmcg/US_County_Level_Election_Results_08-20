@@ -1,0 +1,96 @@
+#!/bin/bash
+# after Mike Bostock here, https://github.com/topojson/us-atlas/blob/master/prepublish
+
+rm -rvf *-10m.topojson
+rm -rvf us_election_results*
+currYr="cartography/2020"
+build="${currYr}/build"
+mkdir -p "$build"
+
+if [ ! -f "${build}/"cb_2019_02_sldl_500k.shp ]; then
+  curl -o "${build}/"cb_2019_02_sldl_500k.zip 'https://www2.census.gov/geo/tiger/GENZ2019/shp/cb_2019_02_sldl_500k.zip'
+  unzip -od ${build} "${build}/"cb_2019_02_sldl_500k.zip cb_2019_02_sldl_500k.shp cb_2019_02_sldl_500k.dbf
+fi
+
+if [ ! -f "${build}/"cb_2019_us_county_500k.shp ]; then
+  curl -o "${build}/"cb_2019_us_county_500k.zip 'https://www2.census.gov/geo/tiger/GENZ2019/shp/cb_2019_us_county_500k.zip'
+  unzip -od ${build} "${build}/"cb_2019_us_county_500k.zip cb_2019_us_county_500k.shp cb_2019_us_county_500k.dbf
+fi
+
+if [ ! -f "${build}/"cb_2019_us_state_500k.shp ]; then
+  curl -o "${build}/"cb_2019_us_state_500k.zip 'https://www2.census.gov/geo/tiger/GENZ2019/shp/cb_2019_us_state_500k.zip'
+  unzip -od ${build} "${build}/"cb_2019_us_state_500k.zip cb_2019_us_state_500k.shp cb_2019_us_state_500k.dbf
+fi
+
+if [ ! -f "${build}/"2020_data.csv ]; then
+  curl -o "${build}/"2020_data.csv 'https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/2020_US_County_Level_Presidential_Results.csv'
+fi
+
+mapshaper \
+    -i "${build}/"cb_2019_02_sldl_500k.shp name=district \
+    -each 'district_n=Number(SLDLST).toString().length === 2 ? Number(SLDLST).toString() : new Array(2 - Number(SLDLST).toString().length + 1).join("0") + Number(SLDLST).toString(),county_name="House District " + district_n,state_fips=STATEFP,state_name="Alaska",FID=state_fips + "9" + district_n' \
+    -filter-fields FID \
+    -filter-islands min-area='10km2' \
+    -simplify 5% \
+    -proj albersusa \
+    -o "${currYr}/"districts-albers-10m.topojson \
+    -i "${build}/"cb_2019_us_county_500k.shp name=county \
+    -filter 'STATEFP !== "02" && STATEFP !== "69" && STATEFP !== "66" && STATEFP !== "78" && STATEFP !== "60" && STATEFP !== "72"' \
+    -each 'FID=this.properties.GEOID' \
+    -filter-fields FID \
+    -filter-islands min-area='10km2' \
+    -simplify 5% \
+    -proj albersusa \
+    -o "${currYr}/"counties-albers-10m.topojson \
+    -i "${currYr}/"districts-albers-10m.topojson "${currYr}/"counties-albers-10m.topojson combine-files name=district_county \
+    -merge-layers \
+    -o "${currYr}/"districts_counties-albers-10m.topojson \
+    -i "${build}/"cb_2019_us_state_500k.shp name=state \
+    -filter 'STATEFP !== "69" && STATEFP !== "66" && STATEFP !== "78" && STATEFP !== "60" && STATEFP !== "72"' \
+    -each 'FID=this.properties.GEOID' \
+    -filter-fields FID \
+    -filter-islands min-area='10km2' \
+    -simplify 5% \
+    -proj albersusa \
+    -o "${currYr}/"states-albers-10m.topojson \
+    -i "${build}/"cb_2019_us_state_500k.shp name=nation \
+    -filter-fields \
+    -dissolve \
+    -filter-islands min-area='10km2' \
+    -simplify 5% \
+    -proj albersusa \
+    -o "${currYr}/"nation-albers-10m.topojson \
+    -o target=district_county,state,nation width='960' height='630' "${currYr}/"us-albers-10m.topojson
+
+mapshaper \
+    -i "${currYr}/"districts_counties-albers-10m.topojson name=us_district_boundaries \
+    -style class="county" stroke="#000000" fill="none" stroke-width="0.1" \
+    -each 'state_fips=this.properties.FID.slice(0,2)' \
+    -dissolve state_fips + name=us_state_boundaries \
+    -style class="state" stroke="#ffffff" fill="none" stroke-width="0.4" \
+    -dissolve + name=us_boundaries \
+    -style class="nation" stroke="#000000" fill="none" stroke-width="0.4" \
+    -i "${build}/"2020_data.csv string-fields=county_fips name=2020_data \
+    -join target=us_district_boundaries 2020_data keys=FID,county_fips \
+    -colorizer name=getColor colors='#2A71AE,#6BACD0,#BFDCEB,#FACCB4,#E48268,#B82D35' breaks=0.1667,0.3334,0.5,0.6667,0.8334 \
+    -style fill='getColor(per_gop)' \
+    -target target=us_district_boundaries name=us_election_results \
+    -o target=us_election_results,us_state_boundaries,us_boundaries width='960' height='630' "${currYr}/"us_election_results.svg
+
+  mapshaper \
+    -i "${currYr}/"districts_counties-albers-10m.topojson name=us_district_boundaries \
+    -each 'state_fips=this.properties.FID.slice(0,2)' \
+    -points inner + name=dots \
+    -i "${build}/"2020_data.csv string-fields=county_fips name=2020_data \
+    -filter-fields county_fips,votes_gop,votes_dem \
+    -each 'margin = votes_gop - votes_dem' \
+    -each 'abs_margin = Math.abs(margin)' \
+    -join target=dots 2020_data keys=FID,county_fips \
+    -sort abs_margin descending \
+    -style r='Math.sqrt(abs_margin) * 0.02' \
+    -style opacity=0.5 fill='margin > 0 ? "#B82D35": "#2A71AE"' \
+    -lines state_fips target=us_district_boundaries \
+    -style class="county" stroke="#000000" fill="none" stroke-width="0.1" where='TYPE === "inner"' \
+    -style class="nation" stroke="#000000" fill="none" stroke-width="0.4" where='TYPE === "outer"' \
+    -style class="state" stroke="#000000" fill="none" stroke-width="0.4" where='TYPE === "state_fips"' \
+    -o target=us_district_boundaries,dots width='960' height='630' "${currYr}/"us_election_results_dot.svg

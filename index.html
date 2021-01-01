@@ -11,7 +11,7 @@
     <style>
         /* hide scroll bar */
         html {
-            overflow-y: hidden
+            overflow-y: auto
         }
 
         body {
@@ -27,11 +27,11 @@
         }
 
         .nation {
-            stroke-width: 0.6px;
+            stroke-width: 0.4px;
         }
 
         .state {
-            stroke-width: 0.5px;
+            stroke-width: 0.4px;
         }
 
         .county {
@@ -68,6 +68,10 @@
             font-size: 1.25vmin;
         }
 
+        .e-title {
+            font-size: 1.5vmin;
+            font-weight: 700;
+        }
         /* custom tooltip */
         .tooltip {
             top: 100px;
@@ -234,9 +238,9 @@
                             <p class="text-h4">Map of United States Counties and Election Districts</p>
                         </v-card-title>
                         <v-card-subtitle class="text-subtitle-1">
-                            <span><em>Source</em>: <a
+                            <span>Source: <a
                                 href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
-                                target="_blank">New York Times</a>. <em>Data courtesy of</em>: <a
+                                target="_blank"><em>New York Times</em></a>. Data compiled by: <a
                                 href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
                                 target="_blank">Tony McGovern</a>.</span>
                                 <span>Hover over and click on the map to explore</span>
@@ -256,9 +260,9 @@
                     <v-card tile ref="electionTable">
                         <v-card-title class="text-h4">Election Results Table</v-card-title>
                         <v-card-subtitle class="text-subtitle-1">
-                            <span><em>Source</em>: <a
+                            <span>Source: <a
                                 href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
-                                target="_blank">New York Times</a>. <em>Data courtesy of</em>: <a
+                                target="_blank"><em>New York Times</em></a>. Data compiled by: <a
                                 href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
                                 target="_blank">Tony McGovern</a>.</span>
                                 <span>Click on the legend to filter results</span>
@@ -318,18 +322,18 @@
                 </v-container>
             </v-main>
             <v-fab-transition>
-                <v-btn v-scroll="onScroll" v-show="map.showScroll" color="#93003a" elevation="24" fixed x-large top
+                <v-btn v-scroll="onScroll" v-show="map.showScroll" color="#009359" elevation="24" fixed x-large top
                     right fab dark @click="scrollMap">
                     <v-icon>mdi-chevron-up</v-icon>
                 </v-btn>
             </v-fab-transition>
             <v-fab-transition>
-                <v-btn v-scroll="onScroll" v-show="table.showScroll" color="#93003a" elevation="24" fixed x-large bottom
+                <v-btn v-scroll="onScroll" v-show="table.showScroll" color="#009359" elevation="24" fixed x-large bottom
                     right fab dark @click="scrollTable">
                     <v-icon>mdi-chevron-down</v-icon>
                 </v-btn>
             </v-fab-transition>
-            <v-footer app color="#86a1c1" padless>
+            <v-footer app color="#6C757D" padless>
                 <v-row no-gutters>
                     <v-col class="py-4 text-center white--text" cols="12">
                         {{ new Date().getFullYear() }} — <strong>Tony McGovern</strong>
@@ -340,12 +344,11 @@
     </div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" type="text/javascript"></script>
     <script src="https://d3js.org/d3.v6.min.js" type="text/javascript"></script>
-    <!-- <script src="https://d3js.org/d3-scale-chromatic.v1.min.js" type="text/javascript"></script> -->
-    <script src="https://unpkg.com/topojson-client@3" type="text/javascript"></script>
+    <script src="https://unpkg.com/topojson@3" type="text/javascript"></script>
     <script defer type="text/javascript">
         "use strict";
 
@@ -522,7 +525,8 @@
 
                     // get county paths and election data
                     const results = await Promise.all([
-                        axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
+                        d3.json("/cartography/2020/us-albers-10m.topojson"),
+                        // axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
                         d3.csv("2020_US_County_Level_Presidential_Results.csv")
                     ])
 
@@ -707,7 +711,7 @@
         function createPaths(us) {
             // enter data and update county paths
             countyPath = group.selectAll(".counties")
-                .data(topojson.feature(us, us.objects.counties).features)
+                .data(topojson.feature(us, us.objects.district_county).features)
                 .enter()
                 .append('path')
                 .attr("class", "county")
@@ -715,7 +719,7 @@
                 .attr("d", path);
 
             group.append("path")
-                .datum(topojson.mesh(us, us.objects.states, function (a, b) {
+                .datum(topojson.mesh(us, us.objects.state, function (a, b) {
                     return a !== b;
                 }))
                 .attr("class", "state")
@@ -1035,7 +1039,8 @@
 
         // get county paths and election data
         Promise.all([
-            d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
+            d3.json("/cartography/2020/us-albers-10m.topojson"),
+            // d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
             d3.csv("2020_US_County_Level_Presidential_Results.csv")
         ]).then(resp => {
             createViz(resp[0], resp[1])
