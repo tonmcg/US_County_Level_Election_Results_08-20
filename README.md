@@ -12,15 +12,17 @@ Presidential election results for 2008, 2012, 2016, and 2020 from The Guardian, 
 
 2020 election results at the county-level are scraped from results published by from [Fox News](https://www.foxnews.com/elections/2020/general-results), [Politico](https://www.politico.com/2020-election/results/president), and the [New York Times](https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html).
 
-Idea for 2012 election results from tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816). Idea for 2016 election results from tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864)
+Idea for 2012 election results from tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816). Idea for 2016 election results from tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864).
 
-## Creating Choropleth Maps with 2020 Election Data
+[Interactive choropleth map of the 2020 presidential election results](https://tonmcg.github.io/US_County_Level_Election_Results_08-20) created by [Tony McGovern](https://github.com/tonmcg) using Vue, Vuetify, and D3. Static choropleth and dot-density maps of 2020 presidential election results also created by Tony McGovern using the [Mapshaper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Command-Reference). See the section below on how to use this tool to create these static maps.
 
-This repository relies on data from various newspapers that report 2020 presidential election results at the county-level for all U.S. states, with the exception of Alaska and Washington, D.C., which are reported at the house district- and ward-level, respectively. Whether county-, house district-, or ward-level, each election result is tied to a specific U.S. geography by a unique 5-digit code that represents that geography, called a FIPS code. The U.S. Census Bureau Geography Division (Geography Division) identifies and provides cartographic boundary files for, and assigns a unique FIPS code to, each geography.
+## Creating Maps of 2020 Presidential Election Results
 
-The goal here is to bind 2020 presidential election results to the cartographic boundary files and convert them into a format that can be easily displayed in a web browser. We use the [Mapshper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Introduction-to-the-Command-Line-Tool) to help achieve this aim.
+This repository relies on data from various newspapers that report 2020 presidential election results at the county-level for all U.S. states, with the exception of Alaska and Washington, D.C., which are reported at the house district- and ward-level, respectively. Whether county-, house district-, or ward-level, each election result is tied to a specific U.S. geography by a unique 5-digit code that represents that geography, called a FIPS code. The U.S. Census Bureau Geography Division (Geography Division) identifies and provides cartographic boundary files for, and assigns a unique FIPS code to, each geography. For a brief explanation on the derivation of the FIPS code, [navigate to this page maintained by the Geography Division](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html#ti1187912100).
 
-(For a brief explanation on the derivation of the FIPS code, [navigate to this page maintained by the Geography Division](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html#ti1187912100).)
+The goal here is to bind 2020 presidential election results to U.S. cartographic boundary files and convert them into a format that can be easily displayed in a web browser. We use the [Mapshper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Introduction-to-the-Command-Line-Tool) to help create both choropleth and dot density maps.
+
+### Choropleth Map
 
 - Create a directory to hold cartographic boundary files for all election year results within this repository
 
@@ -184,7 +186,7 @@ mapshaper \
 The result of these commands should output a TopoJSON file that looks like the following:
 ![us_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_election_results.png)
 
-### Creating a Dot Density Map with 2020 Election Data
+### Dot Density Map
 
 Dot density maps are useful to show where things are clustered. Showing raw counts of votes _among_ U.S. counties rather than relative differences _between_ U.S. counties, the dot density map below illustrates that the most votes tend to come from counties that house large, urban populations.
 
