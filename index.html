@@ -525,7 +525,7 @@
 
                     // get county paths and election data
                     const results = await Promise.all([
-                        d3.json("/cartography/2020/us-albers-10m.topojson"),
+                        d3.json("./cartography/2020/us-albers-10m.topojson"),
                         // axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
                         d3.csv("2020_US_County_Level_Presidential_Results.csv")
                     ])
@@ -1039,7 +1039,7 @@
 
         // get county paths and election data
         Promise.all([
-            d3.json("/cartography/2020/us-albers-10m.topojson"),
+            d3.json("./cartography/2020/us-albers-10m.topojson"),
             // d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
             d3.csv("2020_US_County_Level_Presidential_Results.csv")
         ]).then(resp => {
