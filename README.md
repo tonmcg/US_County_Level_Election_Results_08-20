@@ -2,27 +2,37 @@
 
 [![DOI](https://zenodo.org/badge/73478714.svg)](https://zenodo.org/badge/latestdoi/73478714)
 
-Presidential election results for 2008, 2012, 2016, and 2020 from The Guardian, townhall.com, Fox News, Politico, and the New York Times.
+## Summary
+This GitHub repository provides county-level U.S. presidential election results for the years 2008, 2012, 2016, and 2020. The data comes from various reputable sources, including The Guardian, Townhall.com, Fox News, Politico, and the New York Times. While the results are exhaustive, they are not authoritative. The repository compiles these results to support academic research and analysis, offering both interactive and static visualizations of the election data.
 
-2008 election results at the county-level compiled by GitHub user @wboykinm.
+## Table of Contents
+- [Compiling Presidential Election Results](#compiling-presidential-election-results)
+- [Visualizing the 2020 Presidential Election Results](#visualizing-the-2020-presidential-election-results)
+  - [Visualizing Results with a Choropleth Map](#visualizing-results-with-a-choropleth-map)
+    - [Create U.S. County Shapefiles](#create-us-county-shapefiles)
+    - [Create Alaska House District Shapefiles](#create-alaska-house-district-shapefiles)
+    - [Bind U.S. Election Results](#bind-us-election-results)
+  - [Visualizing Results with a Dot Density Map](#visualizing-results-with-a-dot-density-map)
 
-2012 election results at the county-level are taken from results published in an Excel file by the [Guardian](https://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download#data).
+### Compiling Presidential Election Results
+This GitHub repository serves as a comprehensive collection of U.S. presidential election results at the county level for the 2008, 2012, 2016, and 2020 elections. It draws from multiple trusted sources:
 
-2016 election results at the county-level are scraped from results published by [Townhall.com](http://townhall.com/election/2016/president/). Their well-formatted county-level result tables for the 2016 presidential general election makes it easy for a web scraper like beautifulsoup to capture results.
+- **2008:** Compiled by GitHub user @wboykinm.
+- **2012:** Extracted from an Excel file published by [The Guardian](https://www.theguardian.com/news/datablog/2012/nov/07/us-2012-election-county-results-download#data), inspired by a tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816).
+- **2016:** Data scraped from [Townhall.com](http://townhall.com/election/2016/president/), inspired by a tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864).
+- **2020:** Data scraped from [Fox News](https://www.foxnews.com/elections/2020/general-results), [Politico](https://www.politico.com/2020-election/results/president), and the [New York Times](https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html).
 
-2020 election results at the county-level are scraped from results published by from [Fox News](https://www.foxnews.com/elections/2020/general-results), [Politico](https://www.politico.com/2020-election/results/president), and the [New York Times](https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html).
+Although the data in this repository is extensive, it is not considered the authoritative source. Researchers are encouraged to verify specific results from primary data sources when needed.
 
-Idea for 2012 election results from tweet to [John A Guerra Gomez](https://twitter.com/duto_guerra/status/790171584665378816). Idea for 2016 election results from tweet to [DJ Patil](https://twitter.com/dpatil/status/796902611622436864).
+Additionally, the repository includes tools for visualizing presidential election results. Tony McGovern developed both an [interactive map](https://tonmcg.github.io/US_County_Level_Election_Results_08-20) and [static maps](https://github.com/tonmcg/US_County_Level_Election_Results_08-20?tab=readme-ov-file#dot-density-map) of the 2020 presidential election results. Instructions to create these static maps are also provided, making it easier for academics to analyze and present the data in a visual format.
 
-[Interactive choropleth map of the 2020 presidential election results](https://tonmcg.github.io/US_County_Level_Election_Results_08-20) created by [Tony McGovern](https://github.com/tonmcg) using Vue, Vuetify, and D3. Static choropleth and dot-density maps of 2020 presidential election results also created by Tony McGovern using the [Mapshaper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Command-Reference). See the section below on how to use this tool to create these static maps.
+## Visualizing the 2020 Presidential Election Results
 
-## Creating Maps of 2020 Presidential Election Results
+This repository compiles various U.S. presidential election results at the county level for all states, except Alaska and Washington, D.C., where results are reported at the house district and ward level, respectively. Each result is linked to a specific geography using a unique 5-digit FIPS code, assigned by the U.S. Census Bureau's Geography Division. For more on FIPS codes, see [this page](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html#ti1187912100).
 
-This repository relies on data from various newspapers that report 2020 presidential election results at the county-level for all U.S. states, with the exception of Alaska and Washington, D.C., which are reported at the house district- and ward-level, respectively. Whether county-, house district-, or ward-level, each election result is tied to a specific U.S. geography by a unique 5-digit code that represents that geography, called a FIPS code. The U.S. Census Bureau Geography Division (Geography Division) identifies and provides cartographic boundary files for, and assigns a unique FIPS code to, each geography. For a brief explanation on the derivation of the FIPS code, [navigate to this page maintained by the Geography Division](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html#ti1187912100).
+In this section, we bind 2020 election results to U.S. cartographic boundaries and convert them into a web-friendly format. We use the [Mapshaper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Introduction-to-the-Command-Line-Tool) to create both choropleth and dot density maps.
 
-The goal here is to bind 2020 presidential election results to U.S. cartographic boundary files and convert them into a format that can be easily displayed in a web browser. We use the [Mapshper Command Line Tool](https://github.com/mbloch/mapshaper/wiki/Introduction-to-the-Command-Line-Tool) to help create both choropleth and dot density maps.
-
-### Choropleth Map
+### Visualizing Results with a Choropleth Map
 
 - Create a directory to hold cartographic boundary files for all election year results within this repository
 
@@ -38,7 +48,7 @@ mkdir 2020 2016 2012 2008
 cd 2020
 ```
 
-### U.S. Counties
+#### Create U.S. County Shapefiles
 
 - Download and unzip U.S. county cartographic boundary files
 
@@ -74,9 +84,9 @@ mapshaper \
 The result of these commands should output a TopoJSON file that looks like the image below. Notice how Alaska is missing from this image:
 ![us_counties](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_counties.png)
 
-### Alaska
+#### Create Alaska House District Shapefiles
 
-Unlike other states within the United States, Alaska does not administer its presidential elections at the county-level but rather at the lower chamber legislative district, or the House District. To show results at the Alaska House District-level, we must download cartographic boundary files from the same Geography Division [Cartographic Boundary Files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) page and process each of the 40 house districts separately from the county-level files.
+Alaska administers presidential elections at the house district-level, not the county-level like other U.S. states. To display results for Alaska, cartographic boundary files for its 40 districts must be [downloaded](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) and processed separately from the county-level data.
 
 - Download and unzip Alaska lower chamber legislative district cartographic boundary files
 
@@ -92,7 +102,7 @@ We now translate and assign each of these 40 house districts a unique FIPS code 
 
 For example, the FIPS code attached to election results for Alaska House District 01 is 02901: '02' represents the state FIPS code for Alaska, '9' is a catch-all statewide code, and '01' represents House District 01.
 
-Each house district in the shapefile contains a number of properties that describe the district. These properties include a unique identifier, the House District number, and geographic descriptions of the district, among other properties. For our purposes, we want to create properties that will allow us uniquely bind 2020 presidential election results to the Alaska geographic layer.
+Each house district in the shapefile has properties like a unique identifier, district number, and geographic details. Our goal is to add properties that uniquely link 2020 presidential election results to Alaska's geographic layer.
 
 - Input the Alaska House District shapefile
 - Create the following new properties:
@@ -120,9 +130,9 @@ mapshaper \
 The result of these commands should output a TopoJSON file that looks like the image below:
 ![alaska_districts](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/alaska_districts.png)
 
-### U.S. Election Results
+#### Bind U.S. Election Results
 
-Our goal is to generate a single TopoJSON file that a) contains multiple geometry objects from the `us_counties.json` and `alaska_districts.json` TopoJSON files, b) colors the geographies by the results of the 2020 election, mapped to the standard Red-Blue quantiles, and c) displays three levels of geographic boundaries: county-, state-, and national-level. We also want to produce a SVG file that also displays these election results.
+In this section, we create create a single TopoJSON file combining geometry from `us_counties.json` and `alaska_districts.json`, coloring regions by 2020 election results using Red-Blue quantiles, and showing county, state, and national boundaries. We also generate an SVG to display these results.
 
 - Download 2020 U.S. county-level election results
 
@@ -186,9 +196,9 @@ mapshaper \
 The result of these commands should output a TopoJSON file that looks like the following:
 ![us_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_election_results.png)
 
-### Dot Density Map
+### Visualizing Results with a Dot Density Map
 
-Dot density maps are useful to show where things are clustered. Showing raw counts of votes _among_ U.S. counties rather than relative differences _between_ U.S. counties, the dot density map below illustrates that the most votes tend to come from counties that house large, urban populations.
+Dot density maps are great for showing where things are concentrated. Instead of comparing vote counts between counties, the map below displays the total number of votes within each county. It highlights that most votes come from counties with large, urban populations.
 
 ```
 mapshaper \
@@ -211,15 +221,3 @@ mapshaper \
 
 The result of these commands should output a SVG file that looks like the following:
 ![us_dot_election_results](https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-20/master/img/us_dot_election_results.png)
-
-# To run
-
-Place in your favorite iPython / Jupyter notebook environment.
-
-If you don't have one, get [Docker](http://docker.com) and use:
-
-```
-./run-notebook.sh
-```
-
-in a shell based environment. Or open up the shell command and issue the docker command in a Windows environment.
