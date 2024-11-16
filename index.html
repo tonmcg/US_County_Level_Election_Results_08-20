@@ -212,7 +212,7 @@
     <div id="app">
         <v-app>
             <v-app-bar app elevation="1" color="#095591" dark>
-                <v-toolbar-title>United States Presidential Election Results by County, 2020</v-toolbar-title>
+                <v-toolbar-title>United States Presidential Election Results by County, 2024</v-toolbar-title>
 
                 <v-spacer></v-spacer>
                 <v-btn class="mx-4" icon href="https://github.com/tonmcg" target="_blank">
@@ -239,9 +239,9 @@
                         </v-card-title>
                         <v-card-subtitle class="text-subtitle-1">
                             <span>Source: <a
-                                href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
+                                href="https://www.nytimes.com/interactive/2024/11/03/us/elections/results-president.html"
                                 target="_blank"><em>New York Times</em></a>. Data compiled by: <a
-                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
+                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
                                 target="_blank">Tony McGovern</a>.</span>
                                 <span>Hover over and click on the map to explore</span>
                         </v-card-subtitle>
@@ -261,9 +261,9 @@
                         <v-card-title class="text-h4">Election Results Table</v-card-title>
                         <v-card-subtitle class="text-subtitle-1">
                             <span>Source: <a
-                                href="https://www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html"
+                                href="https://www.nytimes.com/interactive/2024/11/03/us/elections/results-president.html"
                                 target="_blank"><em>New York Times</em></a>. Data compiled by: <a
-                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-20/blob/master/2020_US_County_Level_Presidential_Results.csv"
+                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
                                 target="_blank">Tony McGovern</a>.</span>
                                 <span>Click on the legend to filter results</span>
                         </v-card-subtitle>
@@ -525,9 +525,9 @@
 
                     // get county paths and election data
                     const results = await Promise.all([
-                        d3.json("./cartography/2020/us-albers-10m.topojson"),
+                        d3.json("./cartography/2024/us-albers-10m.topojson"),
                         // axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
-                        d3.csv("2020_US_County_Level_Presidential_Results.csv")
+                        d3.csv("2024_US_County_Level_Presidential_Results.csv")
                     ])
 
                     this.countyPaths = results[0].data;
@@ -1039,7 +1039,7 @@
 
         // get county paths and election data
         Promise.all([
-            d3.json("./cartography/2020/us_election_districts.json"),
+            d3.json("./cartography/2024/us_election_districts.json"),
             // d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
             d3.csv("2024_US_County_Level_Presidential_Results.csv")
         ]).then(resp => {
