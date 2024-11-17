@@ -525,7 +525,7 @@
 
                     // get county paths and election data
                     const results = await Promise.all([
-                        d3.json("./cartography/2024/us-albers-10m.topojson"),
+                        d3.json("./cartography/2024/us_election_districts.json"),
                         // axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
                         d3.csv("2024_US_County_Level_Presidential_Results.csv")
                     ])
