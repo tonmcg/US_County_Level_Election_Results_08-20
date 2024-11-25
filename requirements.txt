@@ -1,0 +1,5 @@
+Flask
+requests
+jsonify
+CORS
+BytesIO

@@ -2,20 +2,21 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
     <title>U.S. Presidential Election Results</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
     <style>
         /* hide scroll bar */
         html {
-            overflow-y: auto
+            overflow-y: auto;
         }
 
         body {
-            font-family: 'Roboto';
+            font-family: "Roboto";
         }
 
         .nation,
@@ -42,7 +43,7 @@
         }
 
         .background {
-            fill: #f5f5f5;
+            fill: #fdfcfc;
             fill-opacity: 0.7;
         }
 
@@ -72,6 +73,7 @@
             font-size: 1.5vmin;
             font-weight: 700;
         }
+
         /* custom tooltip */
         .tooltip {
             top: 100px;
@@ -79,7 +81,7 @@
             /* -moz-border-radius: 5px;
             border-radius: 5px; */
             /*border: 2px solid #000;*/
-            box-shadow: -4px 0 12px 0 rgba(0, 0, 0, .05);
+            box-shadow: -4px 0 12px 0 rgba(0, 0, 0, 0.05);
             background: #ffffff;
             background-color: #fff;
             border: 1px solid #ccc;
@@ -89,7 +91,7 @@
             padding: 10px;
             /* min-width: 375px; */
             min-width: 36.75vmin;
-            font-family: 'Roboto';
+            font-family: "Roboto";
             font-size: 1.25vmin;
             line-height: 18pt;
             font-weight: lighter;
@@ -97,12 +99,12 @@
         }
 
         .tooltip.right::before {
-            content: '';
+            content: "";
             display: block;
             width: 0;
             height: 0;
             position: absolute;
-            opacity: .9;
+            opacity: 0.9;
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
             /* border-left: 8px solid #333; */
@@ -112,12 +114,12 @@
         }
 
         .tooltip.left::before {
-            content: '';
+            content: "";
             display: block;
             width: 0;
             height: 0;
             position: absolute;
-            opacity: .9;
+            opacity: 0.9;
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
             left: -8px;
@@ -130,7 +132,9 @@
         table {
             /* table-layout: fixed; */
             width: 100%;
-            max-width: 380px;
+            /* max-width: 380px; */
+            /* min-width: 375px; */
+            max-width: 36.75vmin;
             white-space: nowrap;
             border-collapse: collapse;
         }
@@ -204,21 +208,20 @@
             top: 0
         } */
     </style>
-
 </head>
-
 
 <body>
     <div id="app">
         <v-app>
             <v-app-bar app elevation="1" color="#095591" dark>
-                <v-toolbar-title>United States Presidential Election Results by County, 2024</v-toolbar-title>
+                <v-toolbar-title>United States Presidential Election Results by County,
+                    2024</v-toolbar-title>
 
                 <v-spacer></v-spacer>
                 <v-btn class="mx-4" icon href="https://github.com/tonmcg" target="_blank">
                     <v-icon large>mdi-github</v-icon>
                 </v-btn>
-                <v-btn class="mx-4" icon href="https://twitter.com/tonmcg" target="_blank">
+                <v-btn class="mx-4" icon href="https://x.com/tonmcg" target="_blank">
                     <v-icon large>mdi-twitter</v-icon>
                 </v-btn>
                 <v-btn class="mx-4" icon href="https://www.linkedin.com/in/tonmcg" target="_blank">
@@ -230,109 +233,62 @@
                 </v-btn>
             </v-app-bar>
 
-
             <v-main>
                 <v-container>
+                    <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
                     <v-card tile ref="electionMap">
                         <v-card-title>
-                            <p class="text-h4">Map of United States Counties and Election Districts</p>
+                            <p class="text-h4">
+                                Map of United States Counties and Legislative Districts
+                            </p>
                         </v-card-title>
                         <v-card-subtitle class="text-subtitle-1">
-                            <span>Source: <a
-                                href="https://www.nytimes.com/interactive/2024/11/03/us/elections/results-president.html"
-                                target="_blank"><em>New York Times</em></a>. Data compiled by: <a
-                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                target="_blank">Tony McGovern</a>.</span>
-                                <span>Hover over and click on the map to explore</span>
+                            <v-row class="align-center">
+                                <v-col>
+                                    <span>
+                                        Source:
+                                        <a href="https://www.foxnews.com/elections/2024/general-results"
+                                            target="_blank"><em>Fox News</em></a>
+                                        and
+                                        <a href="https://www.elections.alaska.gov/enr/" target="_blank"><em>Alaska
+                                                Division of Elections</em></a>. Data compiled by:
+                                        <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
+                                            target="_blank">Tony McGovern</a>.
+                                    </span>
+                                    <br />
+                                    <span>Hover over and click on the map to explore</span>
+                                </v-col>
+                                <v-col class="d-flex justify-end" cols="auto">
+                                    <v-radio-group v-model="selectedMap" row @change="renderMap">
+                                        <template v-slot:label>
+                                            <div>Select map</div>
+                                        </template>
+                                        <v-radio value="updatePaths">
+                                            <template v-slot:label>
+                                                <div>Choropleth (filled)</div>
+                                            </template>
+                                        </v-radio>
+                                        <v-radio value="updateCircles">
+                                            <template v-slot:label>
+                                                <div>Dot Density</div>
+                                            </template>
+                                        </v-radio>
+                                    </v-radio-group>
+                                </v-col>
+                            </v-row>
                         </v-card-subtitle>
-
-                        <v-card-text>
-                            <div id="canvas">
-                                <div class="scaling-svg-container">
-                                    <svg></svg>
-                                </div>
+                        <v-card-text :style="{ minHeight: map.height + 'px' }">
+                            <div class="scaling-svg-container">
+                                <v-progress-linear v-if="!countyFips.length" indeterminate
+                                    color="primary"></v-progress-linear>
+                                <svg></svg>
+                                <div class="fab" style="opacity: 0;"> ↺ </div>
                             </div>
                         </v-card-text>
                         <v-divider></v-divider>
                     </v-card>
                 </v-container>
-                <v-container>
-                    <v-card tile ref="electionTable">
-                        <v-card-title class="text-h4">Election Results Table</v-card-title>
-                        <v-card-subtitle class="text-subtitle-1">
-                            <span>Source: <a
-                                href="https://www.nytimes.com/interactive/2024/11/03/us/elections/results-president.html"
-                                target="_blank"><em>New York Times</em></a>. Data compiled by: <a
-                                href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                target="_blank">Tony McGovern</a>.</span>
-                                <span>Click on the legend to filter results</span>
-                        </v-card-subtitle>
-                        <v-card-text>
-                            <v-data-table :headers="table.headers" :items="tableRows" dense :page.sync="table.page"
-                                :items-per-page="table.itemsPerPage" hide-default-footer sort-by="geoid"
-                                @page-count="table.pageCount = $event" class="elevation-1">
-                                <template v-slot:top>
-                                    <v-fab-transition>
-                                        <v-btn v-show="legend.selectedValue" color="#095591" elevation="24" absolute top
-                                            x-large right fab dark @click="legend.selectedValue = undefined">
-                                            <v-icon>mdi-autorenew</v-icon>
-                                        </v-btn>
-                                    </v-fab-transition>
-                                </template>
-                                <template v-slot:body="props">
-                                    <tbody>
-                                        <tr v-for="(item, i) in props.items" :key="i" class>
-                                            <td v-for="(header, k) in props.headers" :key="k"
-                                                :class="`text-${header.align}`">
-                                                <div v-if="header.value !== 'Winner'">
-                                                    {{ formatValue(item[header.value], header.type) }}
-                                                </div>
-                                                <div v-else class="layout px-0">
-                                                    <v-chip small tile label
-                                                        :color="item.Winner == 'GOP' ? sequentialScale(-0.8) : sequentialScale(0.8)"
-                                                        dark>
-                                                        {{ item.Winner }}
-                                                    </v-chip>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </template>
-                                <template v-slot:footer>
-                                    <v-toolbar flat>
-                                        <v-row align="center" justify="space-around">
-                                            <v-btn-toggle tile v-model="legend.selectedValue">
-                                                <v-btn class="ma-1" elevation="1" v-for="(cell, t) in cells"
-                                                    :key="`cell-${t}`" :color="colorCell(t)" :dark="darkenCell(t)"
-                                                    :value="cells[t]">
-                                                    {{ `${(Math.abs(cells[t] ) * 100).toString()}%`  }}
-                                                </v-btn>
-                                            </v-btn-toggle>
-                                        </v-row>
-                                    </v-toolbar>
-                                    <p class="text-caption text-center">Percentage Point Difference</p>
-                                </template>
-
-                            </v-data-table>
-                            <div class="text-center pt-2">
-                                <v-pagination v-model="table.page" :length="table.pageCount"></v-pagination>
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-container>
             </v-main>
-            <v-fab-transition>
-                <v-btn v-scroll="onScroll" v-show="map.showScroll" color="#009359" elevation="24" fixed x-large top
-                    right fab dark @click="scrollMap">
-                    <v-icon>mdi-chevron-up</v-icon>
-                </v-btn>
-            </v-fab-transition>
-            <v-fab-transition>
-                <v-btn v-scroll="onScroll" v-show="table.showScroll" color="#009359" elevation="24" fixed x-large bottom
-                    right fab dark @click="scrollTable">
-                    <v-icon>mdi-chevron-down</v-icon>
-                </v-btn>
-            </v-fab-transition>
             <v-footer app color="#6C757D" padless>
                 <v-row no-gutters>
                     <v-col class="py-4 text-center white--text" cols="12">
@@ -343,726 +299,1185 @@
         </v-app>
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" type="text/javascript"></script>
-    <script src="https://d3js.org/d3.v6.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/topojson@3" type="text/javascript"></script>
     <script defer type="text/javascript">
         "use strict";
 
         new Vue({
-            el: '#app',
+            el: "#app",
             vuetify: new Vuetify(),
             data: () => ({
                 domain: [-1, 1], // set the domain for all scales from -1 to 1
-                legend: {
-                    selectedValue: undefined
+                tooltip: {
+                    visibility: "hidden",
+                    position: { x: 0, y: 0 },
+                    content: "",
+                },
+                selectedMap: "updateCircles",
+                gopVotes: 0,
+                demVotes: 0,
+                gopShare: 0,
+                demShare: 0,
+                districtObj: {},
+                countyFips: [],
+                geographies: {
+                    censusYear: 2024, // base year for the county gazetteer files
+                    suzeraintyFips: ["02", "60", "66", "69", "72", "74", "78"],
                 },
                 map: {
                     width: 960,
                     height: 720,
-                    showScroll: false,
-                    scrollResolved: false
                 },
-                table: {
-                    page: 1,
-                    pageCount: 0,
-                    itemsPerPage: 15,
-                    headers: [],
-                    showScroll: true,
-                    scrollResolved: false
+                transition: {
+                    duration: 1000,
                 },
-                countyPaths: {},
-                electionData: []
             }),
             computed: {
+                color: function () {
+                    return d3
+                        .scaleSequential()
+                        .interpolator(d3.interpolateRdBu)
+                        .domain(this.domain);
+                },
+                wScale: function () {
+                    return d3
+                        .scaleLinear()
+                        .domain(this.domain)
+                        .range([-this.map.width / 3, this.map.width / 3]);
+                },
+                path: function () {
+                    return d3.geoPath().projection(null);
+                },
                 sequentialScale: function () {
-                    return d3.scaleSequential().interpolator(d3.interpolateRdBu).domain(this.domain)
-                },
-                linearScale: function () {
-                    return d3.scaleLinear().domain(this.domain).range([-this.map.width / 3, this.map.width /
-                        3
-                    ]);
-                },
-                geoPath: function () {
-                    return d3.geoPath().projection(null)
-                },
-                zoom: function () {
-                    return d3.zoom().scaleExtent([1, 15]).on("zoom", zoomed);
+                    return d3
+                        .scaleSequential()
+                        .interpolator(d3.interpolateRdBu)
+                        .domain(this.domain);
                 },
                 cells: function () {
                     return this.sequentialScale.ticks();
                 },
-                districts: function () {
-                    let newObj = {}
-
-                    if (this.electionData.length > 0) {
-                        this.electionData.forEach(d => {
-                            const result = d['Percentage Point Difference'];
-                            if (
-                                this.legend.selectedValue === undefined ||
-                                (result <= 0 && result >= this.legend.selectedValue) ||
-                                (result >= 0 && result <= this.legend.selectedValue)
-                            ) newObj[d.geoid] = d;
-                        })
-                    }
-
-                    return newObj
-                },
-                gop_votes: function () {
-                    d3.sum(Object.keys(this.districts), r => this.districts[r].gop_votes)
-                },
-                dem_votes: function () {
-                    d3.sum(Object.keys(this.districts), r => this.districts[r].dem_votes)
-                },
-                gop_share: function () {
-                    this.gop_votes / (this.gop_votes + this.dem_votes)
-                },
-                dem_share: function () {
-                    this.dem_votes / (this.gop_votes + this.dem_votes)
-                },
-                tableRows: function () {
-                    return Object.keys(this.districts).map(d => {
-                        return this.districts[d];
-                    })
+            },
+            mounted: async function () {
+                const censusCounties = await this.getCensusCounties();
+                const censusStates = await this.getCensusStates();
+                const censusGeographies = this.mergeCensusGeographies(
+                    censusCounties,
+                    censusStates
+                );
+                const akGeographies = await this.getAlaskaGeographies();
+                await this.fetchAlaskaResults(akGeographies);
+                await this.fetchElectionResults(censusStates, censusGeographies);
+                this.calculateMetrics(); // calculate computed properties
+                const { us } = await this.fetchUSGeography();
+                this.initializeMap(us);
+                this.renderMap();
+                this.createBars();
+                this.bindHover();
+                if (this.countyFips.length > 40) { // arbitrarily set threshold
+                    setTimeout(() => {
+                        this.selectedMap = "updatePaths";
+                        this.renderMap();
+                    }, 3000);
                 }
             },
-            mounted: function () {
-                this.fetchData();
-            },
             methods: {
-                draw() {
+                async getCensusCounties() {
+                    const that = this;
+                    // Enter base year for the county gazetteer files
+                    const censusYear = this.geographies.censusYear;
 
-                },
-                scrollTable() {
-                    this.table.scrollResolved = false;
-                    // wait until the promise for the other scroll function resolves 
-                    this.$vuetify.goTo(this.$refs.electionTable).then(() => this.table.scrollResolved = true);
-                },
-                scrollMap() {
-                    this.map.scrollResolved = false;
-                    // wait until the promise for the other scroll function resolves 
-                    this.$vuetify.goTo(this.$refs.electionMap).then(() => this.map.scrollResolved = true);
-                },
-                onScroll() {
-                    let tableScroll = true;
-                    let mapScroll = false;
+                    // Base URL where all the county gazetteer files live
+                    const gazetteerUrl = `http://127.0.0.1:5000/census/gazetteer/${censusYear}`;
 
-                    const mapposition = this.$refs.electionMap.$el.getBoundingClientRect().y
-                    const tableposition = this.$refs.electionTable.$el.getBoundingClientRect().y
+                    const censusCounties = async function parseCountyGeographyData(censusGazCounties) {
 
-                    if (tableposition < window.innerHeight - 200) {
-                        tableScroll = false;
-                        mapScroll = true;
+                        // Function to fetch and parse a single county file
+                        async function fetchCountyFile(countyFileName) {
+                            const response = await fetch(gazetteerUrl + '/' + countyFileName);
+                            const csvText = await response.text();
+                            const parsedData = d3.dsvFormat('\t').parse(csvText, function (d) {
+                                return {
+                                    geoid: d['GEOID'],
+                                    c_county_name: d['NAME']
+                                };
+                            });
+                            return parsedData;
+                        }
+
+                        // Read each county file CSV
+                        const censusCountyFilesPromises = censusGazCounties.map(file => fetchCountyFile(file.county_file_name));
+                        const censusCountyFiles = await Promise.all(censusCountyFilesPromises);
+
+                        // Combine into a single array
+                        const censusCounties = [].concat(...censusCountyFiles);
+
+                        // Create state FIPS codes from the 5-digit 'geoid'
+                        censusCounties.forEach(county => {
+                            county.state_fips = county.geoid.slice(0, 2);
+                        });
+
+                        // Log the result
+                        console.log('Shape:', censusCounties.length);
+                        console.log('Data Types:', {
+                            geoid: typeof censusCounties[0].geoid,
+                            c_county_name: typeof censusCounties[0].c_county_name,
+                            state_fips: typeof censusCounties[0].state_fips
+                        });
+                        console.log('First 100 Entries:', censusCounties.slice(0, 100));
+
+                        return censusCounties;
                     }
 
-                    this.table.showScroll = tableScroll;
-                    this.map.showScroll = mapScroll;
-                },
-                formatValue(val, type) {
-                    let formattedValue = val;
-                    if (type === "integer") {
-                        formattedValue = new Intl.NumberFormat('en-US').format(Math.abs(val));
-                    } else if (type === "float") {
-                        formattedValue = new Intl.NumberFormat('en-US', {
-                            style: 'percent',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }).format(Math.abs(val));
+                    const censusGazCounties = async function getCountyGazFiles() {
+                        // Make an HTTP request for the page
+                        const response = await fetch(gazetteerUrl, {
+                            method: 'GET',
+                            headers: { "Accept": "application/json" }
+                        });
+
+                        // Parse the page and return a DOM tree
+                        const pageContent = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(pageContent, 'text/html');
+
+                        // Use XPath to return a list of link texts ('a' elements within the 'table' element) from the DOM
+                        const xpathResult = doc.evaluate('//td/a/text()', doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                        const gazetteerFiles = [];
+                        for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                            gazetteerFiles.push(xpathResult.snapshotItem(i).nodeValue);
+                        }
+
+                        // Filter the list to return only county file names
+                        const countyFiles = gazetteerFiles.filter(c => /.*counties.*\.txt/.test(c));
+
+                        // Convert the list to an array of objects
+                        const countyFilesSeries = countyFiles.map(fileName => ({ county_file_name: fileName }));
+
+                        // Filter out Alaska and these Suzerainty entities
+                        const censusGazCounties = countyFilesSeries.filter(file => {
+                            const match = file.county_file_name.match(/_(\d{2})\.txt/);
+                            return match && !that.geographies.suzeraintyFips.includes(match[1]);
+                        });
+
+                        // Log the result
+                        console.log('Shape:', censusGazCounties.length);
+                        console.log('Data Types:', censusGazCounties.map(file => typeof file.county_file_name));
+                        console.log('First 100 Entries:', censusGazCounties.slice(0, 100));
+
+                        return censusGazCounties;
                     }
-                    return formattedValue;
+
+                    return await censusCounties(await censusGazCounties());
                 },
-                zoomed(event) {
-                    const {
-                        transform
-                    } = event;
-                    group.attr("transform", transform);
-                    group.attr("stroke-width", 1 / transform.k);
-                    // hide button if zoomed out
-                    if (transform.k > 1 && (transform.x || transform.y !== 0)) {
-                        fab
-                            .transition()
-                            .duration(500)
-                            .style("opacity", 1)
-                    } else {
-                        fab
-                            .transition()
-                            .duration(500)
-                            .style("opacity", 0)
-                    }
+                async getCensusGeograhpies() {
+                    const censusGeographies = await d3.csv(
+                        "2024_us_census_geographies.csv"
+                    );
+
+                    return censusGeographies;
                 },
-                highlightCell(i) {
-                    const cellValue = this.cells[i];
-                    const selectedValue = this.legend.selectedValue;
-                    const isSelected = selectedValue === cellValue;
-                    const gopSelection = selectedValue <= 0;
-                    const demSelection = !gopSelection;
+                async getCensusStates() {
 
-                    let isHighlighted = false;
-                    if (
-                        selectedValue === undefined ||
-                        (gopSelection && cellValue <= 0 && cellValue >= selectedValue) ||
-                        (demSelection && cellValue >= 0 && cellValue <= selectedValue)
-                    ) isHighlighted = true;
-
-                    return isHighlighted;
-                },
-                darkenCell(i) {
-                    const isHighlighted = this.highlightCell(i);
-                    const cellValue = this.cells[i];
-
-                    return isHighlighted && Math.abs(cellValue) > 0.5;
-                },
-                colorCell(i) {
-                    const isHighlighted = this.highlightCell(i);
-                    const cellValue = this.cells[i];
-
-                    return isHighlighted ? this.sequentialScale(cellValue) : '#ccc';
-                },
-                async fetchData() {
-
-                    // get county paths and election data
-                    const results = await Promise.all([
-                        d3.json("./cartography/2024/us_election_districts.json"),
-                        // axios.get("https://unpkg.com/us-atlas@1/us/10m.json"),
-                        d3.csv("2024_US_County_Level_Presidential_Results.csv")
-                    ])
-
-                    this.countyPaths = results[0].data;
-
-                    // parse election data
-                    this.electionData = results[1].map(d => {
+                    // Fetch the JSON data
+                    const url = "http://127.0.0.1:5000/census/state_data";
+                    const response = await fetch(url, { method: "GET" });
+                    const data = await response.text();
+                    // Parse the CSV data using d3.dsv
+                    const allCensusStates = d3.dsvFormat('|').parse(data, function (d) {
                         return {
-                            geoid: d.geoid,
-                            State: d.state_name,
-                            County: d.county_name,
-                            Winner: +d.votes_dem > +d.votes_gop ? 'Dem.' : 'GOP',
-                            GOP: +d.votes_gop,
-                            'Dem.': +d.votes_dem,
-                            'Total Votes': +d.total_votes,
-                            'Vote Diff.': +d.votes_gop - +d.votes_dem,
-                            '% of Total Vote, GOP': +d.per_gop,
-                            '% of Total Vote, Dem.': +d.per_dem,
-                            'Percentage Point Difference': +d.per_point_diff * -1
+                            state_fips: d.STATE,
+                            state_abbr: d.STUSAB,
+                            c_state_name: d.STATE_NAME
+                        };
+                    });
+
+                    // Filter out Alaska and these Suzerainty entities
+                    const censusStates = allCensusStates.filter(state => !this.geographies.suzeraintyFips.includes(state.state_fips));
+
+                    return censusStates;
+                },
+                mergeCensusGeographies(censusCounties, censusStates) {
+                    // Convert the input arrays to DataFrames
+                    const censusCountiesDf = new dfd.DataFrame(censusCounties);
+                    const censusStatesDf = new dfd.DataFrame(censusStates);
+
+                    // Select the relevant columns from censusStates
+                    const selectedCensusStatesDf = censusStatesDf.loc({
+                        columns: ["state_fips", "c_state_name"]
+                    });
+
+                    // Perform a left join on 'state_fips'
+                    const countyStateDf = dfd.merge({
+                        left: censusCountiesDf,
+                        right: selectedCensusStatesDf,
+                        on: ["state_fips"],
+                        how: "left"
+                    });
+
+                    // Drop the 'state_fips' column
+                    const censusGeographies = countyStateDf.drop({ columns: ["state_fips"], axis: 1 });
+
+                    // Log the shape and data types of the resulting DataFrame
+                    console.log("Shape:", censusGeographies.shape);
+                    console.log("Data Types:", censusGeographies.ctypes);
+
+                    // Print the first 100 rows of the resulting DataFrame
+                    censusGeographies.head(100).print();
+
+                    // convert back to JSON and return
+                    return dfd.toJSON(censusGeographies);
+                },
+                async getAlaskaGeographies() {
+
+                    // Download the zip file content into memory
+                    const url = `http://127.0.0.1:5000/census/gazetteer/${this.geographies.censusYear}/ak_sldl`;
+                    const response = await fetch(url, { method: "GET" });
+                    const arrayBuffer = await response.arrayBuffer();
+                    const nationalGazetteerZip = new Uint8Array(arrayBuffer);
+
+                    // Open the zip file from the in-memory content
+                    const zip = await JSZip.loadAsync(nationalGazetteerZip);
+                    const unzippedFiles = Object.keys(zip.files);
+
+                    // Find the tab-delimited text file (assuming it's a .txt file)
+                    let tabDelimitedFile = null;
+                    for (const file of unzippedFiles) {
+                        if (file.endsWith(".txt")) {
+                            tabDelimitedFile = file;
+                            break;
+                        }
+                    }
+
+                    if (!tabDelimitedFile) {
+                        console.error("No tab-delimited text file found.");
+                        return;
+                    }
+
+                    // Read the tab-delimited text file content
+                    const fileContent = await zip.file(tabDelimitedFile).async("string");
+
+                    // Parse the tab-delimited text file using d3
+                    const nationalSldlsts = d3.dsvFormat('\t').parse(fileContent, function (d) {
+                        return {
+                            c_state_name: "Alaska", // Add Alaska name to state_name column
+                            geoid: d['GEOID'],
+                            c_sldlst_name: d['NAME']
+                        };
+                    });
+                    // Convert the national sldlsts data to a DataFrame
+                    const nationalSldlsts_df = new dfd.DataFrame(nationalSldlsts, {
+                        index: null,
+                        columns: ["c_state_name", "geoid", "c_sldlst_name"],
+                        dtypes: ["string", "string", "string"]
+                    });
+
+                    // filter the national sldlsts dataframe for Alaska and reset the index
+                    let akGeographies = nationalSldlsts_df.loc({
+                        rows: nationalSldlsts_df["geoid"].map(
+                            (geo) => geo.startsWith("02")
+                        ),
+                    }).resetIndex({ drop: true });
+
+                    // Reorder columns
+                    akGeographies = akGeographies.loc({
+                        columns: ["c_state_name", "geoid", "c_sldlst_name"]
+                    });
+                    // Log the shape and data types of the resulting DataFrame
+                    console.log("Shape:", akGeographies.shape);
+                    console.log("Data Types:", akGeographies.ctypes);
+
+                    // Print the first 100 rows of the resulting DataFrame
+                    akGeographies.head(100).print();
+
+                    // convert back to JSON and return
+                    return dfd.toJSON(akGeographies);
+                },
+                async getFoxStateResults(stateAbbr) {
+                    // Request JSON data for the specified state
+                    const url = `https://feeds-elections.foxnews.com/archive/politics/elections/2024/3/2024_Generals/President/${stateAbbr}/county_level_results/file.json`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    // Process lookup table
+                    const lookupCounties = data.lookup.counties;
+                    const lookupArray = Object.entries(lookupCounties).map(
+                        ([key, value]) => ({
+                            countyId: key.toString(),
+                            county_fips: value.fipsCode.toString().padStart(5, "0"),
+                        })
+                    );
+
+                    // Process results table
+                    const results = data.results;
+                    const rows = [];
+                    results.forEach((result) => {
+                        const partyName = result.candidate.partyName;
+                        result.countyVotes.forEach((voteData) => {
+                            rows.push({
+                                partyName,
+                                countyId: voteData.countyId.toString(),
+                                count: voteData.votes.count,
+                            });
+                        });
+                    });
+
+                    const candidateColumns = ["partyName", "countyId", "count"];
+                    const candidateDtypes = ["string", "string", "int32"];
+                    // Convert rows to a DataFrame (using danfo.js)
+                    const candidateDf = new dfd.DataFrame(rows, {
+                        index: null,
+                        columns: candidateColumns,
+                        dtypes: candidateDtypes,
+                    });
+                    // Group by county and calculate total votes
+                    const groupedByCounty = candidateDf
+                        .groupby(["countyId"])
+                        .col(["count"])
+                        .sum();
+                    groupedByCounty.rename(
+                        { count_sum: "total_votes" },
+                        { inplace: true }
+                    );
+                    // Force 'countyId' to string
+                    const newGroupedByCounty = new dfd.DataFrame(
+                        {
+                            countyId: groupedByCounty["countyId"].$data.map(String), // Convert to string explicitly
+                            total_votes: groupedByCounty["total_votes"].$data, // Preserve total_votes column
+                        },
+                        {
+                            index: null,
+                            columns: ["countyId", "total_votes"],
+                            dtypes: ["string", "int32"],
+                        }
+                    );
+
+                    // Filter results for Democrat and Republican candidates only
+                    const filteredDf = candidateDf.loc({
+                        rows: candidateDf["partyName"].map(
+                            (party) => party === "Democrat" || party === "Republican"
+                        ),
+                    });
+                    // Pivot the DataFrame
+                    // Group by 'countyId' and 'partyName' to aggregate vote counts
+                    const groupedDf = filteredDf
+                        .groupby(["countyId", "partyName"])
+                        .agg({ count: "sum" });
+
+                    // Convert the grouped DataFrame into an object for reshaping
+                    const groupedData = groupedDf.values.map((row) => ({
+                        countyId: row[0],
+                        partyName: row[1],
+                        count: row[2],
+                    }));
+
+                    // Reshape the data into pivot-like format
+                    const pivotMap = {};
+                    groupedData.forEach((row) => {
+                        const { countyId, partyName, count } = row;
+                        if (!pivotMap[countyId]) {
+                            pivotMap[countyId] = { countyId, votes_dem: 0, votes_gop: 0 };
+                        }
+                        if (partyName === "Democrat") {
+                            pivotMap[countyId].votes_dem = count;
+                        } else if (partyName === "Republican") {
+                            pivotMap[countyId].votes_gop = count;
                         }
                     });
 
-                    // define table headers
-                    this.table.headers = Object.keys(this.electionData[0])
-                        // .filter(f => f !== 'geoid')
-                        .map(r => {
-                            const value = this.electionData[0][r];
-                            const isFIPS = r ===
-                                "geoid"; // test if the value is a fips code, which we need to stay as string
-                            const isNumber = isFIPS ? false : !isNaN(
-                                value); // test if the value can be converted safely to a number
-                            const dataType = isNumber ? value % 1 === 0 ? 'integer' : 'float' :
-                                'string'; // test for datatype: if string, integer, or float
-                            const align = isNumber ? 'end' : 'start';
-                            return {
-                                value: r,
-                                text: r,
-                                align: align,
-                                type: dataType,
-                                width: '100%'
-                            }
-                        })
+                    const pivotColumns = ["countyId", "votes_dem", "votes_gop"];
+                    const pivotDtypes = ["string", "int32", "int32"];
+                    // Convert pivoted object back into a DataFrame
+                    const pivotedData = Object.values(pivotMap);
+                    const pivotedDf = new dfd.DataFrame(pivotedData, {
+                        index: null,
+                        columns: pivotColumns,
+                        dtypes: pivotDtypes,
+                    });
 
+                    // Fill NaN values with 0
+                    pivotedDf.fillNa(0);
+                    pivotedDf.rename(
+                        { Democrat: "votes_dem", Republican: "votes_gop" },
+                        { inplace: true }
+                    );
+
+                    // Merge total votes and pivoted results
+                    // const resultsDf = this.mergeDataFrames(
+                    //   [pivotedDf, newGroupedByCounty],
+                    //   "left",
+                    //   "countyId"
+                    // );
+                    // I can't get danfo.js merge to work, so I'll use a merge function I created
+                    const resultsDf = dfd.merge({
+                        left: pivotedDf,
+                        right: newGroupedByCounty,
+                        on: ["countyId"],
+                        how: "left",
+                    });
+
+                    const lookupColumns = ["countyId", "county_fips"];
+                    const lookupDtypes = ["string", "string"];
+                    // Convert lookupArray to a DataFrame
+                    const lookupDf = new dfd.DataFrame(lookupArray, {
+                        index: null,
+                        columns: lookupColumns,
+                        dtypes: lookupDtypes,
+                    });
+
+                    // Merge with lookup to get FIPS codes
+                    // const resultsLookupDf = this.mergeDataFrames(
+                    //   [resultsDf, lookupDf],
+                    //   "left",
+                    //   "countyId"
+                    // );
+                    // I can't get danfo.js merge to work, so I'll use a merge function I created
+                    const resultsLookupDf = dfd.merge({
+                        left: resultsDf,
+                        right: lookupDf,
+                        on: ["countyId"],
+                        how: "left",
+                    });
+
+                    // Reorder columns
+                    const reorderedDf = resultsLookupDf.loc({
+                        columns: ["county_fips", "total_votes", "votes_dem", "votes_gop"],
+                    });
+
+                    // convert to JSON and return final results
+                    return dfd.toJSON(reorderedDf);
+                },
+                async fetchElectionResults(censusStates, censusGeographies) {
+                    try {
+                        // Define state abbreviations while leaving off Alaska
+                        const stateAbbrs = censusStates
+                            .filter((state) => state.state_abbr !== "AK")
+                            .map((state) => state.state_abbr);
+
+                        // Retrieve results for each state asynchronously
+                        const contiguousFoxStateResults = await Promise.all(
+                            stateAbbrs.map(
+                                async (stateAbbr) => await this.getFoxStateResults(stateAbbr)
+                            )
+                        );
+
+                        // combine all state data
+                        let contiguousFoxElectionResults =
+                            contiguousFoxStateResults.flat(); // Flatten the array of state results
+
+                        const countyResults = {};
+
+                        // add geographic data and calculated metrics
+                        contiguousFoxElectionResults = contiguousFoxElectionResults.map(
+                            (d) => {
+                                const county_fips = String(d.county_fips); // Convert to string
+                                const county_attributes = censusGeographies.filter(
+                                    (geography) => geography.geoid === county_fips
+                                )[0];
+                                const result = {
+                                    county_fips: county_fips,
+                                    // add census geographies
+                                    State: county_attributes.c_state_name,
+                                    County: county_attributes.c_county_name,
+                                    // add calculated columns
+                                    ["% of Total Vote, GOP"]: d.votes_gop / d.total_votes,
+                                    ["% of Total Vote, Dem."]: d.votes_dem / d.total_votes,
+                                    ["Percentage Point Difference"]:
+                                        ((d.votes_gop - d.votes_dem) / d.total_votes) * -1,
+                                    ["Winner"]: d.votes_dem > d.votes_gop ? "Dem." : "GOP",
+                                    ["GOP"]: d.votes_gop,
+                                    ["Dem."]: d.votes_dem,
+                                    ["Total Votes"]: d.total_votes,
+                                    ["Margin"]: d.votes_gop - d.votes_dem,
+                                    ["Abs. Margin"]: Math.abs(d.votes_gop - d.votes_dem),
+                                    Size: Math.sqrt(Math.abs(d.votes_gop - d.votes_dem)) * 0.02,
+                                };
+                                countyResults[county_fips] = result;
+                                return result;
+                            }
+                        );
+
+                        // add county fips to array and add results to districtObj
+                        this.countyFips = this.countyFips.concat(
+                            Object.keys(countyResults)
+                        );
+                        this.districtObj = { ...this.districtObj, ...countyResults };
+                    } catch (error) {
+                        console.error("Error fetching Alaska results:", error);
+                    }
+                },
+                async fetchAlaskaResults(akGeographies) {
+                    try {
+                        // Fetch the JSON data
+                        const url = "http://127.0.0.1:5000/ak/results/statewide";
+                        const response = await fetch(url, { method: "GET" });
+                        const data = await response.json();
+
+                        // Process candidate names
+                        let candidateNames = data.candidateNames
+                            .map((candidate, index) => ({
+                                candidateNumber: index.toString(),
+                                Candidate: candidate,
+                            }))
+                            .filter((candidate) =>
+                                ["Harris/Walz (DEM)", "Trump/Vance (REP)"].includes(
+                                    candidate.Candidate
+                                )
+                            );
+
+                        // Process contest names
+                        let contestNames = data.contestNames
+                            .map((contest, index) => ({
+                                contestNumber: index.toString(),
+                                Contest: contest,
+                            }))
+                            .filter(
+                                (contest) =>
+                                    contest.Contest === "U.S. President / Vice President"
+                            );
+
+                        // Process districts
+                        // Flatten the JSON to extract required information
+                        let districts = [];
+                        data.districts.forEach((district) => {
+                            let houseDistrict = district.number;
+                            district.contests.forEach((contest) => {
+                                let contestNumber = contest.n.toString();
+                                contest.c.forEach((candidate) => {
+                                    let candidateNumber = candidate.n.toString();
+                                    let votes = candidate.t;
+                                    districts.push({
+                                        "House District": `State House District ${houseDistrict}`,
+                                        contestNumber: contestNumber,
+                                        candidateNumber: candidateNumber,
+                                        votes: votes,
+                                    });
+                                });
+                            });
+                        });
+
+                        // Merge contests and candidates with districts
+                        let districtsContestsCandidates = [];
+                        districts.forEach((row) => {
+                            let contest = contestNames.find(
+                                (contest) => contest.contestNumber === row.contestNumber
+                            );
+                            let candidate = candidateNames.find(
+                                (candidate) =>
+                                    candidate.candidateNumber === row.candidateNumber
+                            );
+                            if (contest && candidate) {
+                                districtsContestsCandidates.push({
+                                    ["House District"]: row["House District"],
+                                    Contest: contest.Contest,
+                                    Candidate: candidate.Candidate,
+                                    votes: row.votes,
+                                });
+                            }
+                        });
+
+                        // Group by House District and calculate total votes
+                        let totalVotes = districtsContestsCandidates.reduce(
+                            (acc, row) => {
+                                acc[row["House District"]] =
+                                    (acc[row["House District"]] || 0) + row.votes;
+                                return acc;
+                            },
+                            {}
+                        );
+
+                        // Pivot table for party votes
+                        let pivot = districtsContestsCandidates.reduce((acc, row) => {
+                            if (!acc[row["House District"]]) {
+                                acc[row["House District"]] = {
+                                    "House District": row["House District"],
+                                    votes_gop: 0,
+                                    votes_dem: 0,
+                                };
+                            }
+                            if (row.Candidate === "Trump/Vance (REP)") {
+                                acc[row["House District"]].votes_gop += row.votes;
+                            } else if (row.Candidate === "Harris/Walz (DEM)") {
+                                acc[row["House District"]].votes_dem += row.votes;
+                            }
+                            return acc;
+                        }, {});
+
+                        // Convert pivot object to array
+                        let pivotArray = Object.values(pivot);
+
+                        // Merge total votes with pivot table
+                        pivotArray.forEach((row) => {
+                            row.total_votes = totalVotes[row["House District"]];
+                        });
+
+                        const countyResults = {};
+
+                        // Merge with legislative districts (assuming ak_geographies is available)
+                        let akResultsGeographies = pivotArray.map((row) => {
+                            const county_attributes = akGeographies.find(
+                                (geo) => geo.c_sldlst_name === row["House District"]
+                            );
+                            const county_fips = String(county_attributes.geoid); // Convert to string
+                            const result = {
+                                county_fips: county_fips ? county_fips : null,
+                                // add census geographies
+                                State: county_attributes
+                                    ? county_attributes.c_state_name
+                                    : null,
+                                County: county_attributes
+                                    ? county_attributes.c_sldlst_name
+                                    : null,
+                                // add calculated columns
+                                ["% of Total Vote, GOP"]: row.votes_gop / row.total_votes,
+                                ["% of Total Vote, Dem."]: row.votes_dem / row.total_votes,
+                                ["Percentage Point Difference"]:
+                                    ((row.votes_gop - row.votes_dem) / row.total_votes) * -1,
+                                ["Winner"]: row.votes_dem > row.votes_gop ? "Dem." : "GOP",
+                                ["GOP"]: row.votes_gop,
+                                ["Dem."]: row.votes_dem,
+                                ["Total Votes"]: row.total_votes,
+                                ["Margin"]: row.votes_gop - row.votes_dem,
+                                ["Abs. Margin"]: Math.abs(row.votes_gop - row.votes_dem),
+                                Size:
+                                    Math.sqrt(Math.abs(row.votes_gop - row.votes_dem)) * 0.02,
+                            };
+                            countyResults[county_fips] = result;
+                            return result;
+                        });
+
+                        // add county fips to array and add results to districtObj
+                        this.countyFips = this.countyFips.concat(
+                            Object.keys(countyResults)
+                        );
+                        this.districtObj = { ...this.districtObj, ...countyResults };
+                    } catch (error) {
+                        console.error("Error fetching Alaska results:", error);
+                    }
+                },
+                async fetchUSGeography() {
+                    // get county paths and election data
+                    const results = await d3.json(
+                        "./cartography/2024/us-albers-10m.topojson"
+                    );
+
+                    return { us: results };
+                },
+                initializeMap(us) {
+                    const that = this;
+                    const width = this.map.width;
+                    const height = this.map.height;
+
+                    const zoom = d3
+                        .zoom()
+                        .scaleExtent([1, 8])
+                        .on("zoom", (event) => {
+                            const that = this;
+                            zoomed(event, that);
+                        });
+                    // start DOM manipulation
+                    // create svg element
+                    const svg = d3
+                        .select("svg")
+                        .attr("viewBox", [0, 0, width, height])
+                        .attr("style", "max-width: 100%; height: auto;")
+                        .on("click", () => resetZoom(that));
+
+                    const g = svg.append("g");
+
+                    // create background box for zoom
+                    g.append("rect")
+                        .attr("class", "background")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    // create group for county paths
+                    const group = g.append("g").attr("id", "map");
+
+                    const path = d3.geoPath().projection(null);
+
+                    const countyPath = group
+                        .selectAll(".counties")
+                        .data(topojson.feature(us, us.objects.district_county).features)
+                        .enter()
+                        .append("path")
+                        .attr("class", "county")
+                        .attr("d", path)
+                        .on("click", (event, d) => {
+                            clicked(event, d, that);
+                        });
+
+                    group
+                        .append("path")
+                        .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
+                        .attr("class", "state")
+                        .attr("d", path);
+
+                    group
+                        .append("path")
+                        .datum(topojson.feature(us, us.objects.nation))
+                        .attr("class", "nation")
+                        .attr("d", path);
+
+                    const dotDensity = group
+                        .selectAll(".dot")
+                        .data(topojson.feature(us, us.objects.district_county).features)
+                        .enter()
+                        .append("circle")
+                        .attr("class", "dot")
+                        .attr("cx", (d) => {
+                            const centroid = path.centroid(d);
+                            return !centroid[0] ? null : centroid[0];
+                        })
+                        .attr("cy", (d) => {
+                            const centroid = path.centroid(d);
+                            return !centroid[1] ? null : centroid[1];
+                        })
+                        .attr("r", 0)
+                        .style("opacity", 0)
+                        .on("click", (event, d) => {
+                            clicked(event, d, that);
+                        });
+
+                    svg.call(zoom);
+
+                    // create details bar
+                    // use John Alexis details Gómez dynamic details bar
+                    // https://johndetails.co/
+                    const detailsLayer = g
+                        .append("g")
+                        .attr("id", "details")
+                        .attr("transform", "translate(" + (width / 2 - 100) + ", 30)");
+
+                    detailsLayer
+                        .append("rect")
+                        .attr("class", "background")
+                        .attr(
+                            "transform",
+                            "translate(" + (-this.wScale.range()[1] + 100) + ", -20)"
+                        )
+                        .attr("width", this.wScale.range()[1] * 2 + 70)
+                        .attr("rx", 5)
+                        .attr("ry", 5)
+                        .attr("height", 60);
+
+                    detailsLayer
+                        .append("text")
+                        .attr("id", "county-legend")
+                        .html("Percentage Share of the Two-party Vote")
+                        .attr("transform", "translate(100, 0)");
+
+                    // create zoom event on reset button
+                    const fab = d3
+                        .select(".fab")
+                        .on("click", () => resetZoom(that));
+
+                    function resetZoom(that) {
+                        svg
+                            .transition()
+                            .duration(that.transition.duration * (3 / 4))
+                            .call(
+                                zoom.transform,
+                                d3.zoomIdentity,
+                                d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+                            );
+                    }
+
+                    function clicked(event, d, that) {
+                        const [[x0, y0], [x1, y1]] = path.bounds(d);
+                        event.stopPropagation();
+                        svg
+                            .transition()
+                            .duration(that.transition.duration * (3 / 4))
+                            .call(
+                                zoom.transform,
+                                d3.zoomIdentity
+                                    .translate(width / 2, height / 2)
+                                    .scale(
+                                        Math.min(
+                                            8,
+                                            0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)
+                                        )
+                                    )
+                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+                                d3.pointer(event, svg.node())
+                            );
+                    }
+
+                    function zoomed(event, that) {
+                        const duration = that.transition.duration;
+                        const { transform } = event;
+                        group.attr("transform", transform);
+                        group.attr("stroke-width", 1 / transform.k);
+                        // hide button if zoomed out
+                        if (transform.k > 1 && (transform.x || transform.y !== 0)) {
+                            fab
+                                .transition()
+                                .duration(duration / 2)
+                                .style("opacity", 1);
+                        } else {
+                            fab
+                                .transition()
+                                .duration(duration / 2)
+                                .style("opacity", 0);
+                        }
+                    }
+                },
+                renderMap() {
+                    if (
+                        this.selectedMap &&
+                        typeof this[this.selectedMap] === "function"
+                    ) {
+                        this[this.selectedMap]();
+                    } else {
+                        console.error("Selected function is not valid");
+                    }
+                },
+                calculateMetrics() {
+                    this.gopVotes = d3.sum(
+                        this.countyFips,
+                        (r) => this.districtObj[r]["GOP"]
+                    );
+                    this.demVotes = d3.sum(
+                        this.countyFips,
+                        (r) => this.districtObj[r]["Dem."]
+                    );
+                    this.gopShare = this.gopVotes / (this.gopVotes + this.demVotes);
+                    this.demShare = this.demVotes / (this.gopVotes + this.demVotes);
+                },
+                removePathFill() {
+                    // select all county paths
+                    const countyPath = d3.selectAll(".county");
+                    // remove fill property of county paths
+                    countyPath
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .style("fill", (d) => "#ffffff");
+                },
+                updatePaths() {
+                    // first diminish circles
+                    this.diminishCircles();
+                    // select all county paths
+                    const countyPath = d3.selectAll(".county");
+                    // update fill property of county paths
+                    countyPath
+                        .transition()
+                        .duration(this.transition.duration)
+                        .style("fill", (d) => {
+                            const county = this.districtObj[d.id];
+                            return county
+                                ? this.color(county["Percentage Point Difference"])
+                                : "#ccc";
+                        });
+                },
+                diminishCircles() {
+                    // select all county circles
+                    const dotDensity = d3.selectAll(".dot");
+                    // diminish radius, fill, and opacity properties of county circles
+                    dotDensity
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .attr("r", 0)
+                        .style("opacity", 0);
+                },
+                updateCircles() {
+                    // first remove path fills
+                    this.removePathFill();
+                    // select all county circles
+                    const dotDensity = d3.selectAll(".dot");
+                    // update radius, fill, and opacity properties of county circles
+                    dotDensity
+                        .transition()
+                        .duration(this.transition.duration)
+                        .attr("r", (d) => {
+                            const county = this.districtObj[d.id];
+                            return county ? county.Size : 0;
+                        })
+                        .attr("fill", (d) => {
+                            const county = this.districtObj[d.id];
+                            return county
+                                ? this.color(county["Percentage Point Difference"])
+                                : "#ccc";
+                        })
+                        .style("opacity", 0.5);
+                },
+                createBars() {
+                    const detailsLayer = d3.select("#details");
+                    const share = [this.demShare, -this.gopShare];
+                    const detailsBars = detailsLayer
+                        .selectAll(".bar")
+                        .data(share)
+                        .enter()
+                        .append("g")
+                        .attr("class", "bar");
+
+                    detailsBars
+                        .append("rect")
+                        .attr("width", 0)
+                        .attr("height", 20)
+                        .attr("x", 100)
+                        .attr("y", 10)
+                        .style("fill", this.color)
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .attr("x", (d) => (d > 0 ? 100 : 100 - this.wScale(-d)))
+                        .attr("width", (d) => (d > 0 ? this.wScale(d) : this.wScale(-d)));
+
+                    detailsBars
+                        .append("text")
+                        .text((d) =>
+                            d > 0
+                                ? `Dem. ${d3.format(".2%")(d)}`
+                                : `Rep. ${d3.format(".2%")(-d)}`
+                        )
+                        .attr("x", 100)
+                        .attr("dx", (d) => (d > 0 ? 5 : -5))
+                        .attr("dy", 24)
+                        .style("text-anchor", (d) => (d > 0 ? "start" : "end"))
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .attr("x", (d) =>
+                            d > 0 ? 100 + this.wScale(d) : 100 - this.wScale(-d)
+                        );
+                },
+                // adjust data bar on hover
+                updateBars(d) {
+                    const that = this;
+                    const detailsLayer = d3.select("#details");
+                    let share = [this.demShare, -this.gopShare];
+                    let label = "Percentage Share of the Two-party Vote";
+
+                    if (d) {
+                        const county = this.districtObj[d.id];
+                        if (county) {
+                            share = [
+                                county["% of Total Vote, Dem."],
+                                -county["% of Total Vote, GOP"],
+                            ];
+                            label = `<tspan x="0" y="0">Percentage Point Difference: ${this.formatValue(
+                                Math.abs(county["Percentage Point Difference"]),
+                                "percent"
+                            )}</tspan>`;
+                        }
+                    }
+
+                    const detailsBars = detailsLayer.selectAll(".bar").data(share);
+
+                    detailsBars
+                        .select("rect")
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .attr("x", function (d) {
+                            return d > 0 ? 100 : 100 - that.wScale(-d);
+                        })
+                        .attr("width", function (d) {
+                            return d > 0 ? that.wScale(d) : that.wScale(-d);
+                        })
+                        .style("fill", this.color);
+
+                    detailsBars
+                        .select("text")
+                        .text(this.showDiffLabel)
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .attr("x", function (d) {
+                            return d > 0 ? 100 + that.wScale(d) : 100 - that.wScale(-d);
+                        });
+
+                    detailsLayer.select("#county-legend").html(label);
+                },
+                // define mouseover and mouseout events to ensure mouseover events work on IE
+                bindHover() {
+                    const that = this;
+                    document.body.addEventListener("mousemove", function (e) {
+                        const createTooltipTable = (county) => {
+                            const value = that.formatValue(
+                                county["Percentage Point Difference"],
+                                "percent"
+                            );
+                            const dem_votes = that.formatValue(county["Dem."], "integer");
+                            const gop_votes = that.formatValue(county["GOP"], "integer");
+                            const votes_total = that.formatValue(
+                                county["Total Votes"],
+                                "integer"
+                            );
+                            const dem_pct = that.formatValue(
+                                county["% of Total Vote, Dem."],
+                                "percent"
+                            );
+                            const gop_pct = that.formatValue(
+                                county["% of Total Vote, GOP"],
+                                "percent"
+                            );
+
+                            const report_level =
+                                '<div class="e-title">' +
+                                county.County +
+                                ", " +
+                                county.State +
+                                "</div>";
+
+                            const startTable =
+                                '<table style="width: 100%; border-collapse: collapse;">';
+                            const thead =
+                                '<thead><tr><th></th><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr></thead>';
+                            const tbody = `<tbody><tr><td style="background-color:${that.color(
+                                0.75
+                            )}"></td><td>Kamala Harris</td><td>Dem.</td><td style="text-align:right">${dem_votes}</td><td style="text-align:right; font-weight:700">${dem_pct}</td></tr><tr><td style="background-color:${that.color(
+                                -0.75
+                            )}"></td><td>Donald J. Trump</td><td>Rep.</td><td style="text-align:right">${gop_votes}</td><td style="text-align:right; font-weight:700">${gop_pct}</td></tr><tr style="font-size:13px"><td></td><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${votes_total}</strong></span></td><td style="text-align:right"></td></tr></tbody>`;
+                            const endTable = "</table>";
+
+                            // show tooltip with information from the __data__ property of the element
+                            const content =
+                                report_level + startTable + thead + tbody + endTable;
+
+                            return content;
+                        };
+
+                        let content = "";
+                        let d = null;
+                        let county = null;
+
+                        if (
+                            (e.target.nodeName == "path" &&
+                                e.target.className.animVal !== "state") ||
+                            (e.target.nodeName == "circle" &&
+                                e.target.className.animVal === "dot")
+                        ) {
+                            d = d3.select(e.target).data()[0];
+                            county = that.districtObj[d.id];
+                            content = createTooltipTable(county);
+                        }
+
+                        if (content) {
+                            that.showDetail(e, content);
+                            that.updateBars(d);
+                        }
+                    });
+
+                    document.body.addEventListener("mouseout", function (e) {
+                        if (
+                            e.target.nodeName == "path" ||
+                            e.target.nodeName == "circle"
+                        ) {
+                            that.hideDetail();
+                            that.calculateMetrics();
+                            that.updateBars(null);
+                        }
+                    });
+                },
+                // return percentage point labels for details bars
+                showDiffLabel(d) {
+                    return d > 0
+                        ? `Dem. ${this.formatValue(d, "percent")}`
+                        : `Rep. ${this.formatValue(-d, "percent")}`;
+                },
+                // Show tooltip on hover
+                showDetail(event, content) {
+                    // show tooltip with information from the __data__ property of the element
+                    let x_hover = 0;
+                    let y_hover = 0;
+
+                    const tooltip = d3.select(".tooltip");
+
+                    const tooltipWidth = parseInt(tooltip.style("width"));
+                    const tooltipHeight = parseInt(tooltip.style("height"));
+                    let classed, notClassed;
+
+                    if (event.pageX > document.body.clientWidth / 2) {
+                        x_hover = tooltipWidth + 30;
+                        classed = "right";
+                        notClassed = "left";
+                    } else {
+                        x_hover = -30;
+                        classed = "left";
+                        notClassed = "right";
+                    }
+
+                    y_hover =
+                        document.body.clientHeight - event.pageY < tooltipHeight + 4
+                            ? event.pageY - (tooltipHeight + 4)
+                            : event.pageY - tooltipHeight / 2;
+
+                    return tooltip
+                        .classed(classed, true)
+                        .classed(notClassed, false)
+                        .style("visibility", "visible")
+                        .style("top", y_hover + "px")
+                        .style("left", event.pageX - x_hover + "px")
+                        .html(content);
+                },
+                // Hide tooltip on hover
+                hideDetail() {
+                    const tooltip = d3.select(".tooltip");
+
+                    // hide tooltip
+                    return tooltip.style("visibility", "hidden");
+                },
+                formatValue(value, type) {
+                    switch (type) {
+                        case "integer":
+                            return d3.format(",.0f")(value);
+                        case "float":
+                        case "percent":
+                            return d3.format(".2%")(value);
+                        default:
+                            return value;
+                    }
+                },
+                setResponsiveSVG() {
+                    // Many browsers -- IE particularly -- will not auto-size inline SVG
+                    // IE applies default width and height sizing
+                    // padding-bottom hack on a container solves IE inconsistencies in size
+                    // https://css-tricks.com/scale-svg/#article-header-id-10
+                    const width = +d3.select("svg").attr("width");
+                    const height = +d3.select("svg").attr("height");
+                    const calcString = +(height / width) * 100 + "%";
+
+                    const svgElement = d3.select("svg");
+                    const svgParent = d3.select(d3.select("svg").node().parentNode);
+
+                    svgElement
+                        .attr("class", "scaling-svg")
+                        .attr("preserveAspectRatio", "xMinYMin")
+                        .attr("viewBox", "0 0 " + width + " " + height)
+                        .attr("width", null)
+                        .attr("height", null);
+
+                    svgParent.style("padding-bottom", calcString);
                 },
             },
-        })
-
-        // create tooltip
-        const tooltip = d3.select("body").append("div").style("position", "absolute").style("z-index", "10").style(
-            "visibility", "hidden").attr("class", "tooltip");
-
-        // create reset button
-        const fab = d3.select("#canvas")
-            .append("div")
-            .attr("class", "fab")
-            .style("opacity", 0)
-            .text(' ↺ ')
-            .on('click', resetZoom)
-
-        // define dimensions
-        const width = 960;
-        const height = 630;
-
-        // set the domain for all scales from -1 to 1
-        const domain = [-1, 1]
-
-        // define color scale
-        const color = d3.scaleSequential().interpolator(d3.interpolateRdBu).domain(domain);
-
-        // define geo path function
-        const path = d3.geoPath()
-            .projection(null);
-
-        // define detail bar scale
-        const wScale = d3.scaleLinear()
-            .domain(domain)
-            .range([-width / 3, width / 3]);
-
-        // define zoom function
-        const zoom = d3.zoom()
-            .scaleExtent([1, 15])
-            .on("zoom", zoomed);
-
-        // define the county paths
-        let countyPath
-        // object to hold data
-        let districtObj = {};
-        // counter for missing counties
-        let countMissing = 0;
-        // array for FIPS codes
-        let geoids = [];
-        // define useful metrics
-        let gop_votes;
-        let dem_votes;
-        let gop_share;
-        let dem_share;
-
-        // start DOM manipulation
-        // create svg element
-        const svg = d3.select("svg")
-            .attr("viewBox", [0, 0, width, height]);
-
-        const g = svg.append("g");
-
-        // create background box for zoom
-        g.append("rect")
-            .attr("class", "background")
-            .attr("width", width)
-            .attr("height", height);
-
-        // create group for county paths
-        const group = g.append("g").attr('id', 'map').attr("transform", "translate(0, 0)");
-
-        // create details bar
-        // use John Alexis details Gómez dynamic details bar
-        // https://johndetails.co/
-        const detailsLayer = g.append("g")
-            .attr("id", "details")
-            .attr("transform", "translate(" + (width / 2 - 100) + ", 30)");
-
-        detailsLayer.append("rect")
-            .attr("class", "background")
-            .attr("transform", "translate(" + (-wScale.range()[1] + 100) + ", -20)")
-            .attr("width", wScale.range()[1] * 2 + 70)
-            .attr("rx", 5)
-            .attr("ry", 5)
-            .attr("height", 60);
-
-        detailsLayer.append("text")
-            .attr("id", "county-legend")
-            .html("Percentage Share of the Two-party Vote")
-            .attr("transform", "translate(100, 0)");
-
-        svg.call(zoom);
-
-        function createViz(us, data) {
-
-            // define Albers USA projection
-            // const projection = d3.geoAlbersUsa()
-            //     .scale(1285)
-            //     .translate([width / 2, height / 2])
-
-            // parse data
-            data.forEach(function (d) {
-                d.per_gop = +d.per_gop;
-                d.per_dem = +d.per_dem;
-                d.result = +d.per_point_diff * -1;
-                d.gop_votes = +d.votes_gop;
-                d.dem_votes = +d.votes_dem;
-                d.votes_total = +d.total_votes;
-                d.geoid = d.geoid;
-                districtObj[d.geoid] = d;
-            });
-
-            // array of FIPS code for easier re-use
-            geoids = Object.keys(districtObj)
-
-            // calculate metrics
-            calculateMetrics();
-
-            // create county, state, and national paths (borders)
-            createPaths(us);
-
-            // create detail bars
-            createBars();
-
-            // bind election results to county paths
-            renderData(data);
-            bindHover();
-            // setResponsiveSVG();
-        }
-
-        // calculate metrics
-        function calculateMetrics() {
-            gop_votes = d3.sum(geoids, r => districtObj[r].gop_votes)
-            dem_votes = d3.sum(geoids, r => districtObj[r].dem_votes)
-            gop_share = gop_votes / (gop_votes + dem_votes)
-            dem_share = dem_votes / (gop_votes + dem_votes)
-        }
-
-        // create county, state, and national paths (borders)
-        function createPaths(us) {
-            // enter data and update county paths
-            countyPath = group.selectAll(".counties")
-                .data(topojson.feature(us, us.objects.district_county).features)
-                .enter()
-                .append('path')
-                .attr("class", "county")
-                .on("click", clicked)
-                .attr("d", path);
-
-            group.append("path")
-                .datum(topojson.mesh(us, us.objects.state, function (a, b) {
-                    return a !== b;
-                }))
-                .attr("class", "state")
-                .attr("d", path);
-
-            group.append("path")
-                .datum(topojson.feature(us, us.objects.nation))
-                .attr("class", "nation")
-                .attr("d", path);
-        }
-
-        // render visualization based on data
-        function renderData(data) {
-            updatePaths();
-        }
-
-        // create detail bars
-        function createBars() {
-            const detailsBars = detailsLayer.selectAll("bar")
-                .data([dem_share, -gop_share])
-                .enter()
-                .append("g")
-                .attr("class", "bar");
-            detailsBars
-                .append("rect")
-                .attr("width", 0)
-                .attr("height", width > 767 ? 20 : 10)
-                .attr("x", 100)
-                .attr("y", 10)
-                .style("fill", color)
-                .transition()
-                .duration(500)
-                .attr("x", function (d) {
-                    return d > 0 ? 100 : 100 - wScale(-d);
-                })
-                .attr("width", function (d) {
-                    return d > 0 ? wScale(d) : wScale(-d);
-                });
-            detailsBars.append("text")
-                .text(showDiffLabel)
-                .attr("dx", function (d) {
-                    return d > 0 ? 5 : -5;
-                })
-                .attr("dy", 24)
-                .attr("x", 100)
-                .style("text-anchor", function (d) {
-                    return d > 0 ? "start" : "end";
-                })
-                .transition()
-                .duration(500)
-                .attr("x", function (d) {
-                    return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
-                });
-        }
-
-        function updateLegend(data) {
-            susieLegend
-                .labelFormat(function (d) {
-                    return d3.format('.0%')(Math.abs(d));
-                })
-                .on("cellclick", function (d) {
-                    const selectedBar = d3.select(d.target);
-                    const selectedCell = d3.select(d.target.parentNode);
-                    const selectedClass = selectedCell.attr('class').split(' ')[1];
-                    const selectedTick = selectedBar.data()[0];
-
-                    // set the opacity for the selected cell and all other cells
-                    d3.selectAll('.cell')._groups[0].forEach(c => {
-                        const isSelected = c.classList.contains(selectedClass)
-                        let opacity = 0.3;
-                        // if the selection is the middle one, then reset all cell opacity
-                        if (isSelected || selectedTick === 0) opacity = 1
-                        d3.select(c).style('opacity', opacity)
-                    })
-
-                    districtObj = {}
-                    data.forEach((r, i) => {
-                        if (selectedTick === 0) {
-                            districtObj[r.geoid] = r;
-                        } else if (r.result > 0 && r.result < selectedTick) {
-                            districtObj[r.geoid] = r;
-                        } else if (r.result < 0 && r.result > selectedTick) {
-                            districtObj[r.geoid] = r;
-                        }
-                    })
-
-                })
-                .title('Percentage Point Difference')
-                .scale(color);
-
-            legend.call(susieLegend);
-
-            // add special classes to each cell of the legend
-            d3.selectAll('.cell').each((d, i, nodes) => {
-                nodes[i].classList.add(`cell-${i}`);
-            })
-        }
-
-        // adjust data bar on hover
-        function updateBars(d) {
-            let share = [dem_share, -gop_share];
-            let label =
-                `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(share[0] + share[1]), 'percent')}</tspan>`;
-
-            if (d) {
-                const county = districtObj[d.id];
-                // county = districtObj[d.properties.geoid];
-                if (county) {
-                    share = [county.per_dem, -county.per_gop];
-                    label =
-                        `<tspan x="0" y="0">Percentage Point Difference: ${formatValue(Math.abs(county.result), 'percent')}</tspan>`;
-                }
-            }
-
-            const detailsBars = detailsLayer
-                .selectAll(".bar")
-                .data(share);
-
-            detailsBars.select("rect")
-                .transition()
-                .duration(500)
-                .attr("x", function (d) {
-                    return d > 0 ? 100 : 100 - wScale(-d);
-                })
-                .attr("width", function (d) {
-                    return d > 0 ? wScale(d) : wScale(-d);
-                })
-                .style("fill", color);
-
-            detailsBars.select("text")
-                .text(showDiffLabel)
-                .transition()
-                .duration(500)
-                .attr("x", function (d) {
-                    return d > 0 ? 100 + wScale(d) : 100 - wScale(-d);
-                })
-
-
-            detailsLayer.select("#county-legend").html(label);
-
-        }
-
-        // update fill property of county paths
-        function updatePaths() {
-
-            // update map with new data
-            countyPath
-                .transition()
-                .duration(1000)
-                .style("fill", function (d) {
-                    const county = districtObj[d.id];
-                    // const county = districtObj[d.properties.geoid];
-                    if (county)
-                        return color(county.result);
-                    else {
-                        // countMissing++;
-                        // console.log("geoid: " + d.id + " not found. Error #" + countMissing);
-                        // console.log("geoid: " + d.properties.geoid + " not found. Error #" + countMissing);
-                        return '#ccc';
-                    }
-                });
-        }
-
-        function resetZoom() {
-            svg.transition().duration(750).call(
-                zoom.transform,
-                d3.zoomIdentity,
-                d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
-            );
-        }
-
-        // define click function
-        function clicked(event, d) {
-            const [
-                [x0, y0],
-                [x1, y1]
-            ] = path.bounds(d);
-            event.stopPropagation();
-            svg.transition().duration(750).call(
-                zoom.transform,
-                d3.zoomIdentity
-                .translate(width / 2, height / 2)
-                .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
-                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
-                d3.pointer(event, svg.node())
-            );
-        }
-
-        // define zoom event
-        function zoomed(event) {
-            const {
-                transform
-            } = event;
-            group.attr("transform", transform);
-            group.attr("stroke-width", 1 / transform.k);
-            // hide button if zoomed out
-            if (transform.k > 1 && (transform.x || transform.y !== 0)) {
-                fab
-                    .transition()
-                    .duration(500)
-                    .style("opacity", 1)
-            } else {
-                fab
-                    .transition()
-                    .duration(500)
-                    .style("opacity", 0)
-            }
-        }
-
-        // define mouseover and mouseout events to ensure mouseover events work on IE
-        function bindHover() {
-            document.body.addEventListener('mousemove', function (e) {
-
-                if (e.target.nodeName == 'path' && e.target.className.animVal !== 'state') {
-                    const d = d3.select(e.target).data()[0];
-                    const county = districtObj[d.id]
-                    // const county = districtObj[d.properties.geoid]
-                    const value = formatValue(county.result);
-                    const dem_votes = (county.dem_votes)
-                    const gop_votes = (county.gop_votes)
-                    const votes_total = (county.votes_total)
-
-                    const report_level = '<div class="e-title">' + county.county_name + ', ' + county
-                        .state_name + '</div>';
-
-                    const startTable = '<table>'
-                    // const tbody = `<tbody><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(0.75)}"></rect><text x="10" y="15">Kamala Harris</text></svg></td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td><svg height="20" width="150"><rect height="20" width="4" style="fill:${color(-0.75)}"></rect><text x="10" y="15">Donald J. Trump</text></svg></td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody>`;
-                    const tbody =
-                        `<table><tbody><tr><td></td><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr><tr><td style="background-color:${color(0.75)}"></td><td>Kamala Harris</td><td>Dem.</td><td style="text-align:right">${formatValue(dem_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(dem_votes / votes_total, "percent")}</td></tr><tr><td style="background-color:${color(-0.75)}"></td><td>Donald J. Trump</td><td>Rep.</td><td style="text-align:right">${formatValue(gop_votes)}</td><td style="text-align:right; font-weight:700">${formatValue(gop_votes / votes_total, "percent")}</td></tr><tr style="font-size:13px"><td></td><td><span><strong>All Votes</strong></span></td><td></td><td style="text-align:right"><span><strong>${formatValue(votes_total)}</strong></span></td><td style="text-align:right"></td></tr></tbody></table>`
-                    const endTable = '</table>';
-
-                    // show tooltip with information from the __data__ property of the element
-                    const content = report_level + startTable + tbody + endTable;
-
-                    showDetail(e, content);
-                    updateBars(d);
-                }
-            });
-
-            document.body.addEventListener('mouseout', function (e) {
-                if (e.target.nodeName == 'path') hideDetail();
-            });
-        }
-
-        // return percentage point labels for details bars
-        function showDiffLabel(d) {
-            return d > 0 ? `Dem. ${formatValue(d, 'percent')}` : `Rep. ${formatValue(-d, 'percent')}`
-        }
-
-        // Show tooltip on hover
-        function showDetail(event, content) {
-
-            // show tooltip with information from the __data__ property of the element
-            let x_hover = 0;
-            let y_hover = 0;
-
-            const tooltipWidth = parseInt(tooltip.style('width'));
-            const tooltipHeight = parseInt(tooltip.style('height'));
-            let classed, notClassed;
-
-            if (event.pageX > document.body.clientWidth / 2) {
-                x_hover = tooltipWidth + 30;
-                classed = 'right';
-                notClassed = 'left';
-            } else {
-                x_hover = -30;
-                classed = 'left';
-                notClassed = 'right';
-            }
-
-            y_hover = (document.body.clientHeight - event.pageY < (tooltipHeight + 4)) ? event.pageY - (tooltipHeight +
-                4) : event.pageY - tooltipHeight / 2;
-
-            return tooltip
-                .classed(classed, true)
-                .classed(notClassed, false)
-                .style("visibility", "visible")
-                .style("top", y_hover + "px")
-                .style("left", (event.pageX - x_hover) + "px")
-                .html(content);
-        }
-
-        // Hide tooltip on hover
-        function hideDetail() {
-
-            // hide tooltip
-            return tooltip.style("visibility", "hidden");
-        }
-
-        // set SVG to respond to changes in clientWidth and clientHeight
-        function setResponsiveSVG() {
-            // Many browsers -- IE particularly -- will not auto-size inline SVG
-            // IE applies default width and height sizing
-            // padding-bottom hack on a container solves IE inconsistencies in size
-            // https://css-tricks.com/scale-svg/#article-header-id-10
-            const width = +d3.select('svg').attr('width');
-            const height = +d3.select('svg').attr('height');
-            const calcString = +(height / width) * 100 + "%";
-
-            const svgElement = d3.select('svg');
-            const svgParent = d3.select(d3.select('svg').node().parentNode);
-
-            svgElement
-                .attr('class', 'scaling-svg')
-                .attr('preserveAspectRatio', 'xMinYMin')
-                .attr('viewBox', '0 0 ' + width + ' ' + height)
-                .attr('width', null)
-                .attr('height', null);
-
-            svgParent.style('padding-bottom', calcString);
-        }
-
-        // format values
-        function formatValue(value, type) {
-            return type === 'percent' ? d3.format('.2%')(value) : d3.format(',.0f')(value)
-        }
-
-        // get county paths and election data
-        Promise.all([
-            d3.json("./cartography/2024/us_election_districts.json"),
-            // d3.json("https://unpkg.com/us-atlas@1/us/10m.json"),
-            d3.csv("2024_US_County_Level_Presidential_Results.csv")
-        ]).then(resp => {
-            createViz(resp[0], resp[1])
-        }).catch(e => {
-            console.log(e)
-        })
+        });
     </script>
     <script>
         (function (i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function () {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0];
+            i["GoogleAnalyticsObject"] = r;
+            (i[r] =
+                i[r] ||
+                function () {
+                    (i[r].q = i[r].q || []).push(arguments);
+                }),
+                (i[r].l = 1 * new Date());
+            (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
             a.async = 1;
             a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+            m.parentNode.insertBefore(a, m);
+        })(
+            window,
+            document,
+            "script",
+            "https://www.google-analytics.com/analytics.js",
+            "ga"
+        );
 
-        ga('create', 'UA-102235118-1', 'auto');
-        ga('send', 'pageview');
+        ga("create", "UA-102235118-1", "auto");
+        ga("send", "pageview");
     </script>
 </body>
 
