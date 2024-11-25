@@ -1,5 +1,3 @@
 Flask
+flask-cors
 requests
-jsonify
-CORS
-BytesIO
