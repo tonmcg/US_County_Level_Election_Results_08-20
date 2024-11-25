@@ -253,11 +253,15 @@
                                         <a href="https://www.elections.alaska.gov/enr/" target="_blank"><em>Alaska
                                                 Division of Elections</em></a>. Data compiled by:
                                         <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                            target="_blank">Tony McGovern</a>.
+                                            target="_blank">Tony McGovern</a>. Alaska data last updated: {{
+                                        alaska.lastupdated
+                                        }}. Continental U.S. data last updated: {{ continental.lastupdated }}.
                                     </span>
                                     <br />
                                     <span>Hover over and click on the map to explore</span>
                                 </v-col>
+                            </v-row>
+                            <v-row>
                                 <v-col class="d-flex justify-end" cols="auto">
                                     <v-radio-group v-model="selectedMap" row @change="renderMap">
                                         <template v-slot:label>
@@ -328,6 +332,12 @@
                 geographies: {
                     censusYear: 2024, // base year for the county gazetteer files
                     suzeraintyFips: ["02", "60", "66", "69", "72", "74", "78"],
+                },
+                alaska: {
+                    lastupdated: ""
+                },
+                continental: {
+                    lastupdated: new Date().toLocaleString(),
                 },
                 map: {
                     width: 960,
@@ -817,6 +827,8 @@
                         const url = "https://us-election-server-2ae36243a2a4.herokuapp.com/ak/results/statewide";
                         const response = await fetch(url, { method: "GET" });
                         const data = await response.json();
+
+                        this.alaska.lastupdated = new Date(data.updated).toLocaleString();
 
                         // Process candidate names
                         let candidateNames = data.candidateNames
