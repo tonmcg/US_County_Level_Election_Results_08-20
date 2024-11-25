@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
 import os
+from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
