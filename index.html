@@ -393,7 +393,7 @@
                     const censusYear = this.geographies.censusYear;
 
                     // Base URL where all the county gazetteer files live
-                    const gazetteerUrl = `http://127.0.0.1:5000/census/gazetteer/${censusYear}`;
+                    const gazetteerUrl = `https://us-election-server-2ae36243a2a4.herokuapp.com/census/gazetteer/${censusYear}`;
 
                     const censusCounties = async function parseCountyGeographyData(censusGazCounties) {
 
@@ -485,7 +485,7 @@
                 async getCensusStates() {
 
                     // Fetch the JSON data
-                    const url = "http://127.0.0.1:5000/census/state_data";
+                    const url = "https://us-election-server-2ae36243a2a4.herokuapp.com/census/state_data";
                     const response = await fetch(url, { method: "GET" });
                     const data = await response.text();
                     // Parse the CSV data using d3.dsv
@@ -536,7 +536,7 @@
                 async getAlaskaGeographies() {
 
                     // Download the zip file content into memory
-                    const url = `http://127.0.0.1:5000/census/gazetteer/${this.geographies.censusYear}/ak_sldl`;
+                    const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/census/gazetteer/${this.geographies.censusYear}/ak_sldl`;
                     const response = await fetch(url, { method: "GET" });
                     const arrayBuffer = await response.arrayBuffer();
                     const nationalGazetteerZip = new Uint8Array(arrayBuffer);
@@ -814,7 +814,7 @@
                 async fetchAlaskaResults(akGeographies) {
                     try {
                         // Fetch the JSON data
-                        const url = "http://127.0.0.1:5000/ak/results/statewide";
+                        const url = "https://us-election-server-2ae36243a2a4.herokuapp.com/ak/results/statewide";
                         const response = await fetch(url, { method: "GET" });
                         const data = await response.json();
 
