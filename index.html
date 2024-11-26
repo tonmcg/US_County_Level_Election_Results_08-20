@@ -972,7 +972,7 @@
                 async fetchUSGeography() {
                     // get county paths and election data
                     const results = await d3.json(
-                        "./cartography/2024/us-albers-10m.topojson"
+                        "./cartography/2024/us-albers-500k.topojson"
                     );
 
                     return { us: results };
