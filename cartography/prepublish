@@ -72,6 +72,9 @@ for currYr in "${years[@]}"; do
       -i "${currYr}/"districts-albers-500k.topojson "${currYr}/"counties-albers-500k.topojson combine-files name=district_county \
       -merge-layers \
       -o "${currYr}/"districts_counties-albers-500k.topojson \
+      -i "${currYr}/"districts_counties-albers-500k.topojson "${currYr}/"wards-albers-500k.topojson combine-files name=ward_district_county \
+      -merge-layers \
+      -o "${currYr}/"ward_district_county-albers-500k.topojson \
       -i "${build}/cb_${previousYr}_us_state_500k.shp" name=state \
       -filter 'STATEFP !== "69" && STATEFP !== "66" && STATEFP !== "78" && STATEFP !== "60" && STATEFP !== "72"' \
       -each 'FID=GEOID' \
