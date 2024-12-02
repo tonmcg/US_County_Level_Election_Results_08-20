@@ -42,6 +42,13 @@ def fetch_state_data():
     data = response.text
     return data
 
+@app.route('/dc/results/<int:ward_number>', methods=['GET'])
+def fetch_dc_results(ward_number):
+    url = f'https://electionresults.dcboe.org/ward/getWard/2024-General-Election/{ward_number}'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
 @app.route('/ak/results/statewide', methods=['GET'])
 def fetch_ak_results():
     url = 'https://www.elections.alaska.gov/enr/results/statewide.js'

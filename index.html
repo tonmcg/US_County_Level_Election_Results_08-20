@@ -542,71 +542,71 @@
                     // convert back to JSON and return
                     return dfd.toJSON(censusGeographies);
                 },
-                // async getDCGeographies() {
+                async getDCGeographies() {
 
-                //     // Download the zip file content into memory
-                //     const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/census/gazetteer/${this.geographies.censusYear}/dc_sldu`;
-                //     const response = await fetch(url, { method: "GET" });
-                //     const arrayBuffer = await response.arrayBuffer();
-                //     const nationalGazetteerZip = new Uint8Array(arrayBuffer);
+                    // Download the zip file content into memory
+                    const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/census/gazetteer/${this.geographies.censusYear}/dc_sldu`;
+                    const response = await fetch(url, { method: "GET" });
+                    const arrayBuffer = await response.arrayBuffer();
+                    const nationalGazetteerZip = new Uint8Array(arrayBuffer);
 
-                //     // Open the zip file from the in-memory content
-                //     const zip = await JSZip.loadAsync(nationalGazetteerZip);
-                //     const unzippedFiles = Object.keys(zip.files);
+                    // Open the zip file from the in-memory content
+                    const zip = await JSZip.loadAsync(nationalGazetteerZip);
+                    const unzippedFiles = Object.keys(zip.files);
 
-                //     // Find the tab-delimited text file (assuming it's a .txt file)
-                //     let tabDelimitedFile = null;
-                //     for (const file of unzippedFiles) {
-                //         if (file.endsWith(".txt")) {
-                //             tabDelimitedFile = file;
-                //             break;
-                //         }
-                //     }
+                    // Find the tab-delimited text file (assuming it's a .txt file)
+                    let tabDelimitedFile = null;
+                    for (const file of unzippedFiles) {
+                        if (file.endsWith(".txt")) {
+                            tabDelimitedFile = file;
+                            break;
+                        }
+                    }
 
-                //     if (!tabDelimitedFile) {
-                //         console.error("No tab-delimited text file found.");
-                //         return;
-                //     }
+                    if (!tabDelimitedFile) {
+                        console.error("No tab-delimited text file found.");
+                        return;
+                    }
 
-                //     // Read the tab-delimited text file content
-                //     const fileContent = await zip.file(tabDelimitedFile).async("string");
+                    // Read the tab-delimited text file content
+                    const fileContent = await zip.file(tabDelimitedFile).async("string");
 
-                //     // Parse the tab-delimited text file using d3
-                //     const nationalsldusts = d3.dsvFormat('\t').parse(fileContent, function (d) {
-                //         return {
-                //             c_state_name: "District of Columbia", // Add District of Columbia name to state_name column
-                //             geoid: d['GEOID'],
-                //             c_sldust_name: d['NAME']
-                //         };
-                //     });
-                //     // Convert the national sldusts data to a DataFrame
-                //     const nationalsldusts_df = new dfd.DataFrame(nationalsldusts, {
-                //         index: null,
-                //         columns: ["c_state_name", "geoid", "c_sldust_name"],
-                //         dtypes: ["string", "string", "string"]
-                //     });
+                    // Parse the tab-delimited text file using d3
+                    const nationalsldusts = d3.dsvFormat('\t').parse(fileContent, function (d) {
+                        return {
+                            c_state_name: "District of Columbia", // Add District of Columbia name to state_name column
+                            geoid: d['GEOID'],
+                            c_sldust_name: d['NAME']
+                        };
+                    });
+                    // Convert the national sldusts data to a DataFrame
+                    const nationalsldusts_df = new dfd.DataFrame(nationalsldusts, {
+                        index: null,
+                        columns: ["c_state_name", "geoid", "c_sldust_name"],
+                        dtypes: ["string", "string", "string"]
+                    });
 
-                //     // filter the national sldusts dataframe for District of Columbia and reset the index
-                //     let dcGeographies = nationalsldusts_df.loc({
-                //         rows: nationalsldusts_df["geoid"].map(
-                //             (geo) => geo.startsWith("11")
-                //         ),
-                //     }).resetIndex({ drop: true });
+                    // filter the national sldusts dataframe for District of Columbia and reset the index
+                    let dcGeographies = nationalsldusts_df.loc({
+                        rows: nationalsldusts_df["geoid"].map(
+                            (geo) => geo.startsWith("11")
+                        ),
+                    }).resetIndex({ drop: true });
 
-                //     // Reorder columns
-                //     dcGeographies = dcGeographies.loc({
-                //         columns: ["c_state_name", "geoid", "c_sldust_name"]
-                //     });
-                //     // Log the shape and data types of the resulting DataFrame
-                //     console.log("Shape:", dcGeographies.shape);
-                //     console.log("Data Types:", dcGeographies.ctypes);
+                    // Reorder columns
+                    dcGeographies = dcGeographies.loc({
+                        columns: ["c_state_name", "geoid", "c_sldust_name"]
+                    });
+                    // Log the shape and data types of the resulting DataFrame
+                    console.log("Shape:", dcGeographies.shape);
+                    console.log("Data Types:", dcGeographies.ctypes);
 
-                //     // Print the first 100 rows of the resulting DataFrame
-                //     dcGeographies.head(100).print();
+                    // Print the first 100 rows of the resulting DataFrame
+                    dcGeographies.head(100).print();
 
-                //     // convert back to JSON and return
-                //     return dfd.toJSON(dcGeographies);
-                // },
+                    // convert back to JSON and return
+                    return dfd.toJSON(dcGeographies);
+                },
                 async getAlaskaGeographies() {
 
                     // Download the zip file content into memory
@@ -885,7 +885,109 @@
                         console.error("Error fetching Alaska results:", error);
                     }
                 },
-                // async fetchDCResults() { dcGeographies },
+                async fetchDCResults(dcGeographies) {
+
+                    async function getWardElectionResults(wardNumber) {
+                        // Fetch the JSON data from the API
+                        const url = `http://127.0.0.1:5500/dc/results/${wardNumber}`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+
+                        // Convert JSON data to DataFrame
+                        const dcRecordsDf = new dfd.DataFrame(data);
+
+                        // Filter rows where OfficeName is "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES"
+                        const dcPresidentResultsDf = dcRecordsDf.query(row => row.OfficeName === "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES");
+
+                        const dcCandidates = new dfd.DataFrame(dcPresidentResultsDf.$data[0].ElectionData);
+
+                        // Flatten the JSON to extract required information
+                        const rows = dcCandidates.$data.map(candidate => ({
+                            WardNumber: wardNumber,
+                            PartyCode: candidate.PartyCode,
+                            votes: candidate.Votes,
+                            total_votes: candidate.TotalVotes
+                        }));
+
+                        // Convert rows to DataFrame
+                        const dcCandidatesDf = new dfd.DataFrame(rows);
+
+                        // Filter for DEM and REP candidates
+                        const filteredCandidatesDf = dcCandidatesDf.query(row => ["DEM", "REP"].includes(row.PartyCode));
+
+                        // Pivot the data to separate GOP and DEM votes into their own columns
+                        const pivotDf = filteredCandidatesDf.pivot({
+                            index: ["WardNumber", "total_votes"],
+                            columns: "PartyCode",
+                            values: "votes",
+                            fill_value: 0
+                        });
+
+                        pivotDf.rename({ columns: { WardNumber: "Ward", REP: "votes_gop", DEM: "votes_dem" } });
+
+                        const dcWardResults = pivotDf.loc({ columns: ["Ward", "votes_gop", "votes_dem", "total_votes"] });
+
+                        // Add the term "Ward " to the Ward column
+                        dcWardResults.addColumn("Ward", dcWardResults["Ward"].map(ward => `Ward ${ward}`), { inplace: true });
+
+                        return dcWardResults;
+                    }
+
+                    // Extract the ward numbers from the c_county_name column
+                    const wards = dcGeographies.map(geo => geo["c_sldust_name"].match(/Ward (\d+)/)[1]);
+
+                    // Retrieve results for each ward
+                    const dcResultsPromises = wards.map(wardNumber => getWardElectionResults(wardNumber));
+                    const dcResults = await Promise.all(dcResultsPromises);
+
+                    // Combine all ward dataframes
+                    const dcResultsDf = dfd.concat(dcResults, { axis: 0 });
+
+                    // Merge with legislative districts
+                    const dcResultsGeographies = dfd.merge({
+                        left: dcResultsDf,
+                        right: dcGeographies,
+                        left_on: "Ward",
+                        right_on: "c_county_name",
+                        how: "left"
+                    });
+
+                    // Rename columns from the joined data
+                    dcResultsGeographies.rename({ columns: { c_state_name: "state_name", geoid: "county_fips", c_county_name: "county_name" } });
+
+                    // Reorder columns
+                    const dcElectionResults = dcResultsGeographies.loc({
+                        columns: ["state_name", "county_fips", "county_name", "votes_gop", "votes_dem", "total_votes"]
+                    });
+
+                    // Calculate GOP percentage
+                    dcElectionResults.addColumn("per_gop", dcElectionResults["votes_gop"].div(dcElectionResults["total_votes"]), { inplace: true });
+
+                    // Calculate DEM percentage
+                    dcElectionResults.addColumn("per_dem", dcElectionResults["votes_dem"].div(dcElectionResults["total_votes"]), { inplace: true });
+
+                    // Calculate vote difference
+                    dcElectionResults.addColumn("diff", dcElectionResults["votes_gop"].sub(dcElectionResults["votes_dem"]), { inplace: true });
+
+                    // Calculate percentage point difference
+                    dcElectionResults.addColumn("per_point_diff", dcElectionResults["per_gop"].sub(dcElectionResults["per_dem"]), { inplace: true });
+
+                    // Ensure column types are correctly set
+                    dcElectionResults["county_fips"] = dcElectionResults["county_fips"].astype("string");
+                    dcElectionResults["total_votes"] = dcElectionResults["total_votes"].astype("int");
+                    dcElectionResults["votes_dem"] = dcElectionResults["votes_dem"].astype("int");
+                    dcElectionResults["votes_gop"] = dcElectionResults["votes_gop"].astype("int");
+
+                    // Sort by county_fips
+                    dcElectionResults.sort_values({ by: "county_fips", inplace: true });
+
+                    console.log(dcElectionResults.shape);
+                    console.log(dcElectionResults.ctypes);
+                    dcElectionResults.head(100).print();
+
+                    return dcElectionResults;
+
+                },
                 async fetchAlaskaResults(akGeographies) {
                     try {
                         // Fetch the JSON data
