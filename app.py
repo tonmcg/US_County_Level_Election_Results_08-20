@@ -21,6 +21,13 @@ def fetch_county_data(census_year, county_file):
     data = response.text
     return data
 
+@app.route('/census/gazetteer/<int:census_year>/dc_sldu', methods=['GET'])
+def fetch_dc_sldu_data(census_year):
+    url = f'https://www2.census.gov/geo/docs/maps-data/data/gazetteer/{census_year}_Gazetteer/{census_year}_Gaz_sldu_national.zip'
+    response = requests.get(url)
+    data = BytesIO(response.content)
+    return data
+
 @app.route('/census/gazetteer/<int:census_year>/ak_sldl', methods=['GET'])
 def fetch_ak_sldl_data(census_year):
     url = f'https://www2.census.gov/geo/docs/maps-data/data/gazetteer/{census_year}_Gazetteer/{census_year}_Gaz_sldl_national.zip'

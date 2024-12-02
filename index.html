@@ -377,6 +377,8 @@
                     censusCounties,
                     censusStates
                 );
+                // const dcGeographies = await this.getDCGeographies();
+                // await this.fetchDCResults(dcGeographies);
                 const akGeographies = await this.getAlaskaGeographies();
                 await this.fetchAlaskaResults(akGeographies);
                 await this.fetchElectionResults(censusStates, censusGeographies);
@@ -540,6 +542,71 @@
                     // convert back to JSON and return
                     return dfd.toJSON(censusGeographies);
                 },
+                // async getDCGeographies() {
+
+                //     // Download the zip file content into memory
+                //     const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/census/gazetteer/${this.geographies.censusYear}/dc_sldu`;
+                //     const response = await fetch(url, { method: "GET" });
+                //     const arrayBuffer = await response.arrayBuffer();
+                //     const nationalGazetteerZip = new Uint8Array(arrayBuffer);
+
+                //     // Open the zip file from the in-memory content
+                //     const zip = await JSZip.loadAsync(nationalGazetteerZip);
+                //     const unzippedFiles = Object.keys(zip.files);
+
+                //     // Find the tab-delimited text file (assuming it's a .txt file)
+                //     let tabDelimitedFile = null;
+                //     for (const file of unzippedFiles) {
+                //         if (file.endsWith(".txt")) {
+                //             tabDelimitedFile = file;
+                //             break;
+                //         }
+                //     }
+
+                //     if (!tabDelimitedFile) {
+                //         console.error("No tab-delimited text file found.");
+                //         return;
+                //     }
+
+                //     // Read the tab-delimited text file content
+                //     const fileContent = await zip.file(tabDelimitedFile).async("string");
+
+                //     // Parse the tab-delimited text file using d3
+                //     const nationalsldusts = d3.dsvFormat('\t').parse(fileContent, function (d) {
+                //         return {
+                //             c_state_name: "District of Columbia", // Add District of Columbia name to state_name column
+                //             geoid: d['GEOID'],
+                //             c_sldust_name: d['NAME']
+                //         };
+                //     });
+                //     // Convert the national sldusts data to a DataFrame
+                //     const nationalsldusts_df = new dfd.DataFrame(nationalsldusts, {
+                //         index: null,
+                //         columns: ["c_state_name", "geoid", "c_sldust_name"],
+                //         dtypes: ["string", "string", "string"]
+                //     });
+
+                //     // filter the national sldusts dataframe for District of Columbia and reset the index
+                //     let dcGeographies = nationalsldusts_df.loc({
+                //         rows: nationalsldusts_df["geoid"].map(
+                //             (geo) => geo.startsWith("11")
+                //         ),
+                //     }).resetIndex({ drop: true });
+
+                //     // Reorder columns
+                //     dcGeographies = dcGeographies.loc({
+                //         columns: ["c_state_name", "geoid", "c_sldust_name"]
+                //     });
+                //     // Log the shape and data types of the resulting DataFrame
+                //     console.log("Shape:", dcGeographies.shape);
+                //     console.log("Data Types:", dcGeographies.ctypes);
+
+                //     // Print the first 100 rows of the resulting DataFrame
+                //     dcGeographies.head(100).print();
+
+                //     // convert back to JSON and return
+                //     return dfd.toJSON(dcGeographies);
+                // },
                 async getAlaskaGeographies() {
 
                     // Download the zip file content into memory
@@ -818,6 +885,7 @@
                         console.error("Error fetching Alaska results:", error);
                     }
                 },
+                // async fetchDCResults() { dcGeographies },
                 async fetchAlaskaResults(akGeographies) {
                     try {
                         // Fetch the JSON data
@@ -1012,7 +1080,7 @@
 
                     const countyPath = group
                         .selectAll(".counties")
-                        .data(topojson.feature(us, us.objects.district_county).features)
+                        .data(topojson.feature(us, us.objects.wards_districts_counties).features)
                         .enter()
                         .append("path")
                         .attr("class", "county")
@@ -1035,7 +1103,7 @@
 
                     const dotDensity = group
                         .selectAll(".dot")
-                        .data(topojson.feature(us, us.objects.district_county).features)
+                        .data(topojson.feature(us, us.objects.wards_districts_counties).features)
                         .enter()
                         .append("circle")
                         .attr("class", "dot")
