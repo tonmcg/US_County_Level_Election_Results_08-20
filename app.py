@@ -47,14 +47,14 @@ def fetch_dc_results(ward_number):
     url = f'https://electionresults.dcboe.org/ward/getWard/2024-General-Election/{ward_number}'
     response = requests.get(url)
     data = response.json()
-    return data.LastUpdated
+    return data
 
 @app.route('/dc/results/lastUpdated', methods=['GET'])
 def fetch_dc_result_date():
     url = f'https://electionresults.dcboe.org/electionResults/getElectionInfo/2024-General-Election'
     response = requests.get(url)
     data = response.json()
-    return data
+    return data.LastUpdated
 
 @app.route('/ak/results/statewide', methods=['GET'])
 def fetch_ak_results():
