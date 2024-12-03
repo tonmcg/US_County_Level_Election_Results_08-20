@@ -54,7 +54,7 @@ def fetch_dc_result_date():
     url = f'https://electionresults.dcboe.org/electionResults/getElectionInfo/2024-General-Election'
     response = requests.get(url)
     data = response.json()
-    return data.LastUpdated
+    return jsonify({"LastUpdated": data.get("LastUpdated")})
 
 @app.route('/ak/results/statewide', methods=['GET'])
 def fetch_ak_results():
