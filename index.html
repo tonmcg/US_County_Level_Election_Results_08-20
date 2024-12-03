@@ -246,24 +246,31 @@
                             <v-row class="align-center">
                                 <v-col>
                                     <span>
-                                        Source:
+                                        Sources:
                                         <a href="https://www.foxnews.com/elections/2024/general-results"
-                                            target="_blank"><em>Fox News</em></a>, the
+                                            target="_blank"><em>Fox News</em></a>,
                                         <a href="https://electionresults.dcboe.org/election_results/2024-General-Election"
                                             target="_blank"><em>District of Columbia Board of Elections</em></a>, and
-                                        the
                                         <a href="https://www.elections.alaska.gov/enr/" target="_blank"><em>Alaska
-                                                Division of Elections</em></a>. Data compiled by:
+                                                Division of Elections</em></a>.
+                                        <br />Data compiled by:
                                         <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                            target="_blank">Tony McGovern</a>. Alaska data last updated: {{
-                                        alaska.lastupdated
-                                        }}. Continental U.S. data last updated: {{ continental.lastupdated }}.
+                                            target="_blank">Tony McGovern</a>.
                                     </span>
-                                    <br />
-                                    <span>Hover over and click on the map to explore</span>
+                                </v-col>
+                                <v-col class="d-flex justify-end" cols="auto">
+                                    <span>
+                                        Alaska data last updated: {{ alaska.lastupdated }}.
+                                        <br />Washington D.C. data last updated: {{ dc.lastupdated }}.
+                                        <br />Continental U.S. data last updated: {{ continental.lastupdated }}.
+
+                                    </span>
                                 </v-col>
                             </v-row>
                             <v-row>
+                                <v-col>
+                                    <br /><span>Hover over and click on the map to explore</span>
+                                </v-col>
                                 <v-col class="d-flex justify-end" cols="auto">
                                     <v-radio-group v-model="selectedMap" row @change="renderMap">
                                         <template v-slot:label>
@@ -338,6 +345,9 @@
                 alaska: {
                     lastupdated: ""
                 },
+                dc: {
+                    lastupdated: ""
+                },
                 continental: {
                     lastupdated: new Date().toLocaleString(),
                 },
@@ -381,6 +391,7 @@
                 );
                 const dcGeographies = await this.getDCGeographies();
                 await this.fetchDCResults(dcGeographies);
+                await this.fetchDCUpdatedDate();
                 const akGeographies = await this.getAlaskaGeographies();
                 await this.fetchAlaskaResults(akGeographies);
                 await this.fetchElectionResults(censusStates, censusGeographies);
@@ -974,6 +985,14 @@
                         Object.keys(countyResults)
                     );
                     this.districtObj = { ...this.districtObj, ...countyResults };
+                },
+                async fetchDCUpdatedDate() {
+                    // Fetch the JSON data from the API
+                    const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/dc/results/lastUpdated`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    this.dc.lastupdated = new Date(data.LastUpdated).toLocaleString();
                 },
                 async fetchAlaskaResults(akGeographies) {
                     try {
