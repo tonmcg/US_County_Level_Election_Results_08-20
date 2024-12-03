@@ -248,8 +248,10 @@
                                     <span>
                                         Source:
                                         <a href="https://www.foxnews.com/elections/2024/general-results"
-                                            target="_blank"><em>Fox News</em></a>
-                                        and
+                                            target="_blank"><em>Fox News</em></a>, the
+                                        <a href="https://electionresults.dcboe.org/election_results/2024-General-Election"
+                                            target="_blank"><em>District of Columbia Board of Elections</em></a>, and
+                                        the
                                         <a href="https://www.elections.alaska.gov/enr/" target="_blank"><em>Alaska
                                                 Division of Elections</em></a>. Data compiled by:
                                         <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
@@ -331,7 +333,7 @@
                 countyFips: [],
                 geographies: {
                     censusYear: 2024, // base year for the county gazetteer files
-                    suzeraintyFips: ["02", "60", "66", "69", "72", "74", "78"],
+                    suzeraintyFips: ["02", "11", "60", "66", "69", "72", "74", "78"],
                 },
                 alaska: {
                     lastupdated: ""
@@ -377,8 +379,8 @@
                     censusCounties,
                     censusStates
                 );
-                // const dcGeographies = await this.getDCGeographies();
-                // await this.fetchDCResults(dcGeographies);
+                const dcGeographies = await this.getDCGeographies();
+                await this.fetchDCResults(dcGeographies);
                 const akGeographies = await this.getAlaskaGeographies();
                 await this.fetchAlaskaResults(akGeographies);
                 await this.fetchElectionResults(censusStates, censusGeographies);
@@ -889,104 +891,89 @@
 
                     async function getWardElectionResults(wardNumber) {
                         // Fetch the JSON data from the API
-                        const url = `http://127.0.0.1:5500/dc/results/${wardNumber}`;
+                        const url = `https://us-election-server-2ae36243a2a4.herokuapp.com/dc/results/${wardNumber}`;
                         const response = await fetch(url);
                         const data = await response.json();
 
-                        // Convert JSON data to DataFrame
-                        const dcRecordsDf = new dfd.DataFrame(data);
-
                         // Filter rows where OfficeName is "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES"
-                        const dcPresidentResultsDf = dcRecordsDf.query(row => row.OfficeName === "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES");
-
-                        const dcCandidates = new dfd.DataFrame(dcPresidentResultsDf.$data[0].ElectionData);
+                        const dcPresidentResults = data.filter(record => record.OfficeName === "ELECTORS OF PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES");
 
                         // Flatten the JSON to extract required information
-                        const rows = dcCandidates.$data.map(candidate => ({
+                        const rows = dcPresidentResults[0].ElectionData.map(candidate => ({
                             WardNumber: wardNumber,
                             PartyCode: candidate.PartyCode,
                             votes: candidate.Votes,
                             total_votes: candidate.TotalVotes
                         }));
 
-                        // Convert rows to DataFrame
-                        const dcCandidatesDf = new dfd.DataFrame(rows);
-
                         // Filter for DEM and REP candidates
-                        const filteredCandidatesDf = dcCandidatesDf.query(row => ["DEM", "REP"].includes(row.PartyCode));
+                        const filteredCandidates = rows.filter(row => ["DEM", "REP"].includes(row.PartyCode));
 
                         // Pivot the data to separate GOP and DEM votes into their own columns
-                        const pivotDf = filteredCandidatesDf.pivot({
-                            index: ["WardNumber", "total_votes"],
-                            columns: "PartyCode",
-                            values: "votes",
-                            fill_value: 0
+                        const pivotData = {};
+                        filteredCandidates.forEach(row => {
+                            if (!pivotData[row.WardNumber]) {
+                                pivotData[row.WardNumber] = { Ward: `Ward ${row.WardNumber}`, total_votes: row.total_votes, votes_gop: 0, votes_dem: 0 };
+                            }
+                            if (row.PartyCode === "REP") {
+                                pivotData[row.WardNumber].votes_gop = row.votes;
+                            } else if (row.PartyCode === "DEM") {
+                                pivotData[row.WardNumber].votes_dem = row.votes;
+                            }
                         });
 
-                        pivotDf.rename({ columns: { WardNumber: "Ward", REP: "votes_gop", DEM: "votes_dem" } });
-
-                        const dcWardResults = pivotDf.loc({ columns: ["Ward", "votes_gop", "votes_dem", "total_votes"] });
-
-                        // Add the term "Ward " to the Ward column
-                        dcWardResults.addColumn("Ward", dcWardResults["Ward"].map(ward => `Ward ${ward}`), { inplace: true });
+                        const dcWardResults = Object.values(pivotData);
 
                         return dcWardResults;
                     }
 
-                    // Extract the ward numbers from the c_county_name column
-                    const wards = dcGeographies.map(geo => geo["c_sldust_name"].match(/Ward (\d+)/)[1]);
+                    // Extract the ward numbers from the c_sldust_name column
+                    const wards = dcGeographies.map(geo => geo.c_sldust_name.match(/Ward (\d+)/)[1]);
 
                     // Retrieve results for each ward
                     const dcResultsPromises = wards.map(wardNumber => getWardElectionResults(wardNumber));
                     const dcResults = await Promise.all(dcResultsPromises);
 
                     // Combine all ward dataframes
-                    const dcResultsDf = dfd.concat(dcResults, { axis: 0 });
+                    const dcResultsFlat = dcResults.flat();
+
+                    const countyResults = {};
 
                     // Merge with legislative districts
-                    const dcResultsGeographies = dfd.merge({
-                        left: dcResultsDf,
-                        right: dcGeographies,
-                        left_on: "Ward",
-                        right_on: "c_county_name",
-                        how: "left"
+                    const dcResultsGeographies = dcResultsFlat.map(row => {
+                        const county_attributes = dcGeographies.find(geo => geo.c_sldust_name === row.Ward);
+                        const county_fips = String(county_attributes.geoid); // Convert to string
+                        const result = {
+                            // add census geographies
+                            State: county_attributes
+                                ? county_attributes.c_state_name
+                                : null,
+                            County: county_attributes
+                                ? county_attributes.c_sldust_name
+                                : null,
+                            // add calculated columns
+                            ["% of Total Vote, GOP"]: row.votes_gop / row.total_votes,
+                            ["% of Total Vote, Dem."]: row.votes_dem / row.total_votes,
+                            ["Percentage Point Difference"]:
+                                ((row.votes_gop - row.votes_dem) / row.total_votes) * -1,
+                            ["Winner"]: row.votes_dem > row.votes_gop ? "Dem." : "GOP",
+                            ["GOP"]: row.votes_gop,
+                            ["Dem."]: row.votes_dem,
+                            ["Total Votes"]: row.total_votes,
+                            ["Margin"]: row.votes_gop - row.votes_dem,
+                            ["Abs. Margin"]: Math.abs(row.votes_gop - row.votes_dem),
+                            Size:
+                                Math.sqrt(Math.abs(row.votes_gop - row.votes_dem)) * 0.02,
+                        };
+                        countyResults[county_fips] = result;
+                        return result;
                     });
 
-                    // Rename columns from the joined data
-                    dcResultsGeographies.rename({ columns: { c_state_name: "state_name", geoid: "county_fips", c_county_name: "county_name" } });
-
-                    // Reorder columns
-                    const dcElectionResults = dcResultsGeographies.loc({
-                        columns: ["state_name", "county_fips", "county_name", "votes_gop", "votes_dem", "total_votes"]
-                    });
-
-                    // Calculate GOP percentage
-                    dcElectionResults.addColumn("per_gop", dcElectionResults["votes_gop"].div(dcElectionResults["total_votes"]), { inplace: true });
-
-                    // Calculate DEM percentage
-                    dcElectionResults.addColumn("per_dem", dcElectionResults["votes_dem"].div(dcElectionResults["total_votes"]), { inplace: true });
-
-                    // Calculate vote difference
-                    dcElectionResults.addColumn("diff", dcElectionResults["votes_gop"].sub(dcElectionResults["votes_dem"]), { inplace: true });
-
-                    // Calculate percentage point difference
-                    dcElectionResults.addColumn("per_point_diff", dcElectionResults["per_gop"].sub(dcElectionResults["per_dem"]), { inplace: true });
-
-                    // Ensure column types are correctly set
-                    dcElectionResults["county_fips"] = dcElectionResults["county_fips"].astype("string");
-                    dcElectionResults["total_votes"] = dcElectionResults["total_votes"].astype("int");
-                    dcElectionResults["votes_dem"] = dcElectionResults["votes_dem"].astype("int");
-                    dcElectionResults["votes_gop"] = dcElectionResults["votes_gop"].astype("int");
-
-                    // Sort by county_fips
-                    dcElectionResults.sort_values({ by: "county_fips", inplace: true });
-
-                    console.log(dcElectionResults.shape);
-                    console.log(dcElectionResults.ctypes);
-                    dcElectionResults.head(100).print();
-
-                    return dcElectionResults;
-
+                    // add county fips to array and add results to districtObj
+                    this.countyFips = this.countyFips.concat(
+                        Object.keys(countyResults)
+                    );
+                    this.districtObj = { ...this.districtObj, ...countyResults };
                 },
                 async fetchAlaskaResults(akGeographies) {
                     try {
@@ -1154,7 +1141,7 @@
 
                     const zoom = d3
                         .zoom()
-                        .scaleExtent([1, 8])
+                        .scaleExtent([1, 15])
                         .on("zoom", (event) => {
                             const that = this;
                             zoomed(event, that);
