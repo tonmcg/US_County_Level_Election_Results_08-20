@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
     <title>U.S. Presidential Election Results</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" /> -->
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
     <style>
@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: "Roboto";
+            font-family: "Arial", sans-serif !important;
         }
 
         .nation,
@@ -91,7 +91,7 @@
             padding: 10px;
             /* min-width: 375px; */
             min-width: 36.75vmin;
-            font-family: "Roboto";
+            font-family: "Arial", sans-serif;
             font-size: 1.25vmin;
             line-height: 18pt;
             font-weight: lighter;
@@ -129,7 +129,7 @@
         }
 
         /* tooltip table */
-        table {
+        .tooltip-table {
             /* table-layout: fixed; */
             width: 100%;
             /* max-width: 380px; */
@@ -139,16 +139,16 @@
             border-collapse: collapse;
         }
 
-        tr:not(:nth-child(1)) {
+        .tooltip-table tr:not(:nth-child(1)) {
             border-top: 0.5px solid #ccc;
             border-collapse: collapse;
         }
 
-        td:not(:nth-child(1)) {
+        .tooltip-table td:not(:nth-child(1)) {
             padding-left: 3px;
         }
 
-        td:nth-child(1) {
+        .tooltip-table td:nth-child(1) {
             width: 1%;
         }
 
@@ -234,7 +234,7 @@
             </v-app-bar>
 
             <v-main>
-                <v-container>
+                <v-container fluid>
                     <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
                     <v-card tile ref="electionMap">
                         <v-card-title>
@@ -266,13 +266,46 @@
                                 </v-col>
                             </v-row>
                         </v-card-subtitle>
-                        <v-card-text :style="{ minHeight: map.height + 'px' }">
-                            <div class="scaling-svg-container">
-                                <v-progress-linear v-if="!countyFips.length" indeterminate
-                                    color="primary"></v-progress-linear>
-                                <svg></svg>
-                                <div class="fab" style="opacity: 0;"> ↺ </div>
-                            </div>
+                        <!-- <v-card-text :style="{ minHeight: map.height + 'px' }"> -->
+                        <v-card-text>
+                            <v-row>
+                                <v-col cols="2">
+                                    <!-- Vuetify Simple Table -->
+                                    <v-simple-table dense :minHeight="map.height">
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>State</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(statePair, index) in statePairs" :key="index">
+                                                    <td v-if="statePair[0]" @click="filterState(statePair[0])"
+                                                        style="cursor: pointer">
+                                                        {{ statePair[0].name }}
+                                                    </td>
+                                                    <td v-if="statePair[1]" @click="filterState(statePair[1])"
+                                                        style="cursor: pointer">
+                                                        {{ statePair[1].name }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+                                </v-col>
+                                <v-col cols="10">
+                                    <div class="scaling-svg-container">
+                                        <div
+                                            style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                            <v-progress-circular :size="map.height / 6" v-if="!countyFips.length"
+                                                indeterminate color="primary"></v-progress-circular>
+                                        </div>
+                                        <svg></svg>
+                                        <div class="fab" style="opacity: 0;"> ↺ </div>
+                                    </div>
+                                </v-col>
+                            </v-row>
                         </v-card-text>
                         <v-card-actions>
                             <v-row class="align-center">
@@ -280,9 +313,11 @@
                                     <span class="text-body-2">
                                         Sources:
                                         <a href="https://www.foxnews.com/elections/2024/general-results"
-                                            target="_blank"><em>Fox News</em></a>,
+                                            target="_blank"><em>Fox
+                                                News</em></a>,
                                         <a href="https://electionresults.dcboe.org/election_results/2024-General-Election"
-                                            target="_blank"><em>District of Columbia Board of Elections</em></a>, and
+                                            target="_blank"><em>District of Columbia Board of
+                                                Elections</em></a>, and
                                         <a href="https://www.elections.alaska.gov/enr/" target="_blank"><em>Alaska
                                                 Division of Elections</em></a>.
                                         <br />Data compiled by:
@@ -339,6 +374,7 @@
                 demShare: 0,
                 districtObj: {},
                 countyFips: [],
+                states: [],
                 geographies: {
                     censusYear: 2024, // base year for the county gazetteer files
                     suzeraintyFips: ["02", "11", "60", "66", "69", "72", "74", "78"],
@@ -381,6 +417,15 @@
                         .scaleSequential()
                         .interpolator(d3.interpolateRdBu)
                         .domain(this.domain);
+                },
+                statePairs() {
+                    // Split states into pairs for two-column display
+                    const pairs = [];
+                    const states = this.states.length < 51 ? [] : this.states.sort((a, b) => a.name.localeCompare(b.name));
+                    for (let i = 0; i < this.states.length; i += 2) {
+                        pairs.push([this.states[i], this.states[i + 1]]);
+                    }
+                    return pairs;
                 },
             },
             mounted: async function () {
@@ -523,6 +568,11 @@
                     // Filter out Alaska and these Suzerainty entities
                     const censusStates = allCensusStates.filter(state => !this.geographies.suzeraintyFips.includes(state.state_fips));
 
+                    this.states = censusStates.map(state => ({
+                        id: state.state_fips,
+                        name: state.c_state_name
+                    }));
+
                     return censusStates;
                 },
                 mergeCensusGeographies(censusCounties, censusStates) {
@@ -618,6 +668,11 @@
                     // Print the first 100 rows of the resulting DataFrame
                     dcGeographies.head(100).print();
 
+                    this.states.push({
+                        id: "11",
+                        name: "District of Columbia"
+                    });
+
                     // convert back to JSON and return
                     return dfd.toJSON(dcGeographies);
                 },
@@ -682,6 +737,11 @@
 
                     // Print the first 100 rows of the resulting DataFrame
                     akGeographies.head(100).print();
+
+                    this.states.push({
+                        id: "02",
+                        name: "Alaska"
+                    });
 
                     // convert back to JSON and return
                     return dfd.toJSON(akGeographies);
@@ -1509,7 +1569,7 @@
                                 "</div>";
 
                             const startTable =
-                                '<table style="width: 100%; border-collapse: collapse;">';
+                                '<table class="tooltip-table" style="width: 100%; border-collapse: collapse;">';
                             const thead =
                                 '<thead><tr><th></th><th>Candidate</th><th>Party</th><th style="text-align:right">Votes</th><th style="text-align:right">Pct.</th></tr></thead>';
                             const tbody = `<tbody><tr><td style="background-color:${that.color(
