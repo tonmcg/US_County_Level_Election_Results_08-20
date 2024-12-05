@@ -7,6 +7,8 @@
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
     <title>U.S. Presidential Election Results</title>
     <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" /> -->
+    <!-- include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
     <style>
@@ -152,6 +154,14 @@
             width: 1%;
         }
 
+        /* state table */
+        .highlighted-cell {
+            background-color: #86a1c1;
+            color: white;
+            /* Adjust text color for better readability */
+            font-weight: bold;
+        }
+
         /* reset button */
         /* taken from http://materialdesignblog.com/creating-a-simple-material-design-action-button-with-css/ */
         /* uses Material Design principles, which is a plus */
@@ -245,7 +255,7 @@
                         <v-card-subtitle class="text-subtitle-1">
                             <v-row>
                                 <v-col>
-                                    <span>Hover over and click on the map to explore</span>
+                                    <span>Hover over and click on both the map and table to explore</span>
                                 </v-col>
                                 <v-col class="d-flex justify-end" cols="auto">
                                     <v-radio-group v-model="selectedMap" row @change="renderMap">
@@ -266,41 +276,37 @@
                                 </v-col>
                             </v-row>
                         </v-card-subtitle>
-                        <!-- <v-card-text :style="{ minHeight: map.height + 'px' }"> -->
                         <v-card-text>
                             <v-row>
                                 <v-col cols="2">
-                                    <!-- Vuetify Simple Table -->
-                                    <v-simple-table dense :minHeight="map.height">
-                                        <template v-slot:default>
+                                    <!-- Tailwind-styled HTML Table -->
+                                    <div
+                                        :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
+                                        <table class="min-w-full table-auto border-collapse">
                                             <thead>
                                                 <tr>
-                                                    <th>State</th>
-                                                    <th>State</th>
+                                                    <th colspan="2"
+                                                        class="px-2 py-1 bg-gray-200 text-gray-700 text-center border-b border-gray-300">
+                                                        State
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="(statePair, index) in statePairs" :key="index">
-                                                    <td v-if="statePair[0]" @click="filterState(statePair[0])"
-                                                        style="cursor: pointer">
-                                                        {{ statePair[0].name }}
-                                                    </td>
-                                                    <td v-if="statePair[1]" @click="filterState(statePair[1])"
-                                                        style="cursor: pointer">
-                                                        {{ statePair[1].name }}
+                                                <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
+                                                    <td v-for="state in stateRow" :key="state.id"
+                                                        :class="{ 'bg-blue-300 text-white': state.id === activeStateId }"
+                                                        class="px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border-b border-gray-300"
+                                                        @click="toggleStateFilter(state)">
+                                                        {{ state.name }}
                                                     </td>
                                                 </tr>
                                             </tbody>
-                                        </template>
-                                    </v-simple-table>
+                                        </table>
+                                    </div>
                                 </v-col>
-                                <v-col cols="10">
-                                    <div class="scaling-svg-container">
-                                        <div
-                                            style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                                            <v-progress-circular :size="map.height / 6" v-if="!countyFips.length"
-                                                indeterminate color="primary"></v-progress-circular>
-                                        </div>
+                                <v-col cols="9">
+                                    <div
+                                        :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
                                         <svg></svg>
                                         <div class="fab" style="opacity: 0;"> ↺ </div>
                                     </div>
@@ -337,6 +343,8 @@
                         </v-card-actions>
                     </v-card>
                 </v-container>
+                <v-progress-circular :size="map.height / 6" v-if="!countyFips.length" indeterminate color="primary"
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;"></v-progress-circular>
             </v-main>
             <v-footer app color="#6C757D" padless>
                 <v-row no-gutters>
@@ -368,6 +376,7 @@
                     content: "",
                 },
                 selectedMap: "updateCircles",
+                activeStateId: null, // Tracks the currently active state
                 gopVotes: 0,
                 demVotes: 0,
                 gopShare: 0,
@@ -389,8 +398,8 @@
                     lastupdated: new Date().toLocaleString(),
                 },
                 map: {
-                    width: 960,
-                    height: 720,
+                    width: window.innerWidth * 2 / 3, // 3/4 of the innerWidth of the window,
+                    height: window.innerHeight * 5 / 8 // 5/8 of the innerHeight of the window,
                 },
                 transition: {
                     duration: 1000,
@@ -418,14 +427,17 @@
                         .interpolator(d3.interpolateRdBu)
                         .domain(this.domain);
                 },
-                statePairs() {
-                    // Split states into pairs for two-column display
-                    const pairs = [];
-                    const states = this.states.length < 51 ? [] : this.states.sort((a, b) => a.name.localeCompare(b.name));
-                    for (let i = 0; i < this.states.length; i += 2) {
-                        pairs.push([this.states[i], this.states[i + 1]]);
-                    }
-                    return pairs;
+                // Split states into rows with two columns
+                splitStates: function () {
+                    const sorted_states = this.states.length < 51 ? [] : this.states.sort((a, b) => a.name.localeCompare(b.name));
+
+                    const split_states = sorted_states.reduce((rows, state, index) => {
+                        if (index % 2 === 0) rows.push([]);
+                        rows[rows.length - 1].push(state);
+                        return rows;
+                    }, []);
+
+                    return split_states;
                 },
             },
             mounted: async function () {
@@ -1226,27 +1238,31 @@
                             const that = this;
                             zoomed(event, that);
                         });
-                    // start DOM manipulation
-                    // create svg element
+
+                    // Create the SVG element
                     const svg = d3
                         .select("svg")
-                        .attr("viewBox", [0, 0, width, height])
-                        .attr("style", "max-width: 100%; height: auto;")
+                        .attr("viewBox", [0, 0, width, height]) // Use dynamically calculated width and height
+                        .attr("width", width) // Set the width of the SVG
+                        .attr("height", height) // Set the height of the SVG
                         .on("click", () => resetZoom(that));
 
                     const g = svg.append("g");
 
-                    // create background box for zoom
+                    // Create background box for zoom
                     g.append("rect")
                         .attr("class", "background")
                         .attr("width", width)
                         .attr("height", height);
 
-                    // create group for county paths
-                    const group = g.append("g").attr("id", "map");
+                    // Create group for county paths
+                    const group = g.append("g")
+                        .attr("id", "map");
 
+                    // Define path projection
                     const path = d3.geoPath().projection(null);
 
+                    // Add county paths
                     const countyPath = group
                         .selectAll(".counties")
                         .data(topojson.feature(us, us.objects.wards_districts_counties).features)
@@ -1254,21 +1270,33 @@
                         .append("path")
                         .attr("class", "county")
                         .attr("d", path)
+                        .style("opacity", 1)
                         .on("click", (event, d) => {
                             clicked(event, d, that);
                         });
 
+                    // Add state boundaries
                     group
                         .append("path")
                         .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
                         .attr("class", "state")
                         .attr("d", path);
 
-                    group
+                    // Add national boundary
+                    const nation = group
                         .append("path")
                         .datum(topojson.feature(us, us.objects.nation))
                         .attr("class", "nation")
                         .attr("d", path);
+
+                    // Calculate and apply initial center position
+                    const center = [
+                        width / 2 - path.centroid(nation.datum())[0], // Center X
+                        height / 2 - path.centroid(nation.datum())[1], // Center Y
+                    ];
+
+                    // Initialize the map position with the calculated center
+                    group.attr("transform", `translate(${center[0]},${center[1]})`);
 
                     const dotDensity = group
                         .selectAll(".dot")
@@ -1323,19 +1351,19 @@
                         .select(".fab")
                         .on("click", () => resetZoom(that));
 
+                    // Reset zoom and center map to its original position
                     function resetZoom(that) {
                         svg
                             .transition()
                             .duration(that.transition.duration * (3 / 4))
                             .call(
                                 zoom.transform,
-                                d3.zoomIdentity,
-                                d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+                                d3.zoomIdentity.translate(center[0], center[1]).scale(1), // Center projection in the middle of the rect
+                                d3.zoomTransform(svg.node()).invert([center[0], center[1]])
                             );
                     }
-
                     function clicked(event, d, that) {
-                        const [[x0, y0], [x1, y1]] = path.bounds(d);
+                        const [[x0, y0], [x1, y1]] = path.bounds(d); // Get bounding box of the selected feature
                         event.stopPropagation();
                         svg
                             .transition()
@@ -1343,14 +1371,14 @@
                             .call(
                                 zoom.transform,
                                 d3.zoomIdentity
-                                    .translate(width / 2, height / 2)
+                                    .translate(width / 2, height / 2) // Center the map on the viewport
                                     .scale(
                                         Math.min(
                                             8,
                                             0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)
                                         )
                                     )
-                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2), // Center on the bounds of the clicked feature
                                 d3.pointer(event, svg.node())
                             );
                     }
@@ -1384,6 +1412,73 @@
                         console.error("Selected function is not valid");
                     }
                 },
+                toggleStateFilter(state) {
+                    // Check if the clicked state is already active
+                    if (this.activeStateId === state.id) {
+                        this.activeStateId = null; // Reset the active state
+                        this.resetMap(); // Reset the map to its unfiltered state
+                    } else {
+                        this.activeStateId = state.id; // Set the active state
+                        this.filterState(state); // Filter the map
+                    }
+                },
+                resetMap() {
+                    // Reset the active state
+                    this.activeStateId = null;
+
+                    // Select all county paths
+                    const countyPaths = d3.selectAll(".county");
+
+                    // Reset the county paths to their original opacity
+                    countyPaths
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .style("opacity", 1);
+
+                    // Reset the zoom level and center the map
+                    d3.select("svg")
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .call(
+                            d3.zoom().transform,
+                            d3.zoomIdentity.translate(this.map.width / 2, this.map.height / 2).scale(1)
+                        );
+                },
+                filterState(state) {
+                    // Assuming you have a way to identify the state in your map data
+                    const stateFips = state.id; // or however you identify the state
+
+                    this.activeStateId = stateFips; // Update the active state
+
+                    // Select all county paths
+                    const countyPaths = d3.selectAll(".county");
+
+                    // Filter the counties to show only those in the selected state
+                    countyPaths
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .style("opacity", d => d.id.startsWith(stateFips) ? 1 : 0.1);
+
+                    // Optionally, you can also zoom to the state
+                    const stateBoundaries = d3.selectAll(".state").filter(d => d.id === stateFips);
+                    if (stateBoundaries.size() > 0) {
+                        const [[x0, y0], [x1, y1]] = d3.geoPath().bounds(stateBoundaries.datum());
+                        const width = this.map.width;
+                        const height = this.map.height;
+                        const zoom = d3.zoom().scaleExtent([1, 30]);
+
+                        d3.select("svg")
+                            .transition()
+                            .duration(this.transition.duration / 2)
+                            .call(
+                                zoom.transform,
+                                d3.zoomIdentity
+                                    .translate(width / 2, height / 2)
+                                    .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2)
+                            );
+                    }
+                },
                 calculateMetrics() {
                     this.gopVotes = d3.sum(
                         this.countyFips,
@@ -1403,6 +1498,7 @@
                     countyPath
                         .transition()
                         .duration(this.transition.duration / 2)
+                        .style("opacity", 1)
                         .style("fill", (d) => "#ffffff");
                 },
                 updatePaths() {
@@ -1413,7 +1509,8 @@
                     // update fill property of county paths
                     countyPath
                         .transition()
-                        .duration(this.transition.duration)
+                        .duration(this.transition.duration / 2)
+                        .style("opacity", 1)
                         .style("fill", (d) => {
                             const county = this.districtObj[d.id];
                             return county
@@ -1439,7 +1536,7 @@
                     // update radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration)
+                        .duration(this.transition.duration / 2)
                         .attr("r", (d) => {
                             const county = this.districtObj[d.id];
                             return county ? county.Size : 0;
@@ -1592,9 +1689,11 @@
 
                         if (
                             (e.target.nodeName == "path" &&
-                                e.target.className.animVal !== "state") ||
+                                e.target.className.animVal !== "state" &&
+                                e.target.style.opacity == 1) ||
                             (e.target.nodeName == "circle" &&
-                                e.target.className.animVal === "dot")
+                                e.target.className.animVal === "dot" &&
+                                e.target.style.opacity == 1)
                         ) {
                             d = d3.select(e.target).data()[0];
                             county = that.districtObj[d.id];
