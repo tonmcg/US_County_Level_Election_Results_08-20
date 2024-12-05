@@ -350,13 +350,11 @@
                 <v-progress-circular :size="map.height / 6" v-if="!countyFips.length" indeterminate color="primary"
                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;"></v-progress-circular>
             </v-main>
-            <v-footer app color="#6C757D" padless>
-                <v-row no-gutters>
-                    <v-col class="py-4 text-center white--text" cols="12">
-                        {{ new Date().getFullYear() }} — <strong>Tony McGovern</strong>
-                    </v-col>
-                </v-row>
-            </v-footer>
+            <footer class="bg-gray-600 text-white">
+                <div class="flex justify-center items-center py-4">
+                    <span>{{ new Date().getFullYear() }} — <strong>Tony McGovern</strong></span>
+                </div>
+            </footer>
         </v-app>
     </div>
 
