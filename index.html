@@ -246,7 +246,7 @@
             <v-main>
                 <v-container fluid>
                     <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
-                    <v-card tile ref="electionMap">
+                    <v-card tile>
                         <v-card-title>
                             <p class="text-h4">
                                 Map of United States Counties and Legislative Districts
@@ -257,22 +257,26 @@
                                 <v-col>
                                     <span>Hover over and click on both the map and table to explore</span>
                                 </v-col>
-                                <v-col class="d-flex justify-end" cols="auto">
-                                    <v-radio-group v-model="selectedMap" row @change="renderMap">
-                                        <template v-slot:label>
-                                            <div>Select map</div>
-                                        </template>
-                                        <v-radio value="updatePaths">
-                                            <template v-slot:label>
-                                                <div>Choropleth (filled)</div>
-                                            </template>
-                                        </v-radio>
-                                        <v-radio value="updateCircles">
-                                            <template v-slot:label>
-                                                <div>Dot Density</div>
-                                            </template>
-                                        </v-radio>
-                                    </v-radio-group>
+                                <v-col>
+                                    <div class="flex justify-end">
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2">Select map</label>
+                                            <div class="flex space-x-4" @change="renderMap">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="mapType" value="updatePaths"
+                                                        v-model="selectedMap"
+                                                        class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-2" />
+                                                    <span class="ml-2 text-gray-700">Choropleth (filled)</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="mapType" value="updateCircles"
+                                                        v-model="selectedMap"
+                                                        class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-2" />
+                                                    <span class="ml-2 text-gray-700">Dot Density</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </v-col>
                             </v-row>
                         </v-card-subtitle>
