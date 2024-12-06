@@ -8,16 +8,16 @@
     <title>U.S. Presidential Election Results</title>
     <!-- include Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" /> -->
     <style>
         /* hide scroll bar */
-        html {
+        /* html {
             overflow-y: auto;
-        }
+        } */
 
         body {
-            font-family: "Arial", sans-serif !important;
+            font-family: "Arial", sans-serif;
         }
 
         .nation,
@@ -161,6 +161,12 @@
             font-weight: bold;
         }
 
+        .state-table-header {
+            background-color: #095591;
+            color: white;
+            font-weight: bold;
+        }
+
         /* reset button */
         /* taken from http://materialdesignblog.com/creating-a-simple-material-design-action-button-with-css/ */
         /* uses Material Design principles, which is a plus */
@@ -195,58 +201,51 @@
             transform: scale(1.05);
         }
 
-        .v-btn--fab.v-btn--absolute,
-        .v-btn--fab.v-btn--fixed {
-            z-index: 5;
+        .app-bar {
+            background-color: #095591;
         }
-
-        .v-btn--absolute.v-btn--top,
-        .v-btn--fixed.v-btn--top {
-            top: 55px;
-        }
-
-        /* scaling SVG */
-        /* .scaling-svg-container {
-            position: relative;
-            height: 0;
-            width: 100%;
-            padding: 0
-        }
-        
-        .scaling-svg {
-            position: absolute;
-            height: 99%;
-            width: 100%;
-            left: 0;
-            top: 0
-        } */
     </style>
 </head>
 
 <body>
     <div id="app">
-        <v-app>
-            <v-app-bar app elevation="1" color="#095591" dark>
-                <v-toolbar-title>United States Presidential Election Results by County,
-                    2024</v-toolbar-title>
+        <div class="min-h-screen bg-gray-100 flex flex-col">
+            <!-- app bar -->
+            <header class="app-bar fixed top-0 left-0 right-0 text-white shadow-md h-16 flex items-center px-4">
+                <div class="text-xl font-bold">
+                    United States Presidential Election Results, 2024
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4">
+                    <a href="https://github.com/tonmcg" target="_blank" class="hover:text-gray-300">
+                        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.167 6.839 9.487.5.092.683-.217.683-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.909-.621.069-.609.069-.609 1.003.071 1.53 1.031 1.53 1.031.892 1.529 2.341 1.087 2.91.831.092-.647.35-1.087.637-1.337-2.22-.253-4.555-1.113-4.555-4.95 0-1.093.39-1.988 1.029-2.688-.104-.254-.446-1.27.099-2.647 0 0 .84-.269 2.75 1.025a9.549 9.549 0 0 1 5.003 0c1.91-1.294 2.75-1.025 2.75-1.025.545 1.377.202 2.393.1 2.647.64.7 1.028 1.595 1.028 2.688 0 3.848-2.337 4.695-4.563 4.945.359.309.678.92.678 1.855 0 1.337-.012 2.416-.012 2.743 0 .267.18.578.688.48A10.013 10.013 0 0 0 22 12c0-5.52-4.48-10-10-10z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a href="https://x.com/tonmcg" target="_blank" class="hover:text-gray-300">
+                        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24">
+                            <path
+                                d="M22.46 6c-.77.35-1.6.59-2.46.7a4.16 4.16 0 0 0 1.84-2.3 8.1 8.1 0 0 1-2.64 1.02 4.09 4.09 0 0 0-7.08 3.73A11.62 11.62 0 0 1 3.17 5.16a4.11 4.11 0 0 0 1.27 5.47 4.05 4.05 0 0 1-1.85-.51v.05a4.1 4.1 0 0 0 3.28 4 4.09 4.09 0 0 1-1.84.07 4.12 4.12 0 0 0 3.83 2.84A8.2 8.2 0 0 1 2 18.55a11.5 11.5 0 0 0 6.29 1.84c7.55 0 11.67-6.26 11.67-11.67 0-.18-.01-.35-.02-.53a8.32 8.32 0 0 0 2.07-2.12z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/tonmcg" target="_blank" class="hover:text-gray-300">
+                        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" viewBox="0 0 24 24">
+                            <path
+                                d="M20.452 20.452H16.9v-4.937c0-1.177-.023-2.691-1.643-2.691-1.644 0-1.896 1.284-1.896 2.61v5.018H9.91V9h3.4v1.561h.049c.476-.9 1.635-1.845 3.362-1.845 3.59 0 4.254 2.362 4.254 5.434v6.302zM5.337 7.433a1.967 1.967 0 1 1 0-3.933 1.967 1.967 0 0 1 0 3.933zM6.937 20.452H3.737V9h3.2v11.452zM22.227 0H1.772C.789 0 0 .784 0 1.748v20.505C0 23.217.79 24 1.772 24h20.455C23.21 24 24 23.217 24 22.253V1.748C24 .784 23.21 0 22.227 0z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a href="https://www.emdata.ai" target="_blank" class="hover:text-gray-300">
+                        <img alt="emdata Logo" src="https://avatars1.githubusercontent.com/u/58564118?s=200&v=4"
+                            class="w-9 h-9" />
+                    </a>
+                </div>
+            </header>
 
-                <v-spacer></v-spacer>
-                <v-btn class="mx-4" icon href="https://github.com/tonmcg" target="_blank">
-                    <v-icon large>mdi-github</v-icon>
-                </v-btn>
-                <v-btn class="mx-4" icon href="https://x.com/tonmcg" target="_blank">
-                    <v-icon large>mdi-twitter</v-icon>
-                </v-btn>
-                <v-btn class="mx-4" icon href="https://www.linkedin.com/in/tonmcg" target="_blank">
-                    <v-icon large>mdi-linkedin</v-icon>
-                </v-btn>
-                <v-btn class="mx-4" icon href="https://www.emdata.ai" target="_blank">
-                    <v-img alt="emdata Logo" src="https://avatars1.githubusercontent.com/u/58564118?s=200&v=4"
-                        width="36px" />
-                </v-btn>
-            </v-app-bar>
-
-            <main class="flex flex-col w-full h-full mt-8">
+            <main class="flex flex-col w-full h-full pt-16">
                 <div class="w-full p-4">
                     <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
                     <!-- Content container -->
@@ -256,7 +255,7 @@
                             <!-- Card Title -->
                             <div class="p-4 border-b">
                                 <p class="text-2xl font-bold">
-                                    Map of United States Counties and Legislative Districts
+                                    Map of United States Counties, Legislative Districts, or Wards
                                 </p>
                             </div>
 
@@ -297,34 +296,35 @@
                                         <!-- State Table -->
                                         <div id="state-table"
                                             :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
-                                            <table class="min-w-full table-auto border-collapse">
+                                            <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
                                                     <tr>
                                                         <th colspan="2"
-                                                            class="px-2 py-1 bg-gray-200 text-gray-700 text-center border-b border-gray-300">
+                                                            class="state-table-header px-2 py-1 text-gray-700 text-center border border-gray-300">
                                                             State
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
-                                                        <td v-for="state in stateRow" :key="state.id"
-                                                            :class="{ 'bg-blue-300 text-white': state.id === activeStateId }"
-                                                            class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border-b border-gray-300"
-                                                            @click="(e) => toggleStateFilter(state,e,this)">
+                                                        <td v-for="state in stateRow" :key="state.id" :class="{
+            'bg-blue-300 text-white': state.id === activeStateId,
+          }" class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border border-gray-300"
+                                                            @click="(e) => toggleStateFilter(state, e, this)">
                                                             {{ state.name }}
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
+
                                     </div>
 
                                     <div class="col-span-8">
                                         <div :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`"
                                             style="position: relative; width: 100%; height: 100%;">
                                             <!-- map visualization -->
-                                            <svg></svg>
+                                            <svg id="map"></svg>
                                             <!-- Vuetify-styled reset button -->
                                             <div class="fab" style="opacity: 0;" @click="resetMap">↺</div>
                                         </div>
@@ -354,17 +354,18 @@
                                             <span>
                                                 Sources:
                                                 <a href="https://www.foxnews.com/elections/2024/general-results"
-                                                    target="_blank"><em>Fox
+                                                    class="text-blue-500 underline" target="_blank"><em>Fox
                                                         News</em></a>,
                                                 <a href="https://electionresults.dcboe.org/election_results/2024-General-Election"
-                                                    target="_blank"><em>District of Columbia Board of
+                                                    class="text-blue-500 underline" target="_blank"><em>District of
+                                                        Columbia Board of
                                                         Elections</em></a>, and
                                                 <a href="https://www.elections.alaska.gov/enr/"
-                                                    target="_blank"><em>Alaska
+                                                    class="text-blue-500 underline" target="_blank"><em>Alaska
                                                         Division of Elections</em></a>.
                                                 <br />Data compiled by:
                                                 <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                                    target="_blank">Tony McGovern</a>.
+                                                    class="text-blue-500 underline" target="_blank">Tony McGovern</a>.
                                             </span>
                                         </div>
                                         <div class="text-sm flex justify-end">
@@ -388,20 +389,20 @@
                             viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1">
                             </circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            <path class="opacity-75" fill="#ffffff" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>
                     </div>
             </main>
             <footer class="bg-gray-600 text-white">
                 <div class="flex justify-center items-center py-4">
-                    <span>{{ new Date().getFullYear() }} — <strong>Tony McGovern</strong></span>
+                    <span>&copy; {{ new Date().getFullYear() }} — <strong>Tony McGovern</strong></span>
                 </div>
             </footer>
-        </v-app>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js" type="text/javascript"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js" type="text/javascript"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js" type="text/javascript"></script>
@@ -411,7 +412,6 @@
 
         new Vue({
             el: "#app",
-            vuetify: new Vuetify(),
             data: () => ({
                 domain: [-1, 1], // set the domain for all scales from -1 to 1
                 tooltip: {
@@ -479,7 +479,7 @@
                 },
                 zoom: function () {
                     return d3.zoom()
-                        .scaleExtent([1, 8])
+                        .scaleExtent([1, 16])
                         .on("zoom", this.zoomed);
                 },
                 sequentialScale: function () {
@@ -1295,7 +1295,7 @@
 
                     // Create the SVG element
                     const svg = d3
-                        .select("svg")
+                        .select("#map")
                         .attr("viewBox", [0, 0, width, height]) // Use dynamically calculated width and height
                         .attr("width", width) // Set the width of the SVG
                         .attr("height", height) // Set the height of the SVG
@@ -1311,7 +1311,7 @@
 
                     // Create group for county paths
                     const group = g.append("g")
-                        .attr("id", "map");
+                        .attr("id", "paths");
 
                     // Add county paths
                     const countyPath = group
@@ -1760,7 +1760,7 @@
                 clicked(event, d, that) {
                     const [[x0, y0], [x1, y1]] = that.path.bounds(d); // Get bounding box of the selected feature
                     event.stopPropagation();
-                    const svg = d3.select("svg");
+                    const svg = d3.select("#map");
 
                     svg
                         .transition()
@@ -1780,7 +1780,7 @@
                         );
                 },
                 resetZoom() {
-                    const svg = d3.select("svg");
+                    const svg = d3.select("#map");
 
                     svg
                         .transition()
@@ -1795,7 +1795,7 @@
                     const duration = this.transition.duration;
                     const { transform } = event;
 
-                    const group = d3.select("#map");
+                    const group = d3.select("#paths");
                     group.attr("transform", transform);
                     group.attr("stroke-width", 1 / transform.k);
 
@@ -1823,27 +1823,6 @@
                         default:
                             return value;
                     }
-                },
-                setResponsiveSVG() {
-                    // Many browsers -- IE particularly -- will not auto-size inline SVG
-                    // IE applies default width and height sizing
-                    // padding-bottom hack on a container solves IE inconsistencies in size
-                    // https://css-tricks.com/scale-svg/#article-header-id-10
-                    const width = +d3.select("svg").attr("width");
-                    const height = +d3.select("svg").attr("height");
-                    const calcString = +(height / width) * 100 + "%";
-
-                    const svgElement = d3.select("svg");
-                    const svgParent = d3.select(d3.select("svg").node().parentNode);
-
-                    svgElement
-                        .attr("class", "scaling-svg")
-                        .attr("preserveAspectRatio", "xMinYMin")
-                        .attr("viewBox", "0 0 " + width + " " + height)
-                        .attr("width", null)
-                        .attr("height", null);
-
-                    svgParent.style("padding-bottom", calcString);
                 },
             },
         });
