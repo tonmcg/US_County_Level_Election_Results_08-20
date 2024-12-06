@@ -6,7 +6,6 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" />
     <title>U.S. Presidential Election Results</title>
-    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" /> -->
     <!-- include Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet" />
@@ -166,25 +165,29 @@
         /* taken from http://materialdesignblog.com/creating-a-simple-material-design-action-button-with-css/ */
         /* uses Material Design principles, which is a plus */
         .fab {
+            position: absolute;
+            /* Position relative to the parent SVG */
+            bottom: 10px;
+            /* Adjust distance from the bottom edge of the SVG */
+            right: 10px;
+            /* Adjust distance from the right edge of the SVG */
+            z-index: 100;
+            /* Keep it on top of other content */
             width: 70px;
             height: 70px;
             background-color: #095591;
             border-radius: 50%;
             box-shadow: 0 6px 10px 0 #666;
             transition: all 0.1s ease-in-out;
-
             font-size: 50px;
             color: #ffffff;
             text-align: center;
             line-height: 70px;
-
-            position: fixed;
-            right: 185px;
-            bottom: 110px;
-
             cursor: pointer;
-
-            z-index: 100;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .fab:hover {
@@ -292,7 +295,7 @@
                                 <div class="grid grid-cols-12 gap-4">
                                     <div class="col-span-2">
                                         <!-- State Table -->
-                                        <div
+                                        <div id="state-table"
                                             :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
                                             <table class="min-w-full table-auto border-collapse">
                                                 <thead>
@@ -307,8 +310,8 @@
                                                     <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
                                                         <td v-for="state in stateRow" :key="state.id"
                                                             :class="{ 'bg-blue-300 text-white': state.id === activeStateId }"
-                                                            class="px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border-b border-gray-300"
-                                                            @click="toggleStateFilter(state)">
+                                                            class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border-b border-gray-300"
+                                                            @click="(e) => toggleStateFilter(state,e,this)">
                                                             {{ state.name }}
                                                         </td>
                                                     </tr>
@@ -316,12 +319,14 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <!-- Vuetify-styled reset button -->
+
                                     <div class="col-span-8">
-                                        <div
-                                            :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
+                                        <div :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`"
+                                            style="position: relative; width: 100%; height: 100%;">
+                                            <!-- map visualization -->
                                             <svg></svg>
-                                            <div class="fab" style="opacity: 0;"> ↺ </div>
+                                            <!-- Vuetify-styled reset button -->
+                                            <div class="fab" style="opacity: 0;" @click="resetMap">↺</div>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
@@ -343,7 +348,7 @@
                                 </div>
 
                                 <!-- Card Actions -->
-                                <div class="p-4 border-t">
+                                <div class="p-4">
                                     <div class="flex justify-between items-center">
                                         <div>
                                             <span>
@@ -437,8 +442,8 @@
                     lastupdated: new Date().toLocaleString(),
                 },
                 map: {
-                    width: window.innerWidth * 5 / 8, // 3/4 of the innerWidth of the window,
-                    height: window.innerHeight * 5 / 8 // 5/8 of the innerHeight of the window,
+                    width: window.innerWidth * 5 / 8, // portion of the innerWidth of the window,
+                    height: window.innerHeight * 5 / 8 // portion of the innerHeight of the window,
                 },
                 transition: {
                     duration: 1000,
@@ -458,7 +463,24 @@
                         .range([-this.map.width / 3, this.map.width / 3]);
                 },
                 path: function () {
+                    // Define path projection
                     return d3.geoPath().projection(null);
+                },
+                center: function () {
+                    const nation = d3.select(".nation");
+                    // Calculate and apply initial center position
+                    const center = [
+                        this.map.width / 2 - this.path.centroid(nation.datum())[0], // Center X
+                        this.map.height / 2 - this.path.centroid(nation.datum())[1], // Center Y
+                    ];
+
+                    return center;
+
+                },
+                zoom: function () {
+                    return d3.zoom()
+                        .scaleExtent([1, 8])
+                        .on("zoom", this.zoomed);
                 },
                 sequentialScale: function () {
                     return d3
@@ -1265,18 +1287,11 @@
 
                     return { us: results };
                 },
+                // Function to initialize the map
                 initializeMap(us) {
                     const that = this;
                     const width = this.map.width;
                     const height = this.map.height;
-
-                    const zoom = d3
-                        .zoom()
-                        .scaleExtent([1, 30])
-                        .on("zoom", (event) => {
-                            const that = this;
-                            zoomed(event, that);
-                        });
 
                     // Create the SVG element
                     const svg = d3
@@ -1284,7 +1299,7 @@
                         .attr("viewBox", [0, 0, width, height]) // Use dynamically calculated width and height
                         .attr("width", width) // Set the width of the SVG
                         .attr("height", height) // Set the height of the SVG
-                        .on("click", () => resetZoom(that));
+                        .on("click", () => that.resetZoom(that));
 
                     const g = svg.append("g");
 
@@ -1298,9 +1313,6 @@
                     const group = g.append("g")
                         .attr("id", "map");
 
-                    // Define path projection
-                    const path = d3.geoPath().projection(null);
-
                     // Add county paths
                     const countyPath = group
                         .selectAll(".counties")
@@ -1308,34 +1320,31 @@
                         .enter()
                         .append("path")
                         .attr("class", "county")
-                        .attr("d", path)
+                        .attr("d", this.path)
                         .style("opacity", 1)
                         .on("click", (event, d) => {
-                            clicked(event, d, that);
+                            that.clicked(event, d, that);
                         });
 
                     // Add state boundaries
                     group
-                        .append("path")
+                        .selectAll(".state")
                         .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
+                        .data(topojson.feature(us, us.objects.state).features)
+                        .enter()
+                        .append("path")
                         .attr("class", "state")
-                        .attr("d", path);
+                        .attr("d", this.path);
 
                     // Add national boundary
                     const nation = group
                         .append("path")
                         .datum(topojson.feature(us, us.objects.nation))
                         .attr("class", "nation")
-                        .attr("d", path);
-
-                    // Calculate and apply initial center position
-                    const center = [
-                        width / 2 - path.centroid(nation.datum())[0], // Center X
-                        height / 2 - path.centroid(nation.datum())[1], // Center Y
-                    ];
+                        .attr("d", this.path);
 
                     // Initialize the map position with the calculated center
-                    group.attr("transform", `translate(${center[0]},${center[1]})`);
+                    group.attr("transform", `translate(${this.center[0]},${this.center[1]})`);
 
                     const dotDensity = group
                         .selectAll(".dot")
@@ -1344,20 +1353,20 @@
                         .append("circle")
                         .attr("class", "dot")
                         .attr("cx", (d) => {
-                            const centroid = path.centroid(d);
+                            const centroid = this.path.centroid(d);
                             return !centroid[0] ? null : centroid[0];
                         })
                         .attr("cy", (d) => {
-                            const centroid = path.centroid(d);
+                            const centroid = this.path.centroid(d);
                             return !centroid[1] ? null : centroid[1];
                         })
                         .attr("r", 0)
                         .style("opacity", 0)
                         .on("click", (event, d) => {
-                            clicked(event, d, that);
+                            that.clicked(event, d, that);
                         });
 
-                    svg.call(zoom);
+                    svg.call(this.zoom);
 
                     // create details bar
                     // use John Alexis details Gómez dynamic details bar
@@ -1385,62 +1394,8 @@
                         .html("Percentage Share of the Two-party Vote")
                         .attr("transform", "translate(100, 0)");
 
-                    // create zoom event on reset button
-                    const fab = d3
-                        .select(".fab")
-                        .on("click", () => resetZoom(that));
-
-                    // Reset zoom and center map to its original position
-                    function resetZoom(that) {
-                        svg
-                            .transition()
-                            .duration(that.transition.duration * (3 / 4))
-                            .call(
-                                zoom.transform,
-                                d3.zoomIdentity.translate(center[0], center[1]).scale(1), // Center projection in the middle of the rect
-                                d3.zoomTransform(svg.node()).invert([center[0], center[1]])
-                            );
-                    }
-                    function clicked(event, d, that) {
-                        const [[x0, y0], [x1, y1]] = path.bounds(d); // Get bounding box of the selected feature
-                        event.stopPropagation();
-                        svg
-                            .transition()
-                            .duration(that.transition.duration * (3 / 4))
-                            .call(
-                                zoom.transform,
-                                d3.zoomIdentity
-                                    .translate(width / 2, height / 2) // Center the map on the viewport
-                                    .scale(
-                                        Math.min(
-                                            8,
-                                            0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)
-                                        )
-                                    )
-                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2), // Center on the bounds of the clicked feature
-                                d3.pointer(event, svg.node())
-                            );
-                    }
-
-                    function zoomed(event, that) {
-                        const duration = that.transition.duration;
-                        const { transform } = event;
-                        group.attr("transform", transform);
-                        group.attr("stroke-width", 1 / transform.k);
-                        // hide button if zoomed out
-                        if (transform.k > 1 && (transform.x || transform.y !== 0)) {
-                            fab
-                                .transition()
-                                .duration(duration / 2)
-                                .style("opacity", 1);
-                        } else {
-                            fab
-                                .transition()
-                                .duration(duration / 2)
-                                .style("opacity", 0);
-                        }
-                    }
                 },
+                // Function to handle the type of map chosen
                 renderMap() {
                     if (
                         this.selectedMap &&
@@ -1451,16 +1406,26 @@
                         console.error("Selected function is not valid");
                     }
                 },
-                toggleStateFilter(state) {
+                // Function to handle filtering and zooming to the state level
+                toggleStateFilter(state, e) {
                     // Check if the clicked state is already active
                     if (this.activeStateId === state.id) {
                         this.activeStateId = null; // Reset the active state
                         this.resetMap(); // Reset the map to its unfiltered state
+                        this.resetZoom(); // Reset the zoom level
                     } else {
                         this.activeStateId = state.id; // Set the active state
-                        this.filterState(state); // Filter the map
+                        this.filterState(state); // Filter the map to the selected state
+
+                        // Zoom to the selected state
+                        const stateBoundaries = d3.selectAll(".state").data().filter(d => d.id === state.id);
+
+                        if (stateBoundaries.length > 0) {
+                            this.clicked(e, stateBoundaries[0], this);
+                        }
                     }
                 },
+                // Function to handle resetting the map to its original state
                 resetMap() {
                     // Reset the active state
                     this.activeStateId = null;
@@ -1474,21 +1439,20 @@
                         .duration(this.transition.duration / 2)
                         .style("opacity", 1);
 
-                    // Reset the zoom level and center the map
-                    d3.select("svg")
+                    // Select all county circles
+                    const dotDensity = d3.selectAll(".dot");
+
+                    // Reset the county circles to their original opacity
+                    dotDensity
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .call(
-                            d3.zoom().transform,
-                            d3.zoomIdentity.translate(this.map.width / 2, this.map.height / 2).scale(1)
-                        );
+                        .style("opacity", 1);
+
+                    // Reset the zoom level and center the map
+                    this.resetZoom();
                 },
+                // Function to handle filtering the map to the selected state
                 filterState(state) {
-                    // Assuming you have a way to identify the state in your map data
-                    const stateFips = state.id; // or however you identify the state
-
-                    this.activeStateId = stateFips; // Update the active state
-
                     // Select all county paths
                     const countyPaths = d3.selectAll(".county");
 
@@ -1496,27 +1460,16 @@
                     countyPaths
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .style("opacity", d => d.id.startsWith(stateFips) ? 1 : 0.1);
+                        .style("opacity", d => d.id.startsWith(state.id) ? 1 : 0.1);
 
-                    // Optionally, you can also zoom to the state
-                    const stateBoundaries = d3.selectAll(".state").filter(d => d.id === stateFips);
-                    if (stateBoundaries.size() > 0) {
-                        const [[x0, y0], [x1, y1]] = d3.geoPath().bounds(stateBoundaries.datum());
-                        const width = this.map.width;
-                        const height = this.map.height;
-                        const zoom = d3.zoom().scaleExtent([1, 30]);
+                    // select all county circles
+                    const dotDensity = d3.selectAll(".dot");
+                    // update radius, fill, and opacity properties of county circles
+                    dotDensity
+                        .transition()
+                        .duration(this.transition.duration / 2)
+                        .style("opacity", d => d.id.startsWith(state.id) ? 1 : 0.1);
 
-                        d3.select("svg")
-                            .transition()
-                            .duration(this.transition.duration / 2)
-                            .call(
-                                zoom.transform,
-                                d3.zoomIdentity
-                                    .translate(width / 2, height / 2)
-                                    .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
-                                    .translate(-(x0 + x1) / 2, -(y0 + y1) / 2)
-                            );
-                    }
                 },
                 calculateMetrics() {
                     this.gopVotes = d3.sum(
@@ -1803,6 +1756,62 @@
 
                     // hide tooltip
                     return tooltip.style("visibility", "hidden");
+                },
+                clicked(event, d, that) {
+                    const [[x0, y0], [x1, y1]] = that.path.bounds(d); // Get bounding box of the selected feature
+                    event.stopPropagation();
+                    const svg = d3.select("svg");
+
+                    svg
+                        .transition()
+                        .duration(that.transition.duration * (3 / 4))
+                        .call(
+                            that.zoom.transform,
+                            d3.zoomIdentity
+                                .translate(that.map.width / 2, that.map.height / 2) // Center the map on the viewport
+                                .scale(
+                                    Math.min(
+                                        8,
+                                        0.9 / Math.max((x1 - x0) / that.map.width, (y1 - y0) / that.map.height)
+                                    )
+                                )
+                                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2), // Center on the bounds of the clicked feature
+                            d3.pointer(event, svg.node())
+                        );
+                },
+                resetZoom() {
+                    const svg = d3.select("svg");
+
+                    svg
+                        .transition()
+                        .duration(this.transition.duration * (3 / 4))
+                        .call(
+                            this.zoom.transform,
+                            d3.zoomIdentity.translate(this.center[0], this.center[1]).scale(1), // Center projection in the middle of the rect
+                            d3.zoomTransform(svg.node()).invert([this.center[0], this.center[1]])
+                        );
+                },
+                zoomed(event) {
+                    const duration = this.transition.duration;
+                    const { transform } = event;
+
+                    const group = d3.select("#map");
+                    group.attr("transform", transform);
+                    group.attr("stroke-width", 1 / transform.k);
+
+                    // hide button if zoomed out
+                    const fab = d3.select(".fab");
+                    if (transform.k > 1 && (transform.x || transform.y !== 0)) {
+                        fab
+                            .transition()
+                            .duration(duration / 2)
+                            .style("opacity", 1);
+                    } else {
+                        fab
+                            .transition()
+                            .duration(duration / 2)
+                            .style("opacity", 0);
+                    }
                 },
                 formatValue(value, type) {
                     switch (type) {
