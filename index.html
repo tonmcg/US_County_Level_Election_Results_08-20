@@ -31,14 +31,13 @@
         }
 
         .state {
-            stroke-width: 0.4px;
+            stroke-width: 0.2px;
         }
 
         .county {
             stroke: #000000;
             stroke-width: 0.1px;
             pointer-events: auto;
-            cursor: pointer;
         }
 
         .background {
@@ -247,21 +246,21 @@
                 <div class="w-full p-4">
                     <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
                     <!-- Content container -->
-                    <div class="w-full p-4">
+                    <div class="w-full p-4" :style="`min-height:${map.height}px;`">
                         <!-- Card -->
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="bg-white shadow rounded-lg overflow-hidden" :style="`min-height:${map.height}px`">
                             <!-- Card Title -->
-                            <div class="p-4 border-b">
-                                <p class="text-2xl font-bold">
-                                    Map of United States Counties, Legislative Districts, or Wards
-                                </p>
-                            </div>
-
-                            <!-- Card Subtitle -->
                             <div class="p-4 border-b">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <span>Hover over and click on both the map and table to explore</span>
+                                        <p class="text-2xl font-bold">
+                                            Map of United States Counties, Alaska Legislative Districts, And District of
+                                            Columbia Wards
+                                        </p>
+                                        <!-- subtitle here in smaller font -->
+                                        <p class="text-sm text-gray-700">
+                                            Hover over and click on the map and table to explore the election results.
+                                        </p>
                                     </div>
                                     <div>
                                         <div class="flex justify-end">
@@ -269,15 +268,15 @@
                                                 <label class="block text-gray-700 font-medium mb-2">Select map</label>
                                                 <div class="flex space-x-4" @change="renderMap">
                                                     <label class="inline-flex items-center">
-                                                        <input type="radio" name="mapType" value="updatePaths"
+                                                        <input type="radio" name="mapType" value="choropleth"
                                                             v-model="selectedMap"
-                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-2" />
+                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
                                                         <span class="ml-2 text-gray-700">Choropleth (filled)</span>
                                                     </label>
                                                     <label class="inline-flex items-center">
-                                                        <input type="radio" name="mapType" value="updateCircles"
+                                                        <input type="radio" name="mapType" value="dotDensity"
                                                             v-model="selectedMap"
-                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-2" />
+                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
                                                         <span class="ml-2 text-gray-700">Dot Density</span>
                                                     </label>
                                                 </div>
@@ -292,8 +291,8 @@
                                 <div class="grid grid-cols-12 gap-4">
                                     <div class="col-span-2">
                                         <!-- State Table -->
-                                        <div id="state-table"
-                                            :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
+                                        <div id="state-table" :style="`min-height:${map.height}px`"
+                                            class="overflow-auto border border-gray-300 rounded-lg">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
                                                     <tr>
@@ -305,9 +304,9 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
-                                                        <td v-for="state in stateRow" :key="state.id" :class="{
-            'bg-blue-300 text-white': state.id === activeStateId,
-          }" class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border border-gray-300"
+                                                        <td v-for="state in stateRow" :key="state.id"
+                                                            :class="{'bg-blue-300 text-white': state.id === activeStateId,}"
+                                                            class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border border-gray-300"
                                                             @click="(e) => toggleStateFilter(state, e, this)">
                                                             {{ state.name }}
                                                         </td>
@@ -319,8 +318,8 @@
                                     </div>
 
                                     <div class="col-span-8">
-                                        <div :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`"
-                                            style="position: relative; width: 100%; height: 100%;">
+                                        <div class="overflow-auto border border-gray-300 rounded-lg"
+                                            :style="`position: relative; width: 100%; height: 100%; min-height:${map.height}px`">
                                             <!-- map visualization -->
                                             <svg id="map"></svg>
                                             <!-- Material design-styled reset button -->
@@ -348,7 +347,7 @@
                                 <!-- Card Actions -->
                                 <div class="p-4">
                                     <div class="flex justify-between items-center">
-                                        <div>
+                                        <div class="flex justify-start">
                                             <span>
                                                 Sources:
                                                 <a href="https://www.foxnews.com/elections/2024/general-results"
@@ -363,14 +362,16 @@
                                                         Division of Elections</em></a>.
                                                 <br />Data compiled by:
                                                 <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24/blob/master/2024_US_County_Level_Presidential_Results.csv"
-                                                    class="text-blue-500 underline" target="_blank">Tony McGovern</a>.
+                                                    class="text-blue-500 underline" target="_blank">Tony
+                                                    McGovern</a>.
                                             </span>
                                         </div>
                                         <div class="text-sm flex justify-end">
                                             <span>
                                                 Alaska data last updated: {{ alaska.lastupdated }}.
                                                 <br />Washington D.C. data last updated: {{ dc.lastupdated }}.
-                                                <br />Continental U.S. data last updated: {{ continental.lastupdated }}.
+                                                <br />Continental U.S. data last updated: {{ continental.lastupdated
+                                                }}.
 
                                             </span>
                                         </div>
@@ -391,7 +392,8 @@
                         </svg>
                     </div>
             </main>
-            <footer class="bg-gray-600 text-white">
+            <!-- page footer -->
+            <footer class="bg-gray-600 text-white absolute bottom-0 w-full">
                 <div class="flex justify-center items-center py-4">
                     <span>&copy; {{ new Date().getFullYear() }} — <strong>Tony McGovern</strong></span>
                 </div>
@@ -416,7 +418,7 @@
                     position: { x: 0, y: 0 },
                     content: "",
                 },
-                selectedMap: "updateCircles",
+                selectedMap: "dotDensity",
                 activeStateId: null, // Tracks the currently active state
                 gopVotes: 0,
                 demVotes: 0,
@@ -427,7 +429,7 @@
                 states: [],
                 geographies: {
                     censusYear: 2024, // base year for the county gazetteer files
-                    suzeraintyFips: ["02", "11", "60", "66", "69", "72", "74", "78"],
+                    suzeraintyFips: ["02", "11", "60", "66", "69", "72", "74", "78"], // states or territories that we are not getting election results for
                 },
                 alaska: {
                     lastupdated: ""
@@ -519,7 +521,7 @@
                 this.bindHover();
                 if (this.countyFips.length > 40) { // arbitrarily set threshold
                     setTimeout(() => {
-                        this.selectedMap = "updatePaths";
+                        this.selectedMap = "choropleth";
                         this.renderMap();
                     }, 3000);
                 }
@@ -992,7 +994,7 @@
 
                         // add geographic data and calculated metrics
                         contiguousFoxElectionResults = contiguousFoxElectionResults.map(
-                            (d) => {
+                            d => {
                                 const county_fips = String(d.county_fips); // Convert to string
                                 const county_attributes = censusGeographies.filter(
                                     (geography) => geography.geoid === county_fips
@@ -1295,8 +1297,7 @@
                         .select("#map")
                         .attr("viewBox", [0, 0, width, height]) // Use dynamically calculated width and height
                         .attr("width", width) // Set the width of the SVG
-                        .attr("height", height) // Set the height of the SVG
-                        .on("click", () => that.resetZoom(that));
+                        .attr("height", height); // Set the height of the SVG
 
                     const g = svg.append("g");
 
@@ -1320,13 +1321,17 @@
                         .attr("d", this.path)
                         .style("opacity", 1)
                         .on("click", (event, d) => {
-                            that.clicked(event, d, that);
+                            // determine whether there is a filter for a state
+                            const isStateFiltered = !!this.activeStateId;
+                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
+                                that.clicked(event, d, that);
+                            }
                         });
 
                     // Add state boundaries
                     group
                         .selectAll(".state")
-                        .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
+                        // .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
                         .data(topojson.feature(us, us.objects.state).features)
                         .enter()
                         .append("path")
@@ -1349,18 +1354,22 @@
                         .enter()
                         .append("circle")
                         .attr("class", "dot")
-                        .attr("cx", (d) => {
+                        .attr("cx", d => {
                             const centroid = this.path.centroid(d);
                             return !centroid[0] ? null : centroid[0];
                         })
-                        .attr("cy", (d) => {
+                        .attr("cy", d => {
                             const centroid = this.path.centroid(d);
                             return !centroid[1] ? null : centroid[1];
                         })
                         .attr("r", 0)
                         .style("opacity", 0)
                         .on("click", (event, d) => {
-                            that.clicked(event, d, that);
+                            // determine whether there is a filter for a state
+                            const isStateFiltered = !!this.activeStateId;
+                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
+                                that.clicked(event, d, that);
+                            }
                         });
 
                     svg.call(this.zoom);
@@ -1394,13 +1403,10 @@
                 },
                 // Function to handle the type of map chosen
                 renderMap() {
-                    if (
-                        this.selectedMap &&
-                        typeof this[this.selectedMap] === "function"
-                    ) {
-                        this[this.selectedMap]();
-                    } else {
-                        console.error("Selected function is not valid");
+                    if (this.selectedMap === "dotDensity") {
+                        this.updateCircles();
+                    } else if (this.selectedMap === "choropleth") {
+                        this.updatePaths();
                     }
                 },
                 // Function to handle filtering and zooming to the state level
@@ -1412,7 +1418,11 @@
                         this.resetZoom(); // Reset the zoom level
                     } else {
                         this.activeStateId = state.id; // Set the active state
-                        this.filterState(state); // Filter the map to the selected state
+                        if (this.selectedMap === "dotDensity") {
+                            this.updateCircles(); // Update the map circles
+                        } else {
+                            this.updatePaths(); // Update the map paths
+                        }
 
                         // Zoom to the selected state
                         const stateBoundaries = d3.selectAll(".state").data().filter(d => d.id === state.id);
@@ -1448,26 +1458,6 @@
                     // Reset the zoom level and center the map
                     this.resetZoom();
                 },
-                // Function to handle filtering the map to the selected state
-                filterState(state) {
-                    // Select all county paths
-                    const countyPaths = d3.selectAll(".county");
-
-                    // Filter the counties to show only those in the selected state
-                    countyPaths
-                        .transition()
-                        .duration(this.transition.duration / 2)
-                        .style("opacity", d => d.id.startsWith(state.id) ? 1 : 0.1);
-
-                    // select all county circles
-                    const dotDensity = d3.selectAll(".dot");
-                    // update radius, fill, and opacity properties of county circles
-                    dotDensity
-                        .transition()
-                        .duration(this.transition.duration / 2)
-                        .style("opacity", d => d.id.startsWith(state.id) ? 1 : 0.1);
-
-                },
                 calculateMetrics() {
                     this.gopVotes = d3.sum(
                         this.countyFips,
@@ -1483,28 +1473,42 @@
                 removePathFill() {
                     // select all county paths
                     const countyPath = d3.selectAll(".county");
+                    // determine whether there is a filter for a state
+                    const isStateFiltered = !!this.activeStateId;
+
                     // remove fill property of county paths
                     countyPath
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .style("opacity", 1)
-                        .style("fill", (d) => "#ffffff");
+                        .style("opacity", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                        })
+                        .style("fill", "#ffffff")
+                        .style("cursor", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
+                        });
                 },
                 updatePaths() {
                     // first diminish circles
                     this.diminishCircles();
                     // select all county paths
                     const countyPath = d3.selectAll(".county");
+                    // determine whether there is a filter for a state
+                    const isStateFiltered = !!this.activeStateId;
+
                     // update fill property of county paths
                     countyPath
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .style("opacity", 1)
-                        .style("fill", (d) => {
+                        .style("opacity", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                        })
+                        .style("fill", d => {
                             const county = this.districtObj[d.id];
-                            return county
-                                ? this.color(county["Percentage Point Difference"])
-                                : "#ccc";
+                            return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
+                        })
+                        .style("cursor", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
                         });
                 },
                 diminishCircles() {
@@ -1522,21 +1526,24 @@
                     this.removePathFill();
                     // select all county circles
                     const dotDensity = d3.selectAll(".dot");
+                    // determine whether there is a filter for a state
+                    const isStateFiltered = !!this.activeStateId;
+
                     // update radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .attr("r", (d) => {
+                        .attr("r", d => {
                             const county = this.districtObj[d.id];
                             return county ? county.Size : 0;
                         })
-                        .attr("fill", (d) => {
+                        .style("fill", d => {
                             const county = this.districtObj[d.id];
-                            return county
-                                ? this.color(county["Percentage Point Difference"])
-                                : "#ccc";
+                            return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
                         })
-                        .style("opacity", 1);
+                        .style("opacity", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                        });
                 },
                 createBars() {
                     const detailsLayer = d3.select("#details");
@@ -1557,23 +1564,23 @@
                         .style("fill", this.color)
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .attr("x", (d) => (d > 0 ? 100 : 100 - this.wScale(-d)))
-                        .attr("width", (d) => (d > 0 ? this.wScale(d) : this.wScale(-d)));
+                        .attr("x", d => (d > 0 ? 100 : 100 - this.wScale(-d)))
+                        .attr("width", d => (d > 0 ? this.wScale(d) : this.wScale(-d)));
 
                     detailsBars
                         .append("text")
-                        .text((d) =>
+                        .text(d =>
                             d > 0
                                 ? `Dem. ${d3.format(".2%")(d)}`
                                 : `Rep. ${d3.format(".2%")(-d)}`
                         )
                         .attr("x", 100)
-                        .attr("dx", (d) => (d > 0 ? 5 : -5))
+                        .attr("dx", d => (d > 0 ? 5 : -5))
                         .attr("dy", 24)
-                        .style("text-anchor", (d) => (d > 0 ? "start" : "end"))
+                        .style("text-anchor", d => (d > 0 ? "start" : "end"))
                         .transition()
                         .duration(this.transition.duration / 2)
-                        .attr("x", (d) =>
+                        .attr("x", d =>
                             d > 0 ? 100 + this.wScale(d) : 100 - this.wScale(-d)
                         );
                 },
