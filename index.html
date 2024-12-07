@@ -164,6 +164,27 @@
             font-weight: bold;
         }
 
+        /* radio buttons */
+        .radio-buttons-container {
+            position: absolute;
+            /* Position relative to the parent SVG */
+            bottom: 10px;
+            /* Adjust distance from the bottom edge of the SVG */
+            left: 10px;
+            /* Adjust distance from the right edge of the SVG */
+            z-index: 10;
+            /* Keep it on top of other content */
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #095591;
+        }
+
+        .progress {
+            z-index: 100;
+        }
+
         /* reset button */
         /* taken from http://materialdesignblog.com/creating-a-simple-material-design-action-button-with-css/ */
         /* uses Material Design principles, which is a plus */
@@ -209,7 +230,7 @@
         <div class="min-h-screen bg-gray-100 flex flex-col">
             <!-- app bar -->
             <header class="app-bar fixed top-0 left-0 right-0 text-white shadow-md h-16 flex items-center px-4">
-                <div class="text-xl font-bold">
+                <div class="text-2xl font-bold">
                     United States Presidential Election Results, 2024
                 </div>
                 <div class="flex-grow"></div>
@@ -244,7 +265,7 @@
 
             <main class="flex flex-col w-full h-full pt-16">
                 <div class="w-full p-4">
-                    <div class="tooltip" style="position: absolute; z-index: 10; visibility: hidden;"></div>
+                    <div class="tooltip" style="position: absolute; z-index: 100; visibility: hidden;"></div>
                     <!-- Content container -->
                     <div class="w-full p-4" :style="`min-height:${map.height}px;`">
                         <!-- Card -->
@@ -254,34 +275,13 @@
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <p class="text-2xl font-bold">
-                                            Map of United States Counties, Alaska Legislative Districts, And District of
+                                            Map of United States Counties, Alaska Legislative Districts, and District of
                                             Columbia Wards
                                         </p>
                                         <!-- subtitle here in smaller font -->
                                         <p class="text-sm text-gray-700">
                                             Hover over and click on the map and table to explore the election results.
                                         </p>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-end">
-                                            <div>
-                                                <label class="block text-gray-700 font-medium mb-2">Select map</label>
-                                                <div class="flex space-x-4" @change="renderMap">
-                                                    <label class="inline-flex items-center">
-                                                        <input type="radio" name="mapType" value="choropleth"
-                                                            v-model="selectedMap"
-                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
-                                                        <span class="ml-2 text-gray-700">Choropleth (filled)</span>
-                                                    </label>
-                                                    <label class="inline-flex items-center">
-                                                        <input type="radio" name="mapType" value="dotDensity"
-                                                            v-model="selectedMap"
-                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
-                                                        <span class="ml-2 text-gray-700">Dot Density</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -322,6 +322,24 @@
                                             :style="`position: relative; width: 100%; height: 100%; min-height:${map.height}px`">
                                             <!-- map visualization -->
                                             <svg id="map"></svg>
+                                            <div class="radio-buttons-container">
+                                                <label class="block text-gray-700 font-medium mb-2 text-lg">Select
+                                                    map</label>
+                                                <div class="flex space-x-4" @change="renderMap">
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="mapType" value="choropleth"
+                                                            v-model="selectedMap"
+                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
+                                                        <span class="ml-2 text-gray-700">Choropleth (filled)</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="mapType" value="dotDensity"
+                                                            v-model="selectedMap"
+                                                            class="form-radio text-blue-600 focus:ring-blue-500 focus:ring-4 cursor-pointer" />
+                                                        <span class="ml-2 text-gray-700">Dot Density</span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                             <!-- Material design-styled reset button -->
                                             <div class="fab" style="opacity: 0;" @click="resetMap">↺</div>
                                         </div>
@@ -382,7 +400,7 @@
 
                     </div>
                     <!-- Progress indicator -->
-                    <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50"
+                    <div class="progress fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
                         v-if="!countyFips.length">
                         <svg class="animate-spin h-32 w-32 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24">
@@ -478,7 +496,7 @@
                 },
                 zoom: function () {
                     return d3.zoom()
-                        .scaleExtent([1, 16])
+                        .scaleExtent([1, 24])
                         .on("zoom", this.zoomed);
                 },
                 sequentialScale: function () {
@@ -1485,7 +1503,7 @@
                         .transition()
                         .duration(this.transition.duration / 2)
                         .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
                         .style("fill", "#ffffff")
                         .style("cursor", d => {
@@ -1505,7 +1523,7 @@
                         .transition()
                         .duration(this.transition.duration / 2)
                         .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
                         .style("fill", d => {
                             const county = this.districtObj[d.id];
@@ -1546,7 +1564,7 @@
                             return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
                         })
                         .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
                         .style("cursor", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
