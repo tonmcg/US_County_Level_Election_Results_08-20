@@ -1320,6 +1320,7 @@
                         .attr("class", "county")
                         .attr("d", this.path)
                         .style("opacity", 1)
+                        .style("cursor", "pointer")
                         .on("click", (event, d) => {
                             // determine whether there is a filter for a state
                             const isStateFiltered = !!this.activeStateId;
@@ -1364,6 +1365,7 @@
                         })
                         .attr("r", 0)
                         .style("opacity", 0)
+                        .style("cursor", "pointer")
                         .on("click", (event, d) => {
                             // determine whether there is a filter for a state
                             const isStateFiltered = !!this.activeStateId;
@@ -1444,6 +1446,7 @@
                     countyPaths
                         .transition()
                         .duration(this.transition.duration / 2)
+                        .style("cursor", "pointer")
                         .style("opacity", 1);
 
                     // Select all county circles
@@ -1453,6 +1456,7 @@
                     dotDensity
                         .transition()
                         .duration(this.transition.duration / 2)
+                        .style("cursor", "pointer")
                         .style("opacity", 1);
 
                     // Reset the zoom level and center the map
@@ -1543,6 +1547,9 @@
                         })
                         .style("opacity", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.1) : 1;
+                        })
+                        .style("cursor", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
                         });
                 },
                 createBars() {
