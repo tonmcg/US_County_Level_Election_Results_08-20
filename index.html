@@ -164,6 +164,12 @@
             font-weight: bold;
         }
 
+        .detail-table-header {
+            background-color: #095591;
+            color: white;
+            font-weight: bold;
+        }
+
         /* radio buttons */
         .radio-buttons-container {
             position: absolute;
@@ -289,29 +295,19 @@
                             <!-- Card Text -->
                             <div class="p-4">
                                 <div class="grid grid-cols-12 gap-4">
-                                    <div class="col-span-3">
+                                    <div class="col-span-2">
                                         <!-- State Table -->
                                         <div id="state-table" class="overflow-auto border border-gray-300 rounded-lg">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
-                                                    <tr>
+                                                    <tr class="state-table-header">
                                                         <th colspan="2"
-                                                            class="state-table-header px-2 py-1 text-gray-700 text-center border border-gray-300">
+                                                            class="px-2 py-1 text-center border border-gray-300">
                                                             State
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
-                                                        <td v-for="state in stateRow" :key="state.id"
-                                                            :class="{'bg-blue-300 text-white': state.id === activeStateId,}"
-                                                            class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border border-gray-300"
-                                                            @click="(e) => toggleStateFilter(state, e, this)">
-                                                            {{ state.name }}
-                                                        </td>
-                                                    </tr> -->
-
-
                                                     <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
                                                         <td v-for="state in stateRow" :key="state.id"
                                                             :class="{'bg-blue-300 text-white': state.id === activeStateId,}"
@@ -332,7 +328,7 @@
                                             <div class="radio-buttons-container">
                                                 <label class="block text-gray-700 font-medium mb-2 text-lg">Select
                                                     map</label>
-                                                <div class="flex space-x-4" @change="renderMap">
+                                                <div class="flex space-x-4" @change="renderLayer">
                                                     <label class="inline-flex items-center">
                                                         <input type="radio" name="mapType" value="choropleth"
                                                             v-model="selectedMap"
@@ -351,19 +347,79 @@
                                             <div class="fab" style="opacity: 0;" @click="resetMap">↺</div>
                                         </div>
                                     </div>
-                                    <div class="col-span-3">
+                                    <div class="col-span-4">
                                         <!-- Details Table -->
                                         <div id="detail-table" class="overflow-auto border border-gray-300 rounded-lg">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
-                                                    <tr>
-                                                        <th colspan="2"
-                                                            class="state-table-header px-2 py-1 text-gray-700 text-center border border-gray-300">
-                                                            Results
+                                                    <tr class="detail-table-header">
+                                                        <th class="px-4 py-2 text-left border border-gray-300">Candidate
                                                         </th>
+                                                        <th class="px-4 py-2 text-left border border-gray-300">Party
+                                                        </th>
+                                                        <th class="px-4 py-2 text-right border border-gray-300"
+                                                            style="width: 15%;">Votes
+                                                        </th>
+                                                        <th class="px-4 py-2 text-left border border-gray-300"
+                                                            style="width: 35%;">
+                                                            Percentage</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    <!-- Democrat Row -->
+                                                    <tr>
+                                                        <td
+                                                            class="px-4 py-2 flex items-center gap-4 border border-gray-300">
+                                                            <img src="https://static01.nyt.com/elections-assets/2024/headshots/AK-G-P-2024-11-05-harris-k-44992.png?size=thumb&auto=webp"
+                                                                alt="Democrat Candidate"
+                                                                class="w-10 h-10 rounded-full" />
+                                                            <span>Kamala R. Harris</span>
+                                                        </td>
+                                                        <td class="px-4 py-2 border border-gray-300">Democrat</td>
+                                                        <td class="px-4 py-2 text-right border border-gray-300">
+                                                            {{formatValue(demVotes, "integer")}}</td>
+                                                        <td class="px-4 py-2 border border-gray-300">
+                                                            <div class="flex items-center gap-4">
+                                                                <span>{{formatValue(demShareTweened, "percent")}}</span>
+                                                                <svg class="w-32 h-4" viewBox="0 0 100 10"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="0" y="0"
+                                                                        :width="`${demShareTweened * 100}`" height="10"
+                                                                        :fill="this.color(this.demShareTweened)" />
+                                                                    <rect :x="`${demShareTweened * 100}`" y="0"
+                                                                        :width="`${(1 - demShareTweened) * 100}`"
+                                                                        height="10" fill="#E5E7EB" />
+                                                                </svg>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Republican Row -->
+                                                    <tr>
+                                                        <td
+                                                            class="px-4 py-2 flex items-center gap-4 border border-gray-300">
+                                                            <img src="https://static01.nyt.com/elections-assets/2024/headshots/NV-R-P-president-2024-02-08-trump-d-18284.png?size=thumb&auto=webp"
+                                                                alt="Republican Candidate"
+                                                                class="w-10 h-10 rounded-full" />
+                                                            <span>Donald J. Trump</span>
+                                                        </td>
+                                                        <td class="px-4 py-2 border border-gray-300">Republican</td>
+                                                        <td class="px-4 py-2 text-right border border-gray-300">
+                                                            {{formatValue(gopVotesTweened, "integer")}}</td>
+                                                        <td class="px-4 py-2 border border-gray-300">
+                                                            <div class="flex items-center gap-4">
+                                                                <span>{{formatValue(gopShareTweened, "percent")}}</span>
+                                                                <svg class="w-32 h-4" viewBox="0 0 100 10"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <rect x="0" y="0"
+                                                                        :width="`${gopShareTweened * 100}`" height="10"
+                                                                        :fill="this.color(-this.gopShareTweened)" />
+                                                                    <rect :x="`${gopShareTweened * 100}`" y="0"
+                                                                        :width="`${(1 - gopShareTweened) * 100}`"
+                                                                        height="10" fill="#E5E7EB" />
+                                                                </svg>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -409,7 +465,7 @@
                     </div>
                     <!-- Progress indicator -->
                     <div class="progress fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
-                        v-if="!countyFips.length">
+                        v-if="!counties.length">
                         <svg class="animate-spin h-32 w-32 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1">
@@ -444,14 +500,14 @@
                     position: { x: 0, y: 0 },
                     content: "",
                 },
+                gopVotesTweened: 0,
+                demVotesTweened: 0,
+                gopShareTweened: 0,
+                demShareTweened: 0,
                 selectedMap: "dotDensity",
                 activeStateId: null, // Tracks the currently active state
-                gopVotes: 0,
-                demVotes: 0,
-                gopShare: 0,
-                demShare: 0,
                 districtObj: {},
-                countyFips: [],
+                counties: [],
                 states: [],
                 geographies: {
                     censusYear: 2024, // base year for the county gazetteer files
@@ -471,10 +527,45 @@
                     height: 0
                 },
                 transition: {
-                    duration: 1000,
+                    duration: 750,
                 },
             }),
+            watch: {
+                gopVotes: function (newVal) {
+                    this.animateValue("gopVotesTweened", newVal);
+                },
+                demVotes: function (newVal) {
+                    this.animateValue("demVotesTweened", newVal);
+                },
+                gopShare: function (newVal) {
+                    this.animateValue("gopShareTweened", newVal);
+                },
+                demShare: function (newVal) {
+                    this.animateValue("demShareTweened", newVal);
+                },
+            },
             computed: {
+                filteredCounties: function () {
+                    return this.activeStateId ? this.counties.filter((f) => f.startsWith(this.activeStateId)) : this.counties;
+                },
+                gopVotes: function () {
+                    return this.counties.length > 60 ? d3.sum(
+                        this.filteredCounties,
+                        (r) => this.districtObj[r]["GOP"]
+                    ) || 0 : 0;
+                },
+                demVotes: function () {
+                    return this.counties.length > 60 ? d3.sum(
+                        this.filteredCounties,
+                        (r) => this.districtObj[r]["Dem."]
+                    ) || 0 : 0;
+                },
+                gopShare: function () {
+                    return this.gopVotes / (this.gopVotes + this.demVotes) || 0;
+                },
+                demShare: function () {
+                    return this.demVotes / (this.gopVotes + this.demVotes) || 0;
+                },
                 color: function () {
                     return d3
                         .scaleSequential()
@@ -505,13 +596,11 @@
                 mapHeight: function () {
                     const table = document.querySelector('#state-table');
                     const height = table.offsetHeight || 0;
-                    console.log('Table height:', height);
                     return height > 600 ? height : window.innerHeight * 43 / 64; // portion of the innerHeight of the window
                 },
                 mapWidth: function () {
                     const div = document.querySelector('.col-span-6');
                     const width = div.offsetWidth - 2 || 0;
-                    console.log('div width:', width);
                     return width > 300 ? width : window.innerWidth * 24 / 50; // portion of the innerWidth of the window
                 },
                 zoom: function () {
@@ -540,6 +629,8 @@
             },
             mounted: async function () {
                 this.setMapDimensions();
+                const { us } = await this.fetchUSGeography();
+                this.initializeMap(us);
                 const censusCounties = await this.getCensusCounties();
                 const censusStates = await this.getCensusStates();
                 const censusGeographies = this.mergeCensusGeographies(
@@ -552,20 +643,29 @@
                 const akGeographies = await this.getAlaskaGeographies();
                 await this.fetchAlaskaResults(akGeographies);
                 await this.fetchElectionResults(censusStates, censusGeographies);
-                this.calculateMetrics(); // calculate computed properties
-                const { us } = await this.fetchUSGeography();
-                this.initializeMap(us);
-                this.renderMap();
+                this.renderLayer();
                 this.createBars();
                 this.bindHover();
-                if (this.countyFips.length > 40) { // arbitrarily set threshold
+                if (this.counties.length > 60) { // arbitrarily set threshold
                     setTimeout(() => {
                         this.selectedMap = "choropleth";
-                        this.renderMap();
+                        this.renderLayer();
                     }, 3000);
                 }
             },
             methods: {
+                animateValue(property, newValue) {
+                    const duration = 500; // Animation duration in ms
+                    const startValue = this[property];
+                    const interpolator = d3.interpolateNumber(startValue, newValue);
+
+                    d3.select({})
+                        .transition()
+                        .duration(this.transition.duration * 2)
+                        .tween(property, () => (t) => {
+                            this[property] = interpolator(t);
+                        });
+                },
                 async getCensusCounties() {
                     const that = this;
                     // Enter base year for the county gazetteer files
@@ -967,12 +1067,6 @@
                     );
 
                     // Merge total votes and pivoted results
-                    // const resultsDf = this.mergeDataFrames(
-                    //   [pivotedDf, newGroupedByCounty],
-                    //   "left",
-                    //   "countyId"
-                    // );
-                    // I can't get danfo.js merge to work, so I'll use a merge function I created
                     const resultsDf = dfd.merge({
                         left: pivotedDf,
                         right: newGroupedByCounty,
@@ -1062,7 +1156,7 @@
                         );
 
                         // add county fips to array and add results to districtObj
-                        this.countyFips = this.countyFips.concat(
+                        this.counties = this.counties.concat(
                             Object.keys(countyResults)
                         );
                         this.districtObj = { ...this.districtObj, ...countyResults };
@@ -1153,7 +1247,7 @@
                     });
 
                     // add county fips to array and add results to districtObj
-                    this.countyFips = this.countyFips.concat(
+                    this.counties = this.counties.concat(
                         Object.keys(countyResults)
                     );
                     this.districtObj = { ...this.districtObj, ...countyResults };
@@ -1309,7 +1403,7 @@
                         });
 
                         // add county fips to array and add results to districtObj
-                        this.countyFips = this.countyFips.concat(
+                        this.counties = this.counties.concat(
                             Object.keys(countyResults)
                         );
                         this.districtObj = { ...this.districtObj, ...countyResults };
@@ -1357,9 +1451,9 @@
                         .enter()
                         .append("path")
                         .attr("class", "county")
-                        .attr("d", this.path)
-                        .style("opacity", 1)
-                        .style("cursor", "pointer")
+                        .style("cursor", d => {
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                        })
                         .on("click", (event, d) => {
                             // determine whether there is a filter for a state
                             const isStateFiltered = !!this.activeStateId;
@@ -1367,6 +1461,12 @@
                                 that.clicked(event, d, that);
                             }
                         });
+
+                    countyPath
+                        .transition()
+                        .duration(this.transition.duration * 2)
+                        .attr("d", this.path)
+                        .style("opacity", 1);
 
                     // Add state boundaries
                     group
@@ -1404,7 +1504,9 @@
                         })
                         .attr("r", 0)
                         .style("opacity", 0)
-                        .style("cursor", "pointer")
+                        .style("cursor", d => {
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                        })
                         .on("click", (event, d) => {
                             // determine whether there is a filter for a state
                             const isStateFiltered = !!this.activeStateId;
@@ -1443,7 +1545,7 @@
 
                 },
                 // Function to handle the type of map chosen
-                renderMap() {
+                renderLayer() {
                     if (this.selectedMap === "dotDensity") {
                         this.updateCircles();
                     } else if (this.selectedMap === "choropleth") {
@@ -1471,7 +1573,10 @@
                         if (stateBoundaries.length > 0) {
                             this.clicked(e, stateBoundaries[0], this);
                         }
+
                     }
+                    // update the details bar
+                    this.updateBars();
                 },
                 // Function to handle resetting the map to its original state
                 resetMap() {
@@ -1484,8 +1589,10 @@
                     // Reset the county paths to their original opacity
                     countyPaths
                         .transition()
-                        .duration(this.transition.duration / 2)
-                        .style("cursor", "pointer")
+                        .duration(this.transition.duration * 2)
+                        .style("cursor", d => {
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                        })
                         .style("opacity", 1);
 
                     // Select all county circles
@@ -1494,24 +1601,17 @@
                     // Reset the county circles to their original opacity
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration / 2)
-                        .style("cursor", "pointer")
+                        .duration(this.transition.duration * 2)
+                        .style("cursor", d => {
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                        })
                         .style("opacity", 1);
 
                     // Reset the zoom level and center the map
                     this.resetZoom();
-                },
-                calculateMetrics() {
-                    this.gopVotes = d3.sum(
-                        this.countyFips,
-                        (r) => this.districtObj[r]["GOP"]
-                    );
-                    this.demVotes = d3.sum(
-                        this.countyFips,
-                        (r) => this.districtObj[r]["Dem."]
-                    );
-                    this.gopShare = this.gopVotes / (this.gopVotes + this.demVotes);
-                    this.demShare = this.demVotes / (this.gopVotes + this.demVotes);
+
+                    // update the details bar
+                    this.updateBars();
                 },
                 removePathFill() {
                     // select all county paths
@@ -1522,13 +1622,13 @@
                     // remove fill property of county paths
                     countyPath
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .style("opacity", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
                         .style("fill", "#ffffff")
                         .style("cursor", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         });
                 },
                 updatePaths() {
@@ -1542,7 +1642,7 @@
                     // update fill property of county paths
                     countyPath
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .style("opacity", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
@@ -1551,7 +1651,7 @@
                             return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
                         })
                         .style("cursor", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         });
                 },
                 diminishCircles() {
@@ -1560,7 +1660,7 @@
                     // diminish radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("r", 0)
                         .style("opacity", 0);
                 },
@@ -1575,20 +1675,23 @@
                     // update radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("r", d => {
                             const county = this.districtObj[d.id];
-                            return county ? county.Size : 0;
+                            return county ? isStateFiltered ? county.Size * 0.5 : county.Size : 0;
+                        })
+                        .style("stroke-width", d => {
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 2 : 0) : 3;
                         })
                         .style("fill", d => {
                             const county = this.districtObj[d.id];
                             return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
                         })
                         .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 0.5 : 0.01) : 1;
                         })
                         .style("cursor", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? "pointer" : "default") : "pointer";
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         });
                 },
                 createBars() {
@@ -1609,7 +1712,7 @@
                         .attr("y", 10)
                         .style("fill", this.color)
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("x", d => (d > 0 ? 100 : 100 - this.wScale(-d)))
                         .attr("width", d => (d > 0 ? this.wScale(d) : this.wScale(-d)));
 
@@ -1625,7 +1728,7 @@
                         .attr("dy", 24)
                         .style("text-anchor", d => (d > 0 ? "start" : "end"))
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("x", d =>
                             d > 0 ? 100 + this.wScale(d) : 100 - this.wScale(-d)
                         );
@@ -1656,7 +1759,7 @@
                     detailsBars
                         .select("rect")
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("x", function (d) {
                             return d > 0 ? 100 : 100 - that.wScale(-d);
                         })
@@ -1669,7 +1772,7 @@
                         .select("text")
                         .text(this.showDiffLabel)
                         .transition()
-                        .duration(this.transition.duration / 2)
+                        .duration(this.transition.duration * 2)
                         .attr("x", function (d) {
                             return d > 0 ? 100 + that.wScale(d) : 100 - that.wScale(-d);
                         });
@@ -1727,19 +1830,15 @@
 
                         let content = "";
                         let d = null;
-                        let county = null;
+                        let county = "";
+                        // determine whether there is a filter for a state
+                        const isStateFiltered = !!that.activeStateId;
 
-                        if (
-                            (e.target.nodeName == "path" &&
-                                e.target.className.animVal !== "state" &&
-                                e.target.style.opacity == 1) ||
-                            (e.target.nodeName == "circle" &&
-                                e.target.className.animVal === "dot" &&
-                                e.target.style.opacity == 1)
-                        ) {
+                        if
+                            ((e.target.nodeName == "path" || e.target.nodeName == "circle") && (e.target.className.animVal !== "state" || e.target.className.animVal === "dot")) {
                             d = d3.select(e.target).data()[0];
                             county = that.districtObj[d.id];
-                            content = createTooltipTable(county);
+                            content = d.id.startsWith(that.activeStateId) ? createTooltipTable(county) : null;
                         }
 
                         if (content) {
@@ -1754,7 +1853,6 @@
                             e.target.nodeName == "circle"
                         ) {
                             that.hideDetail();
-                            that.calculateMetrics();
                             that.updateBars(null);
                         }
                     });
@@ -1834,7 +1932,7 @@
 
                     svg
                         .transition()
-                        .duration(this.transition.duration * (3 / 4))
+                        .duration(this.transition.duration * 2)
                         .call(
                             this.zoom.transform,
                             d3.zoomIdentity.translate(this.center[0], this.center[1]).scale(1), // Center projection in the middle of the rect
@@ -1842,7 +1940,7 @@
                         );
                 },
                 zoomed(event) {
-                    const duration = this.transition.duration;
+                    const duration = this.transition.duration * 2;
                     const { transform } = event;
 
                     const group = d3.select("#paths");
