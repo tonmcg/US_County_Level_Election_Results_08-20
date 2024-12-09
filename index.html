@@ -267,12 +267,12 @@
                 <div class="w-full p-4">
                     <div class="tooltip" style="position: absolute; z-index: 100; visibility: hidden;"></div>
                     <!-- Content container -->
-                    <div class="w-full p-4" :style="`min-height:${map.height}px;`">
+                    <div class="w-full p-4">
                         <!-- Card -->
                         <div class="bg-white shadow rounded-lg overflow-hidden" :style="`min-height:${map.height}px`">
                             <!-- Card Title -->
                             <div class="p-4 border-b">
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="flex justify-between items-center">
                                     <div>
                                         <p class="text-2xl font-bold">
                                             Map of United States Counties, Alaska Legislative Districts, and District of
@@ -289,10 +289,9 @@
                             <!-- Card Text -->
                             <div class="p-4">
                                 <div class="grid grid-cols-12 gap-4">
-                                    <div class="col-span-2">
+                                    <div class="col-span-3">
                                         <!-- State Table -->
-                                        <div id="state-table" :style="`min-height:${map.height}px`"
-                                            class="overflow-auto border border-gray-300 rounded-lg">
+                                        <div id="state-table" class="overflow-auto border border-gray-300 rounded-lg">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
                                                     <tr>
@@ -303,6 +302,16 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    <!-- <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
+                                                        <td v-for="state in stateRow" :key="state.id"
+                                                            :class="{'bg-blue-300 text-white': state.id === activeStateId,}"
+                                                            class="state-cell px-2 py-1 text-center cursor-pointer hover:bg-blue-100 border border-gray-300"
+                                                            @click="(e) => toggleStateFilter(state, e, this)">
+                                                            {{ state.name }}
+                                                        </td>
+                                                    </tr> -->
+
+
                                                     <tr v-for="(stateRow, rowIndex) in splitStates" :key="rowIndex">
                                                         <td v-for="state in stateRow" :key="state.id"
                                                             :class="{'bg-blue-300 text-white': state.id === activeStateId,}"
@@ -314,10 +323,8 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                     </div>
-
-                                    <div class="col-span-8">
+                                    <div class="col-span-6">
                                         <div class="overflow-auto border border-gray-300 rounded-lg"
                                             :style="`position: relative; width: 100%; height: 100%; min-height:${map.height}px`">
                                             <!-- map visualization -->
@@ -344,14 +351,15 @@
                                             <div class="fab" style="opacity: 0;" @click="resetMap">↺</div>
                                         </div>
                                     </div>
-                                    <div class="col-span-2">
+                                    <div class="col-span-3">
                                         <!-- Details Table -->
-                                        <div style="display: none;"
-                                            :class="`max-h-[${map.height}px] overflow-auto border border-gray-300 rounded-lg`">
-                                            <table class="min-w-full table-auto border-collapse">
+                                        <div id="detail-table" class="overflow-auto border border-gray-300 rounded-lg">
+                                            <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead>
                                                     <tr>
-                                                        <th>
+                                                        <th colspan="2"
+                                                            class="state-table-header px-2 py-1 text-gray-700 text-center border border-gray-300">
+                                                            Results
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -459,8 +467,8 @@
                     lastupdated: new Date().toLocaleString(),
                 },
                 map: {
-                    width: window.innerWidth * 5 / 8, // portion of the innerWidth of the window,
-                    height: window.innerHeight * 5 / 8 // portion of the innerHeight of the window,
+                    width: 0,
+                    height: 0
                 },
                 transition: {
                     duration: 1000,
@@ -494,6 +502,18 @@
                     return center;
 
                 },
+                mapHeight: function () {
+                    const table = document.querySelector('#state-table');
+                    const height = table.offsetHeight || 0;
+                    console.log('Table height:', height);
+                    return height > 600 ? height : window.innerHeight * 43 / 64; // portion of the innerHeight of the window
+                },
+                mapWidth: function () {
+                    const div = document.querySelector('.col-span-6');
+                    const width = div.offsetWidth - 2 || 0;
+                    console.log('div width:', width);
+                    return width > 300 ? width : window.innerWidth * 24 / 50; // portion of the innerWidth of the window
+                },
                 zoom: function () {
                     return d3.zoom()
                         .scaleExtent([1, 24])
@@ -519,6 +539,7 @@
                 },
             },
             mounted: async function () {
+                this.setMapDimensions();
                 const censusCounties = await this.getCensusCounties();
                 const censusStates = await this.getCensusStates();
                 const censusGeographies = this.mergeCensusGeographies(
@@ -1853,6 +1874,12 @@
                             return value;
                     }
                 },
+                // Function to calculate the width of the div in pixels
+                setMapDimensions() {
+                    this.map.width = this.mapWidth;
+                    this.map.height = this.mapHeight;
+                }
+
             },
         });
     </script>
