@@ -383,7 +383,7 @@
                                                         <td class="px-4 py-2 border border-gray-300">
                                                             <div class="flex items-center gap-4">
                                                                 <span>{{formatValue(demShareTweened, "percent")}}</span>
-                                                                <svg class="w-32 h-4" viewBox="0 0 100 10"
+                                                                <svg class="w-32 h-4" viewBox="0 0 101 10"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <g class="bar">
                                                                         <rect x="0" y="0"
@@ -413,7 +413,7 @@
                                                         <td class="px-4 py-2 border border-gray-300">
                                                             <div class="flex items-center gap-4">
                                                                 <span>{{formatValue(gopShareTweened, "percent")}}</span>
-                                                                <svg class="w-32 h-4" viewBox="0 0 100 10"
+                                                                <svg class="w-32 h-4" viewBox="0 0 101 10"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <g class="bar">
                                                                         <rect x="0" y="0"
@@ -465,40 +465,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- <tr v-for="county in filteredCounties" :key="county"
-                                                        class="county-cell cursor-pointer hover:bg-blue-100">
-                                                        <td class="px-4 py-2 border border-gray-300">{{
-                                                            districtObj[county].County }}</td>
-                                                        <td class="px-4 py-2 text-right border border-gray-300">
-                                                            {{formatValue(districtObj[county]["Total Votes"],
-                                                            "integer")}}
-                                                        </td>
-                                                        <td class="px-4 py-2 border border-gray-300">
-                                                            <div class="county-container flex items-center gap-4">
-                                                                <span>{{formatValue(districtObj[county]['GOP'] /
-                                                                    districtObj[county]['Total Votes'],
-                                                                    'percent')}}</span>
-                                                                <svg class="county-bar w-32 h-4" viewBox="0 0 100 10"
-                                                                    xmlns="http://www.w3.org/2000/svg">
-                                                                    <g class="bar">
-                                                                        <rect x="0" y="0"
-                                                                            :width="districtObj[county]['% of Total Vote, GOP'] * 100"
-                                                                            height="10"
-                                                                            :fill="`${color(-districtObj[county]['% of Total Vote, GOP'])}`" />
-                                                                        <rect
-                                                                            :x="districtObj[county]['% of Total Vote, GOP'] * 100"
-                                                                            y="0"
-                                                                            :width="(1 - districtObj[county]['% of Total Vote, GOP']) * 100"
-                                                                            height="10"
-                                                                            :fill="`${color(districtObj[county]['% of Total Vote, Dem.'])}`" />
-                                                                    </g>
-                                                                </svg>
-                                                                <span>{{formatValue(districtObj[county]['Dem.'] /
-                                                                    districtObj[county]['Total Votes'],
-                                                                    'percent')}}</span>
-                                                            </div>
-                                                        </td>
-                                                    </tr> -->
                                                 </tbody>
                                                 <tfoot v-if="activeStateId" class="sticky bottom-0 bg-white">
                                                     <tr>
@@ -622,7 +588,8 @@
                     height: 0
                 },
                 transition: {
-                    duration: 750,
+                    duration: 1000,
+                    ease: d3.easeExpInOut // Ease function applied here
                 },
             }),
             watch: {
@@ -755,7 +722,8 @@
 
                     d3.select({})
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration * 2.5)
+                        .ease(this.transition.ease) // Ease function applied here
                         .tween(property, () => (t) => {
                             this[property] = interpolator(t);
                         });
@@ -1552,7 +1520,7 @@
 
                     countyPath
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("d", this.path)
                         .style("opacity", 1);
 
@@ -1680,7 +1648,7 @@
                     // Reset the county paths to their original opacity
                     countyPaths
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .style("cursor", d => {
                             return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         })
@@ -1692,7 +1660,7 @@
                     // Reset the county circles to their original opacity
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .style("cursor", d => {
                             return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         })
@@ -1713,7 +1681,7 @@
                     // remove fill property of county paths
                     countyPath
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .style("opacity", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
@@ -1733,7 +1701,7 @@
                     // update fill property of county paths
                     countyPath
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .style("opacity", d => {
                             return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
                         })
@@ -1751,7 +1719,7 @@
                     // diminish radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("r", 0)
                         .style("opacity", 0);
                 },
@@ -1766,7 +1734,7 @@
                     // update radius, fill, and opacity properties of county circles
                     dotDensity
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("r", d => {
                             const county = this.districtObj[d.id];
                             return county ? isStateFiltered ? county.Size * 0.5 : county.Size : 0;
@@ -1812,7 +1780,8 @@
                         .attr('class', 'px-4 py-2 text-right border border-gray-300')
                         .text(county => that.formatValue(this.districtObj[county]['Total Votes'], "integer"))
                         .transition()
-                        .duration(that.transition.duration * 2)
+                        .duration(that.transition.duration * 2.5)
+                        .ease(that.transition.ease) // Ease function applied here
                         .tween('text', function (county) {
                             const theOther = this;
                             const startValue = 0; // Starting value for tween
@@ -1830,7 +1799,7 @@
                         .attr('class', 'px-4 py-2 border border-gray-300');
 
                     percentageCells.append('div')
-                        .attr('class', 'county-container flex items-center gap-12')
+                        .attr('class', 'county-container flex items-center gap-6 text-sm')
                         .each(function (county) {
                             const container = d3.select(this);
 
@@ -1844,10 +1813,12 @@
                             // Add GOP percentage span
                             gopSpan.enter()
                                 .append('span')
-                                .attr('class', 'gop-share text-left w-12')
-                                .text(that.formatValue(gopShare, "percent"))
+                                .text('Rep. ')
+                                .append('span')
+                                .attr('class', 'gop-share text-left w-16')
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration * 2.5)
+                                .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
                                     const startValue = 0; // Starting value for tween
@@ -1863,7 +1834,7 @@
                             // Add SVG bar chart
                             const svg = container.append('svg')
                                 .attr('class', 'county-bar bar w-32 h-4')
-                                .attr('viewBox', '0 0 100 10')
+                                .attr('viewBox', '0 0 101 10')
                                 .attr('xmlns', 'http://www.w3.org/2000/svg');
 
                             const countyDetailLayer = svg
@@ -1874,25 +1845,29 @@
                             // GOP bar
                             countyDetailLayer.append('rect')
                                 .attr('class', 'gop-bar')
-                                .attr('x', 0)
+                                .attr('x', 50)
                                 .attr('y', 0)
                                 .attr('height', 10)
                                 .attr('width', 0)
-                                .attr('fill', that.color(-gopShare))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration)
+                                .ease(that.transition.ease) // Ease function applied here
+                                .attr('fill', that.color(-gopShare))
+                                .attr("x", 0)
                                 .attr('width', gopShare * 100);
 
                             // Dem bar
                             countyDetailLayer.append('rect')
                                 .attr('class', 'dem-bar')
-                                .attr('x', gopShare * 100)
+                                .attr('x', 50)
                                 .attr('y', 0)
                                 .attr('height', 10)
                                 .attr('width', 0)
-                                .attr('fill', that.color(demShare))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration)
+                                .ease(that.transition.ease) // Ease function applied here
+                                .attr('fill', that.color(demShare))
+                                .attr("x", gopShare * 100)
                                 .attr('width', (1 - gopShare) * 100);
 
                             // define the data for the GOP span element
@@ -1902,10 +1877,12 @@
                             // Add Dem percentage span
                             demSpan.enter()
                                 .append('span')
-                                .attr('class', 'dem-share text-right w-12')
-                                .text(that.formatValue(demShare, "percent"))
+                                .text('Dem. ')
+                                .append('span')
+                                .attr('class', 'dem-share text-right w-16')
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration * 2.5)
+                                .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
                                     const startValue = 0; // Starting value for tween
@@ -1929,7 +1906,8 @@
                     updateRows.select('td:nth-child(2)')
                         .text(county => that.formatValue(this.districtObj[county]['Total Votes'], "integer"))
                         .transition()
-                        .duration(that.transition.duration * 2)
+                        .duration(that.transition.duration * 2.5)
+                        .ease(that.transition.ease) // Ease function applied here
                         .tween('text', function (county) {
                             const theOther = this;
                             const startValue = 0; // Starting value for tween
@@ -1952,9 +1930,9 @@
                             // Update GOP percentage span
                             container
                                 .select('span.gop-share')
-                                .text(that.formatValue(gopShare, "percent"))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration * 2.5)
+                                .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
                                     const startValue = 0; // Starting value for tween
@@ -1972,25 +1950,28 @@
 
                             // GOP bar
                             svg.select('rect.gop-bar')
-                                .attr('fill', that.color(-gopShare))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration)
+                                .ease(that.transition.ease) // Ease function applied here
+                                .attr('fill', that.color(-gopShare))
+                                .attr("x", 0)
                                 .attr('width', gopShare * 100);
 
                             // Dem bar
                             svg.select('rect.dem-bar')
-                                .attr('x', gopShare * 100)
-                                .attr('fill', that.color(demShare))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration)
+                                .ease(that.transition.ease) // Ease function applied here
+                                .attr('fill', that.color(demShare))
+                                .attr("x", gopShare * 100)
                                 .attr('width', (1 - gopShare) * 100);
 
                             // Update Dem percentage span
                             container
                                 .select('span.dem-share')
-                                .text(that.formatValue(demShare, "percent"))
                                 .transition()
-                                .duration(that.transition.duration * 2)
+                                .duration(that.transition.duration * 2.5)
+                                .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
                                     const startValue = 0; // Starting value for tween
@@ -2028,7 +2009,7 @@
                         .attr("y", 10)
                         .style("fill", this.color)
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("x", d => (d > 0 ? 100 : 100 - this.wScale(-d)))
                         .attr("width", d => (d > 0 ? this.wScale(d) : this.wScale(-d)));
 
@@ -2044,7 +2025,7 @@
                         .attr("dy", 24)
                         .style("text-anchor", d => (d > 0 ? "start" : "end"))
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("x", d =>
                             d > 0 ? 100 + this.wScale(d) : 100 - this.wScale(-d)
                         );
@@ -2075,7 +2056,7 @@
                     detailsBars
                         .select("rect")
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("x", function (d) {
                             return d > 0 ? 100 : 100 - that.wScale(-d);
                         })
@@ -2088,7 +2069,7 @@
                         .select("text")
                         .text(this.showDiffLabel)
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .attr("x", function (d) {
                             return d > 0 ? 100 + that.wScale(d) : 100 - that.wScale(-d);
                         });
@@ -2248,7 +2229,7 @@
 
                     svg
                         .transition()
-                        .duration(this.transition.duration * 2)
+                        .duration(this.transition.duration)
                         .call(
                             this.zoom.transform,
                             d3.zoomIdentity.translate(this.center[0], this.center[1]).scale(1), // Center projection in the middle of the rect
@@ -2256,7 +2237,7 @@
                         );
                 },
                 zoomed(event) {
-                    const duration = this.transition.duration * 2;
+                    const duration = this.transition.duration;
                     const { transform } = event;
 
                     const group = d3.select("#paths");
