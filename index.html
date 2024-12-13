@@ -40,6 +40,31 @@
             pointer-events: auto;
         }
 
+        #state-title {
+            text-anchor: start;
+            /* Align text to the start */
+            font-size: 48px;
+            /* Bigger font size for better visibility */
+            font-weight: 900;
+            /* Very bold font weight */
+            fill: #333333;
+            /* Dark gray for a neutral and professional appearance */
+            stroke: white;
+            /* Add a stroke around the text for contrast */
+            stroke-width: 2px;
+            /* Width of the stroke */
+            paint-order: stroke fill;
+            /* Ensure stroke appears before the fill */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            /* Add a subtle shadow for better contrast */
+            pointer-events: none;
+            /* Prevent interaction with the text */
+            user-select: none;
+            /* Prevent text selection */
+            transition: opacity 0.3s ease-in-out;
+            /* Smooth transition when text changes */
+        }
+
         .county:hover,
         .highlighted-path {
             stroke: #ffcc00;
@@ -388,7 +413,7 @@
                                                             style="width: 10%;">Party
                                                         </th>
                                                         <th class="px-4 py-2 text-right border border-gray-300"
-                                                            style="width: 15%;">Votes
+                                                            style="width: 15%;">Total Votes
                                                         </th>
                                                         <th class="px-4 py-2 text-left border border-gray-300"
                                                             style="width: 45%;">
@@ -461,7 +486,7 @@
                                                     <tr>
                                                         <td
                                                             class="px-4 py-2 flex items-center gap-4 border border-gray-300">
-                                                            {{`All
+                                                            {{`Total
                                                             ${activeStateId ? states.filter(s => s.id ===
                                                             activeStateId)[0].name : ''} Votes`}}</td>
                                                         <td class="px-4 py-2 border border-gray-300"></td>
@@ -484,15 +509,18 @@
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead class="sticky top-0 bg-white">
                                                     <tr class="detail-table-header">
-                                                        <th class="px-4 py-2 text-left border border-gray-300"
-                                                            style="width: 35%;">County
+                                                        <th class="px-4 py-2 text-left border border-gray-300 cursor-pointer"
+                                                            style="width: 35%;">
+                                                            County
                                                         </th>
-                                                        <th class="px-4 py-2 text-right border border-gray-300"
-                                                            style="width: 20%;">Votes
+                                                        <th class="px-4 py-2 text-right border border-gray-300 cursor-pointer"
+                                                            style="width: 20%;">
+                                                            Total Votes
                                                         </th>
-                                                        <th class="px-4 py-2 text-left border border-gray-300"
+                                                        <th class="px-4 py-2 text-left border border-gray-300 cursor-pointer"
                                                             style="width: 45%;">
-                                                            Percentage</th>
+                                                            Percentage
+                                                        </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -607,6 +635,8 @@
                     width: 0,
                     height: 0
                 },
+                sortOrderColumn: null,
+                sortOrderAscending: true,
                 transition: {
                     duration: 1500,
                     ease: d3.easeExpInOut // Ease function applied here
@@ -713,6 +743,24 @@
 
                     return split_states;
                 },
+                sortedCounties() {
+                    if (!this.sortOrderColumn) return this.filteredCounties;
+
+                    const sorted = [...this.filteredCounties].sort((a, b) => {
+                        const col = this.sortOrderColumn === "Percentage" ? "% of Total Vote, GOP" : this.sortOrderColumn;
+                        const districtA = this.districtObj[a];
+                        const districtB = this.districtObj[b];
+                        if (typeof districtA[col] === "string") {
+                            return this.sortOrderAscending
+                                ? districtA[col].localeCompare(districtB[col])
+                                : districtB[col].localeCompare(districtA[col]);
+                        } else {
+                            return this.sortOrderAscending ? districtA[col] - districtB[col] : districtB[col] - districtA[col];
+                        }
+                    });
+
+                    return sorted;
+                },
             },
             mounted: async function () {
                 this.setMapDimensions();
@@ -747,7 +795,7 @@
 
                     d3.select({})
                         .transition()
-                        .duration(this.transition.duration * 1.5)
+                        .duration(this.transition.duration)
                         .ease(this.transition.ease) // Ease function applied here
                         .tween(property, () => (t) => {
                             this[property] = interpolator(t);
@@ -1598,6 +1646,14 @@
                             }
                         });
 
+                    // create a state name title at the top-left corner
+                    const stateTitle = g
+                        .append("text")
+                        .attr("id", "state-title")
+                        .attr("x", 10)
+                        .attr("y", 50) // padding from the top
+                        .text("United States");
+
                     svg.call(this.zoom);
 
                     // create details bar
@@ -1613,7 +1669,7 @@
                         .append("g")
                         .attr("id", "details")
                         // .attr("transform", "translate(" + (this.countyTableWidth / 2 - 100) + ", 30)");
-                        .attr("transform", `translate(${this.countyTableWidth / 2 - 75}, 25)`);
+                        .attr("transform", `translate(${this.countyTableWidth / 3 + 35}, 25)`);
 
                     // detailsLayer
                     //     .append("rect")
@@ -1652,9 +1708,7 @@
                 toggleStateFilter(state, e) {
                     // Check if the clicked state is already active
                     if (this.activeStateId === state.id) {
-                        this.activeStateId = null; // Reset the active state
                         this.resetLayers(); // Reset the map to its unfiltered state
-                        this.resetZoom(); // Reset the zoom level
                     } else {
                         this.activeStateId = state.id; // Set the active state
                         if (this.selectedMap === "dotDensity") {
@@ -1669,6 +1723,9 @@
                         if (stateBoundaries.length > 0) {
                             this.clicked(e, stateBoundaries[0], this);
                         }
+
+                        // Update the state title
+                        this.updateStateTitle(state.name); // Reset the state title
 
                     }
                     // update the details bar
@@ -1711,6 +1768,9 @@
 
                     // update the details bar
                     this.updateBars();
+
+                    // update the state title
+                    this.updateStateTitle("United States");
                 },
                 removePathFill() {
                     // select all county paths
@@ -1795,7 +1855,7 @@
                 },
                 updateCountyBars() {
 
-                    const filteredCounties = this.activeStateId ? this.filteredCounties : [];
+                    const sortedCounties = this.activeStateId ? this.sortedCounties : [];
 
                     const that = this;
 
@@ -1803,7 +1863,7 @@
 
                     // Bind data with a key function to uniquely identify rows
                     const rows = tbody.selectAll('tr')
-                        .data(filteredCounties, county => county); // Use county as the unique key
+                        .data(sortedCounties, county => county); // Use county as the unique key
 
                     // handle the 'enter' selection: add new rows for new data
                     const enterRows = rows.enter()
@@ -1843,7 +1903,7 @@
                         .attr('class', 'px-4 py-2 text-right border border-gray-300')
                         .text(county => that.formatValue(this.districtObj[county]['Total Votes'], "integer"))
                         .transition()
-                        .duration(that.transition.duration * 2.5)
+                        .duration(that.transition.duration)
                         .ease(that.transition.ease) // Ease function applied here
                         .tween('text', function (county) {
                             const theOther = this;
@@ -1880,7 +1940,7 @@
                                 .append('span')
                                 .attr('class', 'gop-share text-left w-16')
                                 .transition()
-                                .duration(that.transition.duration * 2.5)
+                                .duration(that.transition.duration)
                                 .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
@@ -1944,7 +2004,7 @@
                                 .append('span')
                                 .attr('class', 'dem-share text-right w-16')
                                 .transition()
-                                .duration(that.transition.duration * 2.5)
+                                .duration(that.transition.duration)
                                 .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
@@ -1969,7 +2029,7 @@
                     updateRows.select('td:nth-child(2)')
                         .text(county => that.formatValue(this.districtObj[county]['Total Votes'], "integer"))
                         .transition()
-                        .duration(that.transition.duration * 2.5)
+                        .duration(that.transition.duration)
                         .ease(that.transition.ease) // Ease function applied here
                         .tween('text', function (county) {
                             const theOther = this;
@@ -1994,7 +2054,7 @@
                             container
                                 .select('span.gop-share')
                                 .transition()
-                                .duration(that.transition.duration * 2.5)
+                                .duration(that.transition.duration)
                                 .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
@@ -2033,7 +2093,7 @@
                             container
                                 .select('span.dem-share')
                                 .transition()
-                                .duration(that.transition.duration * 2.5)
+                                .duration(that.transition.duration)
                                 .ease(that.transition.ease) // Ease function applied here
                                 .tween('text', function (d) {
                                     const theOther = this;
@@ -2053,6 +2113,18 @@
                     // handle the 'exit' selection: remove rows for old data
                     rows.exit().remove();
 
+                },
+                updateStateTitle(title) {
+                    d3.select("#state-title").text(title);
+                },
+                sortCountyTable(column) {
+                    if (this.sortOrderColumn === column) {
+                        this.sortOrderAscending = !this.sortOrderAscending;
+                    } else {
+                        this.sortOrderColumn = column;
+                        this.sortOrderAscending = true;
+                    }
+                    this.updateCountyBars();
                 },
                 createBars() {
                     const detailsLayer = d3.select("#details");
@@ -2312,12 +2384,12 @@
                     if (transform.k > 1 && (transform.x || transform.y !== 0)) {
                         fab
                             .transition()
-                            .duration(duration / 2)
+                            .duration(duration / 3)
                             .style("opacity", 1);
                     } else {
                         fab
                             .transition()
-                            .duration(duration / 2)
+                            .duration(duration / 3)
                             .style("opacity", 0);
                     }
                 },
