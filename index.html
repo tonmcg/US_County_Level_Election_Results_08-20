@@ -40,6 +40,34 @@
             pointer-events: auto;
         }
 
+        .county:hover,
+        .highlighted-path {
+            stroke: #ffcc00;
+            /* A golden yellow for better contrast and aesthetics */
+            stroke-width: 2px;
+            /* Slightly thicker stroke to make it stand out */
+            fill: rgba(255, 204, 0, 0.2);
+            /* Add a subtle fill with transparency */
+            filter: drop-shadow(0px 0px 5px #ffcc00);
+            /* Add a glowing effect */
+            transition: all 0.3s ease-in-out;
+            /* Smooth transition for better aesthetics */
+        }
+
+        .dot:hover,
+        .highlighted-circle {
+            stroke: #ffcc00;
+            /* A golden yellow for better contrast and aesthetics */
+            stroke-width: 2px;
+            /* Slightly thicker stroke to make it stand out */
+            fill: rgba(255, 204, 0, 0.2);
+            /* Add a subtle fill with transparency */
+            filter: drop-shadow(0px 0px 5px #ffcc00);
+            /* Add a glowing effect */
+            transition: all 0.3s ease-in-out;
+            /* Smooth transition for better aesthetics */
+        }
+
         .background {
             fill: #fdfcfc;
             fill-opacity: 0.7;
@@ -447,9 +475,12 @@
                                                 </tfoot>
                                             </table>
                                         </div>
+                                        <div id="detailBar" class="px-4 py-2">
+
+                                        </div>
                                         <div id="county-table" v-show="activeStateId"
                                             class="overflow-auto border border-gray-300 rounded-lg mt-4"
-                                            :style="`max-height: ${map.height - 200 - 16}px; overflow-y: auto;`">
+                                            :style="`max-height: ${map.height - 214 - 86}px; overflow-y: auto;`">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
                                                 <thead class="sticky top-0 bg-white">
                                                     <tr class="detail-table-header">
@@ -466,19 +497,8 @@
                                                 </thead>
                                                 <tbody>
                                                 </tbody>
-                                                <tfoot v-if="activeStateId" class="sticky bottom-0 bg-white">
-                                                    <tr>
-                                                        <td class="px-4 py-2 border border-gray-300">
-                                                            {{`All ${states.filter(s => s.id === activeStateId)[0].name}
-                                                            Counties`}}</td>
-                                                        <td class="px-4 py-2 text-right border border-gray-300">
-                                                            {{formatValue(gopVotesTweened + demVotesTweened,
-                                                            "integer")}}</td>
-                                                        <td class="px-4 py-2 border border-gray-300">
-                                                            {{formatValue(gopShareTweened - demShareTweened,
-                                                            "percent")}} percentage point difference</td>
-                                                    </tr>
-                                                </tfoot>
+                                                <!-- <tfoot class="sticky bottom-0 bg-white">
+                                                </tfoot> -->
                                             </table>
                                         </div>
                                     </div>
@@ -588,7 +608,7 @@
                     height: 0
                 },
                 transition: {
-                    duration: 1000,
+                    duration: 1500,
                     ease: d3.easeExpInOut // Ease function applied here
                 },
             }),
@@ -655,7 +675,12 @@
                     return center;
 
                 },
-                mapHeight: function () {
+                countyTableWidth: function () {
+                    const table = document.querySelector('#county-table');
+                    const width = table.offsetWidth || 0;
+                    return width > 810 ? width : window.innerWidth * 15 / 50; // portion of the innerWidth of the window
+                },
+                stateTableHeight: function () {
                     const table = document.querySelector('#state-table');
                     const height = table.offsetHeight || 0;
                     return height > 600 ? height : window.innerHeight * 43 / 64; // portion of the innerHeight of the window
@@ -722,7 +747,7 @@
 
                     d3.select({})
                         .transition()
-                        .duration(this.transition.duration * 2.5)
+                        .duration(this.transition.duration * 1.5)
                         .ease(this.transition.ease) // Ease function applied here
                         .tween(property, () => (t) => {
                             this[property] = interpolator(t);
@@ -1506,6 +1531,7 @@
                         .data(topojson.feature(us, us.objects.wards_districts_counties).features)
                         .enter()
                         .append("path")
+                        .attr("id", d => `county-path-${d.id}`)
                         .attr("class", "county")
                         .style("cursor", d => {
                             return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
@@ -1549,6 +1575,7 @@
                         .data(topojson.feature(us, us.objects.wards_districts_counties).features)
                         .enter()
                         .append("circle")
+                        .attr("id", d => `county-circle-${d.id}`)
                         .attr("class", "dot")
                         .attr("cx", d => {
                             const centroid = this.path.centroid(d);
@@ -1576,28 +1603,41 @@
                     // create details bar
                     // use John Alexis details Gómez dynamic details bar
                     // https://johndetails.co/
-                    const detailsLayer = g
+
+                    const tableSVG = d3.select("#detailBar")
+                        .append("svg")
+                        .attr("width", this.countyTableWidth)
+                        .attr("height", 70);
+
+                    const detailsLayer = tableSVG
                         .append("g")
                         .attr("id", "details")
-                        .attr("transform", "translate(" + (width / 2 - 100) + ", 30)");
+                        // .attr("transform", "translate(" + (this.countyTableWidth / 2 - 100) + ", 30)");
+                        .attr("transform", `translate(${this.countyTableWidth / 2 - 75}, 25)`);
 
-                    detailsLayer
-                        .append("rect")
-                        .attr("class", "background")
-                        .attr(
-                            "transform",
-                            "translate(" + (-this.wScale.range()[1] + 100) + ", -20)"
-                        )
-                        .attr("width", this.wScale.range()[1] * 2 + 70)
-                        .attr("rx", 5)
-                        .attr("ry", 5)
-                        .attr("height", 60);
+                    // detailsLayer
+                    //     .append("rect")
+                    //     .attr("class", "background")
+                    //     // .attr(
+                    //     //     "transform",
+                    //     //     "translate(" + (-this.wScale.range()[1] + 100) + ", -20)"
+                    //     // )
+                    //     .attr(
+                    //         "transform",
+                    //         `translate(${-(this.countyTableWidth + 30) / 2}, 20)`
+                    //     )
+                    //     // .attr("width", this.wScale.range()[1] * 2 + 70)
+                    //     .attr("width", this.countyTableWidth - 30)
+                    //     .attr("rx", 5)
+                    //     .attr("ry", 5)
+                    //     .attr("height", 60);
 
                     detailsLayer
                         .append("text")
                         .attr("id", "county-legend")
+                        .attr("class", "text-center")
                         .html("Percentage Share of the Two-party Vote")
-                        .attr("transform", "translate(100, 0)");
+                        .attr("transform", "translate(95, 0)");
 
                 },
                 // Function to handle the type of map chosen
@@ -1747,7 +1787,7 @@
                             return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
                         })
                         .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 0.5 : 0.01) : 1;
+                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 0.9 : 0.01) : 1;
                         })
                         .style("cursor", d => {
                             return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
@@ -1769,6 +1809,29 @@
                     const enterRows = rows.enter()
                         .append('tr')
                         .attr('class', 'county-cell cursor-pointer hover:bg-blue-100');
+
+                    // Add hover event to highlight the corresponding county path
+                    enterRows.on('mouseover', (event, county) => {
+                        // Add highlighting to the county path or circle on the map
+                        if (that.selectedMap === "choropleth") {
+                            d3.select(`#county-path-${county}`)
+                                .classed('highlighted-path', true);
+                        } else {
+                            d3.select(`#county-circle-${county}`)
+                                .classed('highlighted-circle', true);
+                        }
+                        that.updateBars({ id: county });
+                    }).on('mouseout', function (event, county) {
+                        // Remove highlighting from the county path or circle on the map
+                        if (that.selectedMap === "choropleth") {
+                            d3.select(`#county-path-${county}`)
+                                .classed('highlighted-path', false);
+                        } else {
+                            d3.select(`#county-circle-${county}`)
+                                .classed('highlighted-circle', false);
+                        }
+                        that.updateBars(null);
+                    });
 
                     // Add County column
                     enterRows.append('td')
@@ -1799,7 +1862,7 @@
                         .attr('class', 'px-4 py-2 border border-gray-300');
 
                     percentageCells.append('div')
-                        .attr('class', 'county-container flex items-center gap-6 text-sm')
+                        .attr('class', 'county-container flex items-center gap-3 text-xs')
                         .each(function (county) {
                             const container = d3.select(this);
 
@@ -2272,7 +2335,7 @@
                 // Function to calculate the width of the div in pixels
                 setMapDimensions() {
                     this.map.width = this.mapWidth;
-                    this.map.height = this.mapHeight;
+                    this.map.height = this.stateTableHeight;
                 }
 
             },
