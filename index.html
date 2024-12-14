@@ -641,6 +641,7 @@
                     duration: 1500,
                     ease: d3.easeExpInOut // Ease function applied here
                 },
+                us: {},
             }),
             watch: {
                 gopVotes: function (newVal) {
@@ -764,8 +765,8 @@
             },
             mounted: async function () {
                 this.setMapDimensions();
-                const { us } = await this.fetchUSGeography();
-                this.initializeMap(us);
+                await this.fetchUSGeography();
+                this.initializeMap();
                 const censusCounties = await this.getCensusCounties();
                 const censusStates = await this.getCensusStates();
                 const censusGeographies = this.mergeCensusGeographies(
@@ -1546,10 +1547,10 @@
                         "./cartography/2024/us-albers-500k.topojson"
                     );
 
-                    return { us: results };
+                    this.us = results;
                 },
                 // Function to initialize the map
-                initializeMap(us) {
+                initializeMap() {
                     const that = this;
                     const width = this.map.width;
                     const height = this.map.height;
@@ -1576,7 +1577,7 @@
                     // Add county paths
                     const countyPath = group
                         .selectAll(".counties")
-                        .data(topojson.feature(us, us.objects.wards_districts_counties).features)
+                        .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
                         .enter()
                         .append("path")
                         .attr("id", d => `county-path-${d.id}`)
@@ -1601,8 +1602,8 @@
                     // Add state boundaries
                     group
                         .selectAll(".state")
-                        // .datum(topojson.mesh(us, us.objects.state, (a, b) => a !== b))
-                        .data(topojson.feature(us, us.objects.state).features)
+                        // .datum(topojson.mesh(this.us, this.us.objects.state, (a, b) => a !== b))
+                        .data(topojson.feature(this.us, this.us.objects.state).features)
                         .enter()
                         .append("path")
                         .attr("class", "state")
@@ -1611,40 +1612,40 @@
                     // Add national boundary
                     const nation = group
                         .append("path")
-                        .datum(topojson.feature(us, us.objects.nation))
+                        .datum(topojson.feature(this.us, this.us.objects.nation))
                         .attr("class", "nation")
                         .attr("d", this.path);
 
                     // Initialize the map position with the calculated center
                     group.attr("transform", `translate(${this.center[0]},${this.center[1]})`);
 
-                    const dotDensity = group
-                        .selectAll(".dot")
-                        .data(topojson.feature(us, us.objects.wards_districts_counties).features)
-                        .enter()
-                        .append("circle")
-                        .attr("id", d => `county-circle-${d.id}`)
-                        .attr("class", "dot")
-                        .attr("cx", d => {
-                            const centroid = this.path.centroid(d);
-                            return !centroid[0] ? null : centroid[0];
-                        })
-                        .attr("cy", d => {
-                            const centroid = this.path.centroid(d);
-                            return !centroid[1] ? null : centroid[1];
-                        })
-                        .attr("r", 0)
-                        .style("opacity", 0)
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        })
-                        .on("click", (event, d) => {
-                            // determine whether there is a filter for a state
-                            const isStateFiltered = !!this.activeStateId;
-                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
-                                that.clicked(event, d, that);
-                            }
-                        });
+                    // const dotDensity = group
+                    //     .selectAll(".dot")
+                    //     .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
+                    //     .enter()
+                    //     .append("circle")
+                    //     .attr("id", d => `county-circle-${d.id}`)
+                    //     .attr("class", "dot")
+                    //     .attr("cx", d => {
+                    //         const centroid = this.path.centroid(d);
+                    //         return !centroid[0] ? null : centroid[0];
+                    //     })
+                    //     .attr("cy", d => {
+                    //         const centroid = this.path.centroid(d);
+                    //         return !centroid[1] ? null : centroid[1];
+                    //     })
+                    //     .attr("r", 0)
+                    //     .style("opacity", 0)
+                    //     .style("cursor", d => {
+                    //         return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                    //     })
+                    //     .on("click", (event, d) => {
+                    //         // determine whether there is a filter for a state
+                    //         const isStateFiltered = !!this.activeStateId;
+                    //         if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
+                    //             that.clicked(event, d, that);
+                    //         }
+                    //     });
 
                     // create a state name title at the top-left corner
                     const stateTitle = g
@@ -1699,8 +1700,13 @@
                 // Function to handle the type of map chosen
                 renderLayer() {
                     if (this.selectedMap === "dotDensity") {
+                        // first remove path fills
+                        this.removePathFill();
+                        this.createCircles();
                         this.updateCircles();
                     } else if (this.selectedMap === "choropleth") {
+                        // first remove circles
+                        this.removeCircles();
                         this.updatePaths();
                     }
                 },
@@ -1711,11 +1717,7 @@
                         this.resetLayers(); // Reset the map to its unfiltered state
                     } else {
                         this.activeStateId = state.id; // Set the active state
-                        if (this.selectedMap === "dotDensity") {
-                            this.updateCircles(); // Update the map circles
-                        } else {
-                            this.updatePaths(); // Update the map paths
-                        }
+                        this.renderLayer(); // Render the selected map layer
 
                         // Zoom to the selected state
                         const stateBoundaries = d3.selectAll(".state").data().filter(d => d.id === state.id);
@@ -1791,8 +1793,6 @@
                         });
                 },
                 updatePaths() {
-                    // first diminish circles
-                    this.diminishCircles();
                     // select all county paths
                     const countyPath = d3.selectAll(".county");
                     // determine whether there is a filter for a state
@@ -1813,19 +1813,52 @@
                             return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
                         });
                 },
-                diminishCircles() {
+                createCircles() {
+
+                    // Select group for county dots
+                    const group = d3.select("#paths");
+
+                    const dotDensity = group
+                        .selectAll(".dot")
+                        .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
+                        .enter()
+                        .append("circle")
+                        .attr("id", d => `county-circle-${d.id}`)
+                        .attr("class", "dot")
+                        .attr("cx", d => {
+                            const centroid = this.path.centroid(d);
+                            return !centroid[0] ? null : centroid[0];
+                        })
+                        .attr("cy", d => {
+                            const centroid = this.path.centroid(d);
+                            return !centroid[1] ? null : centroid[1];
+                        })
+                        .attr("r", 0)
+                        .style("opacity", 0)
+                        .style("cursor", d => {
+                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                        })
+                        .on("click", (event, d) => {
+                            // determine whether there is a filter for a state
+                            const isStateFiltered = !!this.activeStateId;
+                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
+                                that.clicked(event, d, that);
+                            }
+                        });
+
+                },
+                removeCircles() {
                     // select all county circles
                     const dotDensity = d3.selectAll(".dot");
-                    // diminish radius, fill, and opacity properties of county circles
+                    // diminish radius, fill, and opacity properties of county circles and then remove elements from the DOM
                     dotDensity
                         .transition()
                         .duration(this.transition.duration)
                         .attr("r", 0)
-                        .style("opacity", 0);
+                        .style("opacity", 0)
+                        .remove();
                 },
                 updateCircles() {
-                    // first remove path fills
-                    this.removePathFill();
                     // select all county circles
                     const dotDensity = d3.selectAll(".dot");
                     // determine whether there is a filter for a state
