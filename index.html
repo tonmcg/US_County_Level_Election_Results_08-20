@@ -397,10 +397,12 @@
                                                 </div>
                                             </div>
                                             <!-- Material design-styled reset button -->
-                                            <div class="fab" style="opacity: 0;" @click="resetLayers">↺</div>
+                                            <div v-show="isZoomed" class="fab" style="opacity: 1;"
+                                                @click="(e) => setLayers(null, 'United States', e)">
+                                                ↺</div>
                                         </div>
                                     </div>
-                                    <div class="col-span-4">
+                                    <div class=" col-span-4">
                                         <!-- Details Table -->
                                         <div id="detail-table" class="overflow-auto border border-gray-300 rounded-lg">
                                             <table class="min-w-full table-auto border-collapse border border-gray-300">
@@ -430,12 +432,14 @@
                                                                 class="w-10 h-10 rounded-full" />
                                                             <span>Kamala R. Harris</span>
                                                         </td>
-                                                        <td class="px-4 py-2 border border-gray-300">Democrat</td>
+                                                        <td class="px-4 py-2 border border-gray-300">Democrat
+                                                        </td>
                                                         <td class="px-4 py-2 text-right border border-gray-300">
                                                             {{formatValue(demVotesTweened, "integer")}}</td>
                                                         <td class="px-4 py-2 border border-gray-300">
                                                             <div class="flex items-center gap-4">
-                                                                <span>{{formatValue(demShareTweened, "percent")}}</span>
+                                                                <span>{{formatValue(demShareTweened,
+                                                                    "percent")}}</span>
                                                                 <svg class="w-32 h-4" viewBox="0 0 101 10"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <g class="bar">
@@ -460,12 +464,14 @@
                                                                 class="w-10 h-10 rounded-full" />
                                                             <span>Donald J. Trump</span>
                                                         </td>
-                                                        <td class="px-4 py-2 border border-gray-300">Republican</td>
+                                                        <td class="px-4 py-2 border border-gray-300">Republican
+                                                        </td>
                                                         <td class="px-4 py-2 text-right border border-gray-300">
                                                             {{formatValue(gopVotesTweened, "integer")}}</td>
                                                         <td class="px-4 py-2 border border-gray-300">
                                                             <div class="flex items-center gap-4">
-                                                                <span>{{formatValue(gopShareTweened, "percent")}}</span>
+                                                                <span>{{formatValue(gopShareTweened,
+                                                                    "percent")}}</span>
                                                                 <svg class="w-32 h-4" viewBox="0 0 101 10"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <g class="bar">
@@ -635,13 +641,18 @@
                     width: 0,
                     height: 0
                 },
+                iterations: 0,
                 sortOrderColumn: null,
                 sortOrderAscending: true,
                 transition: {
                     duration: 1500,
                     ease: d3.easeExpInOut // Ease function applied here
                 },
-                us: {},
+                isZoomed: false,
+                // us: {},
+                allNationFeatures: {},
+                allStateFeatures: {},
+                allCountyFeatures: {},
             }),
             watch: {
                 gopVotes: function (newVal) {
@@ -660,6 +671,12 @@
             computed: {
                 filteredCounties: function () {
                     return this.activeStateId ? this.counties.filter((f) => f.startsWith(this.activeStateId)) : this.counties;
+                },
+                filteredFeatures: function () { // filter features based on the active state
+                    console.log('# of iterations:', +this.iterations);
+                    return this.activeStateId ? this.allCountyFeatures.filter(d => {
+                        return d.id.startsWith(this.activeStateId)
+                    }) : this.allCountyFeatures;
                 },
                 gopVotes: function () {
                     return this.counties.length > 60 ? d3.sum(
@@ -1547,7 +1564,10 @@
                         "./cartography/2024/us-albers-500k.topojson"
                     );
 
-                    this.us = results;
+                    // this.us = results;
+                    this.allNationFeatures = topojson.feature(results, results.objects.nation).features;
+                    this.allStateFeatures = topojson.feature(results, results.objects.state).features;
+                    this.allCountyFeatures = topojson.feature(results, results.objects.wards_districts_counties).features;
                 },
                 // Function to initialize the map
                 initializeMap() {
@@ -1572,38 +1592,38 @@
 
                     // Create group for county paths
                     const group = g.append("g")
-                        .attr("id", "paths");
+                        .attr("id", "counties");
 
-                    // Add county paths
-                    const countyPath = group
-                        .selectAll(".counties")
-                        .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
-                        .enter()
-                        .append("path")
-                        .attr("id", d => `county-path-${d.id}`)
-                        .attr("class", "county")
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        })
-                        .on("click", (event, d) => {
-                            // determine whether there is a filter for a state
-                            const isStateFiltered = !!this.activeStateId;
-                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
-                                that.clicked(event, d, that);
-                            }
-                        });
+                    // // Add county paths
+                    // const countyPaths = group
+                    //     .selectAll(".county")
+                    //     .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
+                    //     .enter()
+                    //     .append("path")
+                    //     .attr("id", d => `county-path-${d.id}`)
+                    //     .attr("class", "county")
+                    //     .style("cursor", d => {
+                    //         return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                    //     })
+                    //     .on("click", (event, d) => {
+                    //         // determine whether there is a filter for a state
+                    //         const isStateFiltered = !!this.activeStateId;
+                    //         if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
+                    //             that.clicked(event, d, that);
+                    //         }
+                    //     });
 
-                    countyPath
-                        .transition()
-                        .duration(this.transition.duration)
-                        .attr("d", this.path)
-                        .style("opacity", 1);
+                    // countyPaths
+                    //     .transition()
+                    //     .duration(this.transition.duration)
+                    //     .attr("d", this.path)
+                    //     .style("opacity", 1);
 
                     // Add state boundaries
                     group
                         .selectAll(".state")
                         // .datum(topojson.mesh(this.us, this.us.objects.state, (a, b) => a !== b))
-                        .data(topojson.feature(this.us, this.us.objects.state).features)
+                        .data(this.allStateFeatures)
                         .enter()
                         .append("path")
                         .attr("class", "state")
@@ -1612,14 +1632,14 @@
                     // Add national boundary
                     const nation = group
                         .append("path")
-                        .datum(topojson.feature(this.us, this.us.objects.nation))
+                        .datum(this.allNationFeatures[0])
                         .attr("class", "nation")
                         .attr("d", this.path);
 
                     // Initialize the map position with the calculated center
                     group.attr("transform", `translate(${this.center[0]},${this.center[1]})`);
 
-                    // const dotDensity = group
+                    // const countyDots = group
                     //     .selectAll(".dot")
                     //     .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
                     //     .enter()
@@ -1657,20 +1677,20 @@
 
                     svg.call(this.zoom);
 
-                    // create details bar
-                    // use John Alexis details Gómez dynamic details bar
-                    // https://johndetails.co/
+                    // // create details bar
+                    // // use John Alexis details Gómez dynamic details bar
+                    // // https://johndetails.co/
 
-                    const tableSVG = d3.select("#detailBar")
-                        .append("svg")
-                        .attr("width", this.countyTableWidth)
-                        .attr("height", 70);
+                    // const tableSVG = d3.select("#detailBar")
+                    //     .append("svg")
+                    //     .attr("width", this.countyTableWidth)
+                    //     .attr("height", 70);
 
-                    const detailsLayer = tableSVG
-                        .append("g")
-                        .attr("id", "details")
-                        // .attr("transform", "translate(" + (this.countyTableWidth / 2 - 100) + ", 30)");
-                        .attr("transform", `translate(${this.countyTableWidth / 3 + 35}, 25)`);
+                    // const detailsLayer = tableSVG
+                    //     .append("g")
+                    //     .attr("id", "details")
+                    //     // .attr("transform", "translate(" + (this.countyTableWidth / 2 - 100) + ", 30)");
+                    //     .attr("transform", `translate(${this.countyTableWidth / 3 + 35}, 25)`);
 
                     // detailsLayer
                     //     .append("rect")
@@ -1689,138 +1709,143 @@
                     //     .attr("ry", 5)
                     //     .attr("height", 60);
 
-                    detailsLayer
-                        .append("text")
-                        .attr("id", "county-legend")
-                        .attr("class", "text-center")
-                        .html("Percentage Share of the Two-party Vote")
-                        .attr("transform", "translate(95, 0)");
+                    // detailsLayer
+                    //     .append("text")
+                    //     .attr("id", "county-legend")
+                    //     .attr("class", "text-center")
+                    //     .html("Percentage Share of the Two-party Vote")
+                    //     .attr("transform", "translate(95, 0)");
 
                 },
                 // Function to handle the type of map chosen
                 renderLayer() {
+                    // first remove path fills and circles
+                    this.removePaths();
+                    this.removeCircles();
+                    // then create and update either paths or circles
                     if (this.selectedMap === "dotDensity") {
-                        // first remove path fills
-                        this.removePathFill();
                         this.createCircles();
-                        this.updateCircles();
                     } else if (this.selectedMap === "choropleth") {
-                        // first remove circles
-                        this.removeCircles();
-                        this.updatePaths();
+                        this.createPaths();
                     }
                 },
                 // Function to handle filtering and zooming to the state level
                 toggleStateFilter(state, e) {
-                    // Check if the clicked state is already active
-                    if (this.activeStateId === state.id) {
-                        this.resetLayers(); // Reset the map to its unfiltered state
-                    } else {
-                        this.activeStateId = state.id; // Set the active state
-                        this.renderLayer(); // Render the selected map layer
+                    let stateName; // Set the state name variable
+                    let stateId; // Set the state id variable
 
+                    // Check if the clicked state is already active
+                    if (!(this.activeStateId == state.id)) {
+                        stateId = state.id; // Set the active state id
+                        stateName = state.name; // Set the active state name
+                    } else {
+                        stateId = null; // Reset the active state
+                        stateName = "United States"; // Reset the state name
+                    }
+                    this.setLayers(stateId, stateName, e); // Reset the map to its original state
+
+                },
+                // Function to handle resetting the map to its original state
+                setLayers(stateId, stateName, e) {
+                    // the active state
+                    this.activeStateId = stateId; // Set the active state
+
+                    // Update the state title
+                    this.updateStateTitle(stateName);
+
+                    // Render the selected map layer
+                    this.renderLayer();
+
+                    // update individual county bars
+                    this.updateCountyBars();
+
+                    // update the details bar
+                    this.updateBars();
+
+                    if (!this.activeStateId) {
+                        // Reset the zoom level and center the map
+                        this.resetZoom();
+
+                    } else {
                         // Zoom to the selected state
-                        const stateBoundaries = d3.selectAll(".state").data().filter(d => d.id === state.id);
+                        const stateBoundaries = d3.selectAll(".state").data().filter(d => d.id === stateId);
 
                         if (stateBoundaries.length > 0) {
                             this.clicked(e, stateBoundaries[0], this);
                         }
 
-                        // Update the state title
-                        this.updateStateTitle(state.name); // Reset the state title
-
                     }
-                    // update the details bar
-                    this.updateBars();
 
-                    // update individual county bars
-                    this.updateCountyBars();
                 },
-                // Function to handle resetting the map to its original state
-                resetLayers() {
-                    // Reset the active state
-                    this.activeStateId = null;
+                createPaths() {
+                    // define Vue 'this' for use in nested functions
+                    const that = this;
 
-                    // Select all county paths
-                    const countyPaths = d3.selectAll(".county");
-
-                    // Reset the county paths to their original opacity
-                    countyPaths
-                        .transition()
-                        .duration(this.transition.duration)
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        })
-                        .style("opacity", 1);
-
-                    // Select all county circles
-                    const dotDensity = d3.selectAll(".dot");
-
-                    // Reset the county circles to their original opacity
-                    dotDensity
-                        .transition()
-                        .duration(this.transition.duration)
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        })
-                        .style("opacity", 1);
-
-                    // Reset the zoom level and center the map
-                    this.resetZoom();
-
-                    // update the details bar
-                    this.updateBars();
-
-                    // update the state title
-                    this.updateStateTitle("United States");
-                },
-                removePathFill() {
-                    // select all county paths
-                    const countyPath = d3.selectAll(".county");
                     // determine whether there is a filter for a state
                     const isStateFiltered = !!this.activeStateId;
 
-                    // remove fill property of county paths
-                    countyPath
-                        .transition()
-                        .duration(this.transition.duration)
-                        .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
-                        })
-                        .style("fill", "#ffffff")
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        });
-                },
-                updatePaths() {
-                    // select all county paths
-                    const countyPath = d3.selectAll(".county");
-                    // determine whether there is a filter for a state
-                    const isStateFiltered = !!this.activeStateId;
+                    // Select group for county paths
+                    const countyPaths = d3.select("#counties")
+                        .selectAll(".county")
+                        .data(this.filteredFeatures);
+
+                    // Add county paths
+                    const enterCountyPaths = countyPaths
+                        .enter()
+                        .append("path")
+                        .attr("id", d => `county-path-${d.id}`)
+                        .attr("class", "county")
+                        .style("opacity", 0)
+                        .style("cursor", "pointer");
+
+                    enterCountyPaths
+                        .on("click", (event, d) => that.clicked(event, d, that));
 
                     // update fill property of county paths
-                    countyPath
+                    enterCountyPaths
                         .transition()
                         .duration(this.transition.duration)
-                        .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 1 : 0.01) : 1;
-                        })
+                        .attr("d", this.path)
+                        .style("opacity", 1)
                         .style("fill", d => {
-                            const county = this.districtObj[d.id];
-                            return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
-                        })
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
+                            const county = that.districtObj[d.id];
+                            return county ? that.color(county["Percentage Point Difference"]) : "#ccc";
                         });
+
+
+                    countyPaths.exit().remove();
+
+                },
+                removePaths() {
+                    // Select all elements with the "county" class
+                    const countyPaths = d3.selectAll(".county");
+
+                    // Transition to diminish opacity, fill, and stroke-width properties, then remove elements from the DOM
+                    countyPaths
+                        // .transition()
+                        // .duration(this.transition.duration) // Use a transition for smooth effect
+                        .style("opacity", 0)
+                        .style("fill", "#ffffff")
+                        .style("stroke-width", 0)
+                        .remove(); // Remove elements from the DOM after the transition ends
+                    // .on("end", function () {
+                    //     d3.select(this).remove(); // Remove elements from the DOM after the transition ends
+                    // });
                 },
                 createCircles() {
+                    // define Vue 'this' for use in nested functions
+                    const that = this;
+
+                    // determine whether there is a filter for a state
+                    const isStateFiltered = !!this.activeStateId;
 
                     // Select group for county dots
-                    const group = d3.select("#paths");
-
-                    const dotDensity = group
+                    const countyDots = d3.select("#counties")
                         .selectAll(".dot")
-                        .data(topojson.feature(this.us, this.us.objects.wards_districts_counties).features)
+                        .data(this.filteredFeatures);
+
+                    // Add county circles
+                    const enterCountyDots = countyDots
                         .enter()
                         .append("circle")
                         .attr("id", d => `county-circle-${d.id}`)
@@ -1835,56 +1860,47 @@
                         })
                         .attr("r", 0)
                         .style("opacity", 0)
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        })
-                        .on("click", (event, d) => {
-                            // determine whether there is a filter for a state
-                            const isStateFiltered = !!this.activeStateId;
-                            if (!isStateFiltered || d.id.startsWith(this.activeStateId)) {
-                                that.clicked(event, d, that);
-                            }
-                        });
+                        .style("cursor", "pointer");
 
-                },
-                removeCircles() {
-                    // select all county circles
-                    const dotDensity = d3.selectAll(".dot");
-                    // diminish radius, fill, and opacity properties of county circles and then remove elements from the DOM
-                    dotDensity
-                        .transition()
-                        .duration(this.transition.duration)
-                        .attr("r", 0)
-                        .style("opacity", 0)
-                        .remove();
-                },
-                updateCircles() {
-                    // select all county circles
-                    const dotDensity = d3.selectAll(".dot");
-                    // determine whether there is a filter for a state
-                    const isStateFiltered = !!this.activeStateId;
+                    enterCountyDots
+                        .on("click", (event, d) => that.clicked(event, d, that));
 
                     // update radius, fill, and opacity properties of county circles
-                    dotDensity
+                    enterCountyDots
                         .transition()
                         .duration(this.transition.duration)
                         .attr("r", d => {
-                            const county = this.districtObj[d.id];
+                            const county = that.districtObj[d.id];
                             return county ? isStateFiltered ? county.Size * 0.5 : county.Size : 0;
                         })
                         .style("stroke-width", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 2 : 0) : 3;
+                            return isStateFiltered ? (d.id.startsWith(that.activeStateId) ? 2 : 0) : 3;
                         })
                         .style("fill", d => {
-                            const county = this.districtObj[d.id];
-                            return county ? this.color(county["Percentage Point Difference"]) : "#ccc";
+                            const county = that.districtObj[d.id];
+                            return county ? that.color(county["Percentage Point Difference"]) : "#ccc";
                         })
-                        .style("opacity", d => {
-                            return isStateFiltered ? (d.id.startsWith(this.activeStateId) ? 0.9 : 0.01) : 1;
-                        })
-                        .style("cursor", d => {
-                            return d.id.startsWith(this.activeStateId) ? "pointer" : "default";
-                        });
+                        .style("opacity", 1);
+
+                    countyDots.exit().remove();
+
+                },
+                removeCircles() {
+                    // Select all elements with the "dot" class
+                    const countyDots = d3.selectAll(".dot")
+
+                    // Transition to diminish opacity, fill, and stroke-width properties, then remove elements from the DOM
+                    countyDots
+                        // .transition()
+                        // .duration(this.transition.duration)
+                        .attr("r", 0)
+                        .style("opacity", 0)
+                        .style("stroke-width", 0)
+                        .remove(); // Remove elements from the DOM after the transition ends
+                    // .on("end", function () {
+                    //     d3.select(this).remove(); // Remove elements from the DOM after the transition ends
+                    // });
+
                 },
                 updateCountyBars() {
 
@@ -2160,7 +2176,29 @@
                     this.updateCountyBars();
                 },
                 createBars() {
-                    const detailsLayer = d3.select("#details");
+                    // create details bar
+                    // use John Alexis details Gómez dynamic details bar
+                    // https://johndetails.co/
+
+                    const tableSVG = d3.select("#detailBar")
+                        .append("svg")
+                        .attr("width", this.countyTableWidth)
+                        .attr("height", 70);
+
+                    const detailsLayer = tableSVG
+                        .append("g")
+                        .attr("id", "details")
+                        // .attr("transform", "translate(" + (this.countyTableWidth / 2 - 100) + ", 30)");
+                        .attr("transform", `translate(${this.countyTableWidth / 3 + 35}, 25)`);
+
+                    detailsLayer
+                        .append("text")
+                        .attr("id", "county-legend")
+                        .attr("class", "text-center")
+                        .html("Percentage Share of the Two-party Vote")
+                        .attr("transform", "translate(95, 0)");
+
+
                     const share = [this.demShare, -this.gopShare];
                     const detailsBars = detailsLayer
                         .selectAll(".bar")
@@ -2391,6 +2429,8 @@
                                 .translate(-(x0 + x1) / 2, -(y0 + y1) / 2), // Center on the bounds of the clicked feature
                             d3.pointer(event, svg.node())
                         );
+
+                    this.isZoomed = true;
                 },
                 resetZoom() {
                     const svg = d3.select("#map");
@@ -2403,28 +2443,30 @@
                             d3.zoomIdentity.translate(this.center[0], this.center[1]).scale(1), // Center projection in the middle of the rect
                             d3.zoomTransform(svg.node()).invert([this.center[0], this.center[1]])
                         );
+
+                    this.isZoomed = false;
                 },
                 zoomed(event) {
                     const duration = this.transition.duration;
                     const { transform } = event;
 
-                    const group = d3.select("#paths");
-                    group.attr("transform", transform);
-                    group.attr("stroke-width", 1 / transform.k);
+                    const counties = d3.select("#counties");
+                    counties.attr("transform", transform);
+                    counties.attr("stroke-width", 1 / transform.k);
 
-                    // hide button if zoomed out
-                    const fab = d3.select(".fab");
-                    if (transform.k > 1 && (transform.x || transform.y !== 0)) {
-                        fab
-                            .transition()
-                            .duration(duration / 3)
-                            .style("opacity", 1);
-                    } else {
-                        fab
-                            .transition()
-                            .duration(duration / 3)
-                            .style("opacity", 0);
-                    }
+                    // // hide button if zoomed out
+                    // const fab = d3.select(".fab");
+                    // if (transform.k > 1 && (transform.x !== 0 || transform.y !== 0)) {
+                    //     fab
+                    //         .transition()
+                    //         .duration(duration / 3)
+                    //         .style("opacity", 1);
+                    // } else {
+                    //     fab
+                    //         .transition()
+                    //         .duration(duration / 3)
+                    //         .style("opacity", 0);
+                    // }
                 },
                 formatValue(value, type) {
                     switch (type) {
