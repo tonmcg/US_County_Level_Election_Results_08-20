@@ -641,7 +641,6 @@
                     width: 0,
                     height: 0
                 },
-                iterations: 0,
                 sortOrderColumn: null,
                 sortOrderAscending: true,
                 transition: {
@@ -649,7 +648,6 @@
                     ease: d3.easeExpInOut // Ease function applied here
                 },
                 isZoomed: false,
-                // us: {},
                 allNationFeatures: {},
                 allStateFeatures: {},
                 allCountyFeatures: {},
@@ -673,7 +671,6 @@
                     return this.activeStateId ? this.counties.filter((f) => f.startsWith(this.activeStateId)) : this.counties;
                 },
                 filteredFeatures: function () { // filter features based on the active state
-                    console.log('# of iterations:', +this.iterations);
                     return this.activeStateId ? this.allCountyFeatures.filter(d => {
                         return d.id.startsWith(this.activeStateId)
                     }) : this.allCountyFeatures;
